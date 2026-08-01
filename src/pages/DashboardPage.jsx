@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Layers, Calendar, ArrowRight, Inbox } from 'lucide-react';
+import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { epicsAPI } from '../api';
 import Navbar from '../components/Navbar';
 import CreateEpicModal from '../components/CreateEpicModal';
+import EditEpicModal from '../components/EditEpicModal';
 
 // ─── Skeleton Card ─────────────────────────────────────────────────────────────
 function EpicSkeleton() {
@@ -14,7 +15,10 @@ function EpicSkeleton() {
 }
 
 // ─── Epic Card ─────────────────────────────────────────────────────────────────
-function EpicCard({ epic, onClick }) {
+function EpicCard({ epic, onClick, onEdit, onDelete }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
   const taskCount = epic.taskCount ?? 0;
   const doneCount = epic.doneCount ?? 0;
   const progress  = taskCount > 0 ? Math.round((doneCount / taskCount) * 100) : 0;
@@ -23,25 +27,74 @@ function EpicCard({ epic, onClick }) {
     ? new Date(epic.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : '';
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
+
   return (
     <article
       id={`epic-card-${epic._id}`}
-      onClick={onClick}
-      className="glass-card p-6 cursor-pointer group"
+      className="glass-card p-6 cursor-pointer group relative"
       role="button"
       tabIndex={0}
+      onClick={onClick}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
       aria-label={`Open board for epic: ${epic.title}`}
     >
+      {/* ⋯ menu */}
+      <div
+        ref={menuRef}
+        className="absolute top-4 right-4 z-10"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          id={`epic-menu-btn-${epic._id}`}
+          onClick={() => setMenuOpen((v) => !v)}
+          className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-slate-300 transition-all rounded-md p-1 hover:bg-white/05"
+          aria-label="Epic options"
+        >
+          <MoreHorizontal size={16} />
+        </button>
+        {menuOpen && (
+          <div
+            className="absolute right-0 top-7 z-20 rounded-xl border border-white/[0.08] shadow-xl overflow-hidden"
+            style={{ background: '#1e1e2d', minWidth: '150px' }}
+          >
+            <button
+              id={`epic-edit-btn-${epic._id}`}
+              onClick={() => { setMenuOpen(false); onEdit(epic); }}
+              className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-slate-300 hover:bg-white/05 transition-colors"
+            >
+              <Pencil size={13} />
+              Edit epic
+            </button>
+            <button
+              id={`epic-delete-btn-${epic._id}`}
+              onClick={() => { setMenuOpen(false); onDelete(epic); }}
+              className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              <Trash2 size={13} />
+              Delete epic
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Color accent + title row */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between mb-4 pr-6">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           <div
             className="w-3 h-10 rounded-full flex-shrink-0"
             style={{ background: epic.color || '#6366f1' }}
           />
-          <div>
-            <h3 className="font-semibold text-white text-base leading-tight group-hover:text-indigo-300 transition-colors">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-white text-base leading-tight group-hover:text-indigo-300 transition-colors truncate">
               {epic.title}
             </h3>
             {epic.description && (
@@ -51,11 +104,11 @@ function EpicCard({ epic, onClick }) {
         </div>
         <ArrowRight
           size={16}
-          className="text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1"
+          className="text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1 ml-2"
         />
       </div>
 
-      {/* Progress bar */}
+      {/* Task count badge + progress bar */}
       <div className="mb-3">
         <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
           <span>{doneCount} / {taskCount} tasks done</span>
@@ -102,10 +155,13 @@ function EmptyState({ onCreateClick }) {
 // ─── Page ──────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const [epics, setEpics]         = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [creating, setCreating]   = useState(false);
+  const [epics, setEpics]             = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingEpic, setEditingEpic] = useState(null);   // epic being edited
+  const [creating, setCreating]       = useState(false);
+  const [updating, setUpdating]       = useState(false);
+  const [deleting, setDeleting]       = useState(null);   // id being deleted
 
   const fetchEpics = useCallback(async () => {
     try {
@@ -120,17 +176,49 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchEpics(); }, [fetchEpics]);
 
+  // ── Create ──────────────────────────────────────────────────────────────────
   const handleCreateEpic = async (formData) => {
     setCreating(true);
     try {
       const { data } = await epicsAPI.create(formData);
       setEpics((prev) => [data.epic ?? data, ...prev]);
-      setShowModal(false);
+      setShowCreateModal(false);
       toast.success(`Epic "${formData.title}" created! 🎉`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create epic.');
     } finally {
       setCreating(false);
+    }
+  };
+
+  // ── Edit ────────────────────────────────────────────────────────────────────
+  const handleUpdateEpic = async (formData) => {
+    if (!editingEpic) return;
+    setUpdating(true);
+    try {
+      const { data } = await epicsAPI.update(editingEpic._id, formData);
+      const updated = data.epic ?? data;
+      setEpics((prev) => prev.map((e) => (e._id === updated._id ? { ...e, ...updated } : e)));
+      setEditingEpic(null);
+      toast.success(`Epic "${updated.title}" updated.`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update epic.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // ── Delete ──────────────────────────────────────────────────────────────────
+  const handleDeleteEpic = async (epic) => {
+    setDeleting(epic._id);
+    try {
+      await epicsAPI.delete(epic._id);
+      setEpics((prev) => prev.filter((e) => e._id !== epic._id));
+      toast.success(`Epic "${epic.title}" deleted.`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete epic.');
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -149,7 +237,7 @@ export default function DashboardPage() {
           </div>
           <button
             id="create-epic-btn"
-            onClick={() => setShowModal(true)}
+            onClick={() => setShowCreateModal(true)}
             className="btn-primary flex items-center gap-2 text-sm"
           >
             <Plus size={16} />
@@ -165,7 +253,7 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : epics.length === 0 ? (
-          <EmptyState onCreateClick={() => setShowModal(true)} />
+          <EmptyState onCreateClick={() => setShowCreateModal(true)} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {epics.map((epic) => (
@@ -173,6 +261,8 @@ export default function DashboardPage() {
                 key={epic._id}
                 epic={epic}
                 onClick={() => navigate(`/board/${epic._id}`)}
+                onEdit={(e) => setEditingEpic(e)}
+                onDelete={handleDeleteEpic}
               />
             ))}
           </div>
@@ -180,11 +270,21 @@ export default function DashboardPage() {
       </main>
 
       {/* Create Epic Modal */}
-      {showModal && (
+      {showCreateModal && (
         <CreateEpicModal
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowCreateModal(false)}
           onSubmit={handleCreateEpic}
           loading={creating}
+        />
+      )}
+
+      {/* Edit Epic Modal */}
+      {editingEpic && (
+        <EditEpicModal
+          epic={editingEpic}
+          onClose={() => setEditingEpic(null)}
+          onSubmit={handleUpdateEpic}
+          loading={updating}
         />
       )}
     </div>
