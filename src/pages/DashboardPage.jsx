@@ -6,6 +6,7 @@ import { epicsAPI } from '../api';
 import Navbar from '../components/Navbar';
 import CreateEpicModal from '../components/CreateEpicModal';
 import EditEpicModal from '../components/EditEpicModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 // ─── Skeleton Card ─────────────────────────────────────────────────────────────
 function EpicSkeleton() {
@@ -208,17 +209,22 @@ export default function DashboardPage() {
     }
   };
 
+  const [deletingEpic, setDeletingEpic] = useState(null); // epic object pending delete confirmation
+  const [deleting, setDeleting]         = useState(false);
+
   // ── Delete ──────────────────────────────────────────────────────────────────
-  const handleDeleteEpic = async (epic) => {
-    setDeleting(epic._id);
+  const handleConfirmDeleteEpic = async () => {
+    if (!deletingEpic) return;
+    setDeleting(true);
     try {
-      await epicsAPI.delete(epic._id);
-      setEpics((prev) => prev.filter((e) => e._id !== epic._id));
-      toast.success(`Epic "${epic.title}" deleted.`);
+      await epicsAPI.delete(deletingEpic._id);
+      setEpics((prev) => prev.filter((e) => e._id !== deletingEpic._id));
+      toast.success(`Epic "${deletingEpic.title}" deleted.`);
+      setDeletingEpic(null);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete epic.');
     } finally {
-      setDeleting(null);
+      setDeleting(false);
     }
   };
 
@@ -322,7 +328,7 @@ export default function DashboardPage() {
                 epic={epic}
                 onClick={() => navigate(`/board/${epic._id}`)}
                 onEdit={(e) => setEditingEpic(e)}
-                onDelete={handleDeleteEpic}
+                onDelete={(e) => setDeletingEpic(e)}
               />
             ))}
           </div>
@@ -347,6 +353,18 @@ export default function DashboardPage() {
           loading={updating}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!deletingEpic}
+        title="Delete Epic"
+        message={`Are you sure you want to delete "${deletingEpic?.title}"? This will permanently delete the epic and all associated tasks.`}
+        confirmLabel="Delete Epic"
+        confirmVariant="danger"
+        loading={deleting}
+        onConfirm={handleConfirmDeleteEpic}
+        onClose={() => setDeletingEpic(null)}
+      />
     </div>
   );
 }
