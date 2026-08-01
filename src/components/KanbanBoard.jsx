@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, MoreHorizontal, Trash2, GripVertical, User, Flag } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, GripVertical, User, Flag, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
@@ -129,20 +129,40 @@ function TaskCard({ task, index, onDelete }) {
               </p>
             )}
 
-            {/* Footer: priority + assignee */}
-            <div className="flex items-center justify-between gap-2">
+            {/* Footer: priority + assignee + due date */}
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${priority.className}`}>
                 <span className="text-[9px]">{priority.icon}</span>
                 {priority.label}
               </span>
-              {task.assignee && (
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <div className="w-5 h-5 rounded-full bg-indigo-500/30 flex items-center justify-center">
-                    <User size={10} className="text-indigo-300" />
+              <div className="flex items-center gap-2">
+                {task.dueDate && (() => {
+                  const due  = new Date(task.dueDate);
+                  const now  = new Date();
+                  const overdue = due < now && task.status !== 'done';
+                  const label = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  return (
+                    <span
+                      className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium"
+                      style={{
+                        background: overdue ? 'rgba(239,68,68,0.15)' : 'rgba(99,102,241,0.12)',
+                        color     : overdue ? '#ef4444' : '#818cf8',
+                      }}
+                    >
+                      <Calendar size={9} />
+                      {label}
+                    </span>
+                  );
+                })()}
+                {task.assignee && (
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <div className="w-5 h-5 rounded-full bg-indigo-500/30 flex items-center justify-center">
+                      <User size={10} className="text-indigo-300" />
+                    </div>
+                    <span className="truncate max-w-[80px]">{task.assignee}</span>
                   </div>
-                  <span className="truncate max-w-[80px]">{task.assignee}</span>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
