@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { epicsAPI } from '../api';
 import Navbar from '../components/Navbar';
@@ -222,27 +222,71 @@ export default function DashboardPage() {
     }
   };
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredEpics = epics.filter((epic) => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return true;
+    return (
+      epic.title.toLowerCase().includes(q) ||
+      (epic.description && epic.description.toLowerCase().includes(q))
+    );
+  });
+
   return (
     <div className="min-h-screen" style={{ background: '#0f0f17' }}>
       <Navbar title="Dashboard" />
 
       <main className="max-w-screen-xl mx-auto px-6 py-10">
-        {/* Page header */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Page header & Search bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white mb-1">Your Epics</h1>
             <p className="text-slate-500 text-sm">
-              {loading ? '…' : `${epics.length} epic${epics.length !== 1 ? 's' : ''} in your workspace`}
+              {loading
+                ? '…'
+                : `${epics.length} epic${epics.length !== 1 ? 's' : ''} in your workspace`}
             </p>
           </div>
-          <button
-            id="create-epic-btn"
-            onClick={() => setShowCreateModal(true)}
-            className="btn-primary flex items-center gap-2 text-sm"
-          >
-            <Plus size={16} />
-            <span>New Epic</span>
-          </button>
+
+          <div className="flex items-center gap-3">
+            {/* Search Input */}
+            {epics.length > 0 && (
+              <div className="relative flex-1 sm:w-64">
+                <Search
+                  size={15}
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+                />
+                <input
+                  id="search-epics-input"
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search epics…"
+                  className="input-dark text-xs h-10 w-full"
+                  style={{ paddingLeft: '2.5rem', paddingRight: searchQuery ? '2.25rem' : '1rem' }}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                    aria-label="Clear search"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            )}
+
+            <button
+              id="create-epic-btn"
+              onClick={() => setShowCreateModal(true)}
+              className="btn-primary flex items-center gap-2 text-sm flex-shrink-0"
+            >
+              <Plus size={16} />
+              <span>New Epic</span>
+            </button>
+          </div>
         </div>
 
         {/* Grid */}
@@ -254,9 +298,25 @@ export default function DashboardPage() {
           </div>
         ) : epics.length === 0 ? (
           <EmptyState onCreateClick={() => setShowCreateModal(true)} />
+        ) : filteredEpics.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center py-20 px-6">
+            <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-4 text-slate-500">
+              <Search size={24} />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-1">No matching epics</h3>
+            <p className="text-slate-500 text-sm mb-6">
+              No epics match &quot;{searchQuery}&quot;. Try adjusting your search query.
+            </p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="px-4 py-2 rounded-xl text-xs font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors"
+            >
+              Clear search
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {epics.map((epic) => (
+            {filteredEpics.map((epic) => (
               <EpicCard
                 key={epic._id}
                 epic={epic}
