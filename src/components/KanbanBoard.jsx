@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, MoreHorizontal, Trash2, GripVertical, User, Flag, Calendar } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, GripVertical, User, Flag, Calendar, Pencil } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
+import EditTaskModal from './EditTaskModal';
 
 // ─── Column Definitions ───────────────────────────────────────────────────────
 const COLUMNS = [
@@ -41,7 +42,7 @@ const PRIORITY_CONFIG = {
 };
 
 // ─── Task Card ────────────────────────────────────────────────────────────────
-function TaskCard({ task, index, onDelete }) {
+function TaskCard({ task, index, onDelete, onEdit }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const priority = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
@@ -110,6 +111,14 @@ function TaskCard({ task, index, onDelete }) {
                     style={{ background: '#1e1e2d', minWidth: '140px' }}
                   >
                     <button
+                      id={`task-edit-btn-${task._id}`}
+                      onClick={() => { setMenuOpen(false); onEdit(task); }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-slate-300 hover:bg-white/05 transition-colors"
+                    >
+                      <Pencil size={13} />
+                      Edit task
+                    </button>
+                    <button
                       id={`task-delete-btn-${task._id}`}
                       onClick={() => { setMenuOpen(false); onDelete(task._id); }}
                       className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
@@ -172,7 +181,7 @@ function TaskCard({ task, index, onDelete }) {
 }
 
 // ─── Column ───────────────────────────────────────────────────────────────────
-function KanbanColumn({ column, tasks, onAddTask, onDelete }) {
+function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit }) {
   return (
     <div
       className="flex flex-col rounded-2xl border border-white/[0.06] overflow-hidden"
@@ -247,6 +256,7 @@ function KanbanColumn({ column, tasks, onAddTask, onDelete }) {
                 task={task}
                 index={index}
                 onDelete={onDelete}
+                onEdit={onEdit}
               />
             ))}
             {provided.placeholder}
@@ -310,6 +320,8 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   const [showModal,  setShowModal]  = useState(false);
   const [modalStatus, setModalStatus] = useState('todo');
   const [adding,     setAdding]     = useState(false);
+  const [editingTask, setEditingTask] = useState(null);  // task being edited
+  const [saving,     setSaving]     = useState(false);
 
   // Keep local tasks in sync when parent re-fetches
   const [prevInitial, setPrevInitial] = useState(initialTasks);
@@ -406,6 +418,25 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
     }
   };
 
+  // ─── Edit Task ─────────────────────────────────────────────────────────────
+  const handleSaveTask = async (formData) => {
+    if (!editingTask) return;
+    setSaving(true);
+    try {
+      const { data } = await tasksAPI.update(editingTask._id, formData);
+      const updated = data.task ?? data;
+      const updatedTasks = tasks.map((t) => (t._id === updated._id ? updated : t));
+      setTasks(updatedTasks);
+      if (onTasksChange) onTasksChange(updatedTasks);
+      setEditingTask(null);
+      toast.success('Task updated!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update task.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div>
       <StatsBar tasks={tasks} />
@@ -419,6 +450,7 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
               tasks={getColumnTasks(col.id)}
               onAddTask={handleOpenAddTask}
               onDelete={handleDeleteTask}
+              onEdit={(task) => setEditingTask(task)}
             />
           ))}
         </div>
@@ -430,6 +462,15 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
           onSubmit={handleCreateTask}
           loading={adding}
           defaultStatus={modalStatus}
+        />
+      )}
+
+      {editingTask && (
+        <EditTaskModal
+          task={editingTask}
+          onClose={() => setEditingTask(null)}
+          onSubmit={handleSaveTask}
+          loading={saving}
         />
       )}
     </div>
