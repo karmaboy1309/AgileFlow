@@ -68,6 +68,12 @@ const taskSchema = new mongoose.Schema(
       index   : true,
     },
 
+    // Optional deadline for the task
+    dueDate: {
+      type   : Date,
+      default: null,
+    },
+
     // Used to maintain drag-and-drop order within a column.
     // Client should send the new index on every PUT /api/tasks/:id call.
     orderIndex: {
