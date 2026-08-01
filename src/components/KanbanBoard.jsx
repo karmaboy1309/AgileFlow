@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Plus, MoreHorizontal, Trash2, GripVertical, User, Flag } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -43,7 +43,20 @@ const PRIORITY_CONFIG = {
 // ─── Task Card ────────────────────────────────────────────────────────────────
 function TaskCard({ task, index, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
   const priority = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
+
+  // Close the dropdown when a click lands outside the menu container
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
 
   return (
     <Draggable draggableId={task._id} index={index}>
@@ -82,7 +95,7 @@ function TaskCard({ task, index, onDelete }) {
               <p className="text-sm font-medium text-slate-100 leading-snug flex-1">
                 {task.title}
               </p>
-              <div className="relative flex-shrink-0">
+              <div className="relative flex-shrink-0" ref={menuRef}>
                 <button
                   id={`task-menu-btn-${task._id}`}
                   onClick={() => setMenuOpen((v) => !v)}
