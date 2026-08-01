@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, CheckSquare, AlignLeft, Flag, User } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, Flag, User, Calendar } from 'lucide-react';
 import Spinner from './Spinner';
 
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -11,6 +11,7 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
     status: defaultStatus,
     priority: 'medium',
     assignee: '',
+    dueDate: '',
   });
 
   const handleChange = (e) =>
@@ -168,6 +169,25 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
                 placeholder="Name or email (optional)"
                 className="input-dark"
                 style={{ paddingLeft: '2.75rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Due Date */}
+          <div>
+            <label htmlFor="task-due-date" className="block text-sm font-medium text-slate-300 mb-2">
+              <span className="flex items-center gap-1.5"><Calendar size={12} /> Due date</span>
+            </label>
+            <div className="relative">
+              <Calendar size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" style={{ pointerEvents: 'none' }} />
+              <input
+                id="task-due-date"
+                name="dueDate"
+                type="date"
+                value={form.dueDate}
+                onChange={handleChange}
+                className="input-dark"
+                style={{ paddingLeft: '2.75rem', colorScheme: 'dark' }}
               />
             </div>
           </div>
