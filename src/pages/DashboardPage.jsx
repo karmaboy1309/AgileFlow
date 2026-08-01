@@ -162,7 +162,8 @@ export default function DashboardPage() {
   const [editingEpic, setEditingEpic] = useState(null);   // epic being edited
   const [creating, setCreating]       = useState(false);
   const [updating, setUpdating]       = useState(false);
-  const [deleting, setDeleting]       = useState(null);   // id being deleted
+  const [deletingEpic, setDeletingEpic] = useState(null); // epic object pending delete confirmation
+  const [deleting, setDeleting]         = useState(false);
 
   const fetchEpics = useCallback(async () => {
     try {
@@ -208,9 +209,6 @@ export default function DashboardPage() {
       setUpdating(false);
     }
   };
-
-  const [deletingEpic, setDeletingEpic] = useState(null); // epic object pending delete confirmation
-  const [deleting, setDeleting]         = useState(false);
 
   // ── Delete ──────────────────────────────────────────────────────────────────
   const handleConfirmDeleteEpic = async () => {
