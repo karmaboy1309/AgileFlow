@@ -62,8 +62,11 @@ app.use(
   })
 );
 
+const mongoSanitize = require('express-mongo-sanitize');
+
 app.use(express.json());             // Parse application/json bodies
 app.use(express.urlencoded({ extended: true }));  // Parse URL-encoded bodies
+app.use(mongoSanitize());            // Sanitize input data to prevent NoSQL query injection
 
 // ─── Request Logger (development convenience) ─────────────────────────────────
 app.use((req, _res, next) => {
