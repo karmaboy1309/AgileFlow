@@ -1,0 +1,127 @@
+'use strict';
+
+/**
+ * server.js — AgileFlow API entry point
+ *
+ * Responsibilities:
+ *  1. Load environment variables
+ *  2. Connect to MongoDB Atlas
+ *  3. Bootstrap Express with global middleware (CORS, JSON parsing)
+ *  4. Mount all API route groups
+ *  5. Attach a global error handler
+ *  6. Start listening
+ */
+
+const dotenv  = require('dotenv');
+dotenv.config();                     // Must be called before any other require that needs env vars
+
+const express  = require('express');
+const mongoose = require('mongoose');
+const cors     = require('cors');
+
+// ─── Route Imports ────────────────────────────────────────────────────────────
+const authRoutes  = require('./routes/auth');
+const epicRoutes  = require('./routes/epics');
+const taskRoutes  = require('./routes/tasks');
+
+// ─── App Initialisation ───────────────────────────────────────────────────────
+const app  = express();
+const PORT = process.env.PORT || 5000;
+
+// ─── MongoDB Connection ───────────────────────────────────────────────────────
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      // Mongoose 8.x handles these internally, but listed for clarity
+    });
+    console.log(`✅  MongoDB connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error('❌  MongoDB connection error:', error.message);
+    process.exit(1);   // Hard-exit so a process manager (PM2 / Docker) can restart
+  }
+};
+
+connectDB();
+
+// ─── Global Middleware ────────────────────────────────────────────────────────
+// CORS — allow requests from the Vite dev server (and any extra origins in the env)
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim());
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow server-to-server / Postman requests (no Origin header)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+  })
+);
+
+app.use(express.json());             // Parse application/json bodies
+app.use(express.urlencoded({ extended: true }));  // Parse URL-encoded bodies
+
+// ─── Request Logger (development convenience) ─────────────────────────────────
+app.use((req, _res, next) => {
+  console.log(`[${new Date().toISOString()}]  ${req.method}  ${req.originalUrl}`);
+  next();
+});
+
+// ─── Health-check ─────────────────────────────────────────────────────────────
+app.get('/health', (_req, res) => {
+  res.json({
+    status : 'ok',
+    db     : mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    uptime : process.uptime(),
+  });
+});
+
+// ─── API Routes ───────────────────────────────────────────────────────────────
+app.use('/api/auth',  authRoutes);   // POST /api/auth/register  POST /api/auth/login
+app.use('/api/epics', epicRoutes);   // GET/POST/PUT/DELETE /api/epics[/:id]
+app.use('/api/tasks', taskRoutes);   // GET/POST/PUT/DELETE /api/tasks[/:id]
+
+// ─── 404 Handler ─────────────────────────────────────────────────────────────
+app.use((_req, res) => {
+  res.status(404).json({ message: 'Route not found.' });
+});
+
+// ─── Global Error Handler ─────────────────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
+app.use((err, _req, res, _next) => {
+  console.error('❗  Unhandled error:', err);
+
+  // CORS errors get a clear 403
+  if (err.message && err.message.startsWith('CORS blocked')) {
+    return res.status(403).json({ message: err.message });
+  }
+
+  // Mongoose validation errors
+  if (err.name === 'ValidationError') {
+    const messages = Object.values(err.errors).map((e) => e.message);
+    return res.status(422).json({ message: 'Validation failed', errors: messages });
+  }
+
+  // Mongoose duplicate key (e.g. unique email)
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue)[0];
+    return res.status(409).json({ message: `A record with that ${field} already exists.` });
+  }
+
+  res.status(err.statusCode || 500).json({
+    message: err.message || 'Internal server error.',
+  });
+});
+
+// ─── Start Server ─────────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log(`🚀  AgileFlow API listening on http://localhost:${PORT}`);
+});
+
+module.exports = app;  // Expose for testing
+
+// End of server config - running MERN application
