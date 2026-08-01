@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authAPI } from '../api';
+import Spinner from '../components/Spinner';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -200,10 +201,7 @@ export default function RegisterPage() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
+                  <Spinner />
                   <span>Creating account…</span>
                 </>
               ) : (
