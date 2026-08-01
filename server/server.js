@@ -80,10 +80,21 @@ app.get('/health', (_req, res) => {
   });
 });
 
+const rateLimit = require('express-rate-limit');
+
+// ─── Rate Limiter for Auth Routes ─────────────────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes window
+  max: 15,                  // Limit each IP to 15 login/register attempts per window
+  standardHeaders: true,    // Return rate limit info in `RateLimit-*` headers
+  legacyHeaders: false,    // Disable `X-RateLimit-*` headers
+  message: { message: 'Too many login attempts. Please try again after 15 minutes.' },
+});
+
 // ─── API Routes ───────────────────────────────────────────────────────────────
-app.use('/api/auth',  authRoutes);   // POST /api/auth/register  POST /api/auth/login
-app.use('/api/epics', epicRoutes);   // GET/POST/PUT/DELETE /api/epics[/:id]
-app.use('/api/tasks', taskRoutes);   // GET/POST/PUT/DELETE /api/tasks[/:id]
+app.use('/api/auth',  authLimiter, authRoutes);   // POST /api/auth/register  POST /api/auth/login
+app.use('/api/epics', epicRoutes);                // GET/POST/PUT/DELETE /api/epics[/:id]
+app.use('/api/tasks', taskRoutes);                // GET/POST/PUT/DELETE /api/tasks[/:id]
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req, res) => {
