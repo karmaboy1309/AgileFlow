@@ -121,6 +121,106 @@ router.get('/analytics', async (req, res, next) => {
   }
 });
 
+// ─── GET /api/epics/export ───────────────────────────────────────────────────
+/**
+ * Backup Export Endpoint
+ * Exports all user epics and associated tasks as a structured JSON object.
+ */
+router.get('/export', async (req, res, next) => {
+  try {
+    const epics = await Epic.find({ createdBy: req.user.id });
+    const epicDataList = [];
+
+    for (const epic of epics) {
+      const tasks = await Task.find({ epicId: epic._id });
+      epicDataList.push({
+        title: epic.title,
+        description: epic.description,
+        color: epic.color,
+        createdAt: epic.createdAt,
+        tasks: tasks.map((t) => ({
+          title: t.title,
+          description: t.description,
+          status: t.status,
+          priority: t.priority,
+          assignee: t.assignee,
+          dueDate: t.dueDate,
+          subtasks: t.subtasks,
+          tags: t.tags,
+          orderIndex: t.orderIndex,
+        })),
+      });
+    }
+
+    res.json({
+      version: '1.0',
+      exportedAt: new Date().toISOString(),
+      user: req.user.email,
+      epics: epicDataList,
+    });
+  } catch (error) {
+    console.error('❗  [epics/GET /export]', error.message);
+    next(error);
+  }
+});
+
+// ─── POST /api/epics/import ──────────────────────────────────────────────────
+/**
+ * Backup Restore / Import Endpoint
+ * Accepts exported JSON payload and recreates epics and tasks for the current user.
+ */
+router.post('/import', async (req, res, next) => {
+  try {
+    const { epics } = req.body;
+    if (!Array.isArray(epics)) {
+      return res.status(400).json({ message: 'Invalid import format. "epics" array is required.' });
+    }
+
+    let importedEpicsCount = 0;
+    let importedTasksCount = 0;
+
+    for (const epicItem of epics) {
+      if (!epicItem.title) continue;
+
+      const newEpic = await Epic.create({
+        title: epicItem.title.trim(),
+        description: epicItem.description?.trim() || '',
+        color: epicItem.color || '#6366f1',
+        createdBy: req.user.id,
+      });
+      importedEpicsCount++;
+
+      if (Array.isArray(epicItem.tasks)) {
+        for (const taskItem of epicItem.tasks) {
+          if (!taskItem.title) continue;
+          await Task.create({
+            title: taskItem.title.trim(),
+            description: taskItem.description?.trim() || '',
+            status: taskItem.status || 'todo',
+            priority: taskItem.priority || 'medium',
+            assignee: taskItem.assignee?.trim() || '',
+            epicId: newEpic._id,
+            dueDate: taskItem.dueDate ? new Date(taskItem.dueDate) : null,
+            subtasks: Array.isArray(taskItem.subtasks) ? taskItem.subtasks : [],
+            tags: Array.isArray(taskItem.tags) ? taskItem.tags : [],
+            orderIndex: taskItem.orderIndex || 0,
+          });
+          importedTasksCount++;
+        }
+      }
+    }
+
+    res.json({
+      message: `Successfully imported ${importedEpicsCount} epic(s) and ${importedTasksCount} task(s).`,
+      importedEpics: importedEpicsCount,
+      importedTasks: importedTasksCount,
+    });
+  } catch (error) {
+    console.error('❗  [epics/POST /import]', error.message);
+    next(error);
+  }
+});
+
 // ─── POST /api/epics ──────────────────────────────────────────────────────────
 /**
  * Body: { title, description?, color? }

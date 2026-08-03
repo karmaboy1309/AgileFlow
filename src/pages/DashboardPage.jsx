@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X, BarChart3, ChevronDown, ChevronUp, Download, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { epicsAPI } from '../api';
 import Navbar from '../components/Navbar';
@@ -232,11 +232,55 @@ export default function DashboardPage() {
       setEpics((prev) => prev.filter((e) => e._id !== deletingEpic._id));
       toast.success(`Epic "${deletingEpic.title}" deleted.`);
       setDeletingEpic(null);
+      fetchAnalytics();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete epic.');
     } finally {
       setDeleting(false);
     }
+  };
+
+  // ── Export & Import Backup ───────────────────────────────────────────────
+  const [importing, setImporting] = useState(false);
+
+  const handleExportWorkspace = async () => {
+    try {
+      const { data } = await epicsAPI.exportWorkspace();
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `agileflow-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Workspace backup exported successfully! 📦');
+    } catch {
+      toast.error('Failed to export workspace backup.');
+    }
+  };
+
+  const handleImportWorkspace = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target.result);
+        const { data } = await epicsAPI.importWorkspace(json);
+        toast.success(data.message || 'Workspace backup imported! 🎉');
+        fetchEpics();
+      } catch (err) {
+        toast.error(err.response?.data?.message || 'Failed to import backup JSON file.');
+      } finally {
+        setImporting(false);
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -360,6 +404,33 @@ export default function DashboardPage() {
                 )}
               </div>
             )}
+
+            {/* Backup Export & Import */}
+            <button
+              id="export-workspace-btn"
+              onClick={handleExportWorkspace}
+              title="Export workspace data as JSON"
+              className="flex items-center gap-1.5 text-xs font-medium text-slate-300 border border-white/[0.08] px-3 py-2 rounded-xl hover:bg-white/[0.05] transition-colors flex-shrink-0"
+            >
+              <Download size={14} className="text-indigo-400" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+
+            <label
+              id="import-workspace-label"
+              className="flex items-center gap-1.5 text-xs font-medium text-slate-300 border border-white/[0.08] px-3 py-2 rounded-xl hover:bg-white/[0.05] transition-colors flex-shrink-0 cursor-pointer"
+              title="Import workspace backup JSON file"
+            >
+              <Upload size={14} className="text-emerald-400" />
+              <span className="hidden sm:inline">{importing ? 'Importing…' : 'Import'}</span>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportWorkspace}
+                disabled={importing}
+                className="hidden"
+              />
+            </label>
 
             <button
               id="create-epic-btn"
