@@ -107,6 +107,12 @@ const taskSchema = new mongoose.Schema(
       },
     ],
 
+    // Archiving status
+    isArchived: {
+      type   : Boolean,
+      default: false,
+    },
+
     // Used to maintain drag-and-drop order within a column.
     // Client should send the new index on every PUT /api/tasks/:id call.
     orderIndex: {

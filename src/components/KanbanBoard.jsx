@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare, MessageSquare, Link } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare, MessageSquare, Link, Archive, ArchiveRestore } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
@@ -42,7 +42,7 @@ const PRIORITY_CONFIG = {
 };
 
 // ─── Task Card ────────────────────────────────────────────────────────────────
-function TaskCard({ task, index, onDelete, onEdit }) {
+function TaskCard({ task, index, onDelete, onEdit, onArchive }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const priority = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
@@ -118,6 +118,16 @@ function TaskCard({ task, index, onDelete, onEdit }) {
                       <Pencil size={13} />
                       Edit task
                     </button>
+                    {onArchive && (
+                      <button
+                        id={`task-archive-btn-${task._id}`}
+                        onClick={() => { setMenuOpen(false); onArchive(task._id, true); }}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-slate-300 hover:bg-white/05 transition-colors border-b border-white/[0.06]"
+                      >
+                        <Archive size={13} className="text-amber-400" />
+                        Archive task
+                      </button>
+                    )}
                     <button
                       id={`task-delete-btn-${task._id}`}
                       onClick={() => { setMenuOpen(false); onDelete(task._id); }}
@@ -232,7 +242,7 @@ function TaskCard({ task, index, onDelete, onEdit }) {
 }
 
 // ─── Column ───────────────────────────────────────────────────────────────────
-function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit }) {
+function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit, onArchive }) {
   return (
     <div
       className="flex flex-col rounded-2xl border border-white/[0.06] overflow-hidden"
@@ -308,6 +318,7 @@ function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit }) {
                 index={index}
                 onDelete={onDelete}
                 onEdit={onEdit}
+                onArchive={onArchive}
               />
             ))}
             {provided.placeholder}
@@ -377,6 +388,7 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   const [searchQuery, setSearchQuery]       = useState('');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [tagFilter, setTagFilter]           = useState('all');
+  const [showArchiveVault, setShowArchiveVault] = useState(false);
 
   // Keep local tasks in sync when parent re-fetches
   const [prevInitial, setPrevInitial] = useState(initialTasks);
@@ -407,7 +419,22 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   });
 
   const getColumnTasks = (columnId) =>
-    filteredTasks.filter((t) => t.status === columnId);
+    filteredTasks.filter((t) => !t.isArchived && t.status === columnId);
+
+  const archivedTasks = tasks.filter((t) => t.isArchived);
+
+  const handleArchiveTask = async (id, isArchived) => {
+    try {
+      const { data } = await tasksAPI.toggleArchive(id, isArchived);
+      const updated = data.task ?? data;
+      const updatedTasks = tasks.map((t) => (t._id === id ? updated : t));
+      setTasks(updatedTasks);
+      if (onTasksChange) onTasksChange(updatedTasks);
+      toast.success(isArchived ? 'Task archived 📦' : 'Task restored ✨');
+    } catch {
+      toast.error('Failed to update task archive status.');
+    }
+  };
 
   const hasActiveFilters = searchQuery.trim() !== '' || priorityFilter !== 'all' || tagFilter !== 'all';
 
@@ -566,6 +593,17 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
           })}
         </div>
 
+        {/* Archived Tasks Vault Button */}
+        <button
+          id="archive-vault-toggle-btn"
+          onClick={() => setShowArchiveVault(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/[0.08] text-xs font-medium text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-colors ml-auto"
+          title="Open Archived Tasks Vault"
+        >
+          <Archive size={13} />
+          <span>Vault ({archivedTasks.length})</span>
+        </button>
+
         {/* Tag Filter Dropdown */}
         {availableTags.length > 0 && (
           <div className="flex items-center gap-1.5">
@@ -613,6 +651,7 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
               onAddTask={handleOpenAddTask}
               onDelete={handleDeleteTask}
               onEdit={(task) => setEditingTask(task)}
+              onArchive={handleArchiveTask}
             />
           ))}
         </div>
@@ -634,6 +673,80 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
           onSubmit={handleSaveTask}
           loading={saving}
         />
+      )}
+
+      {/* Archived Tasks Vault Modal */}
+      {showArchiveVault && (
+        <div
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowArchiveVault(false)}
+        >
+          <div
+            className="animate-fade-in-up w-full max-w-xl rounded-2xl border border-white/[0.09] shadow-2xl p-6"
+            style={{ background: '#16161f' }}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.07] mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
+                  <Archive size={16} />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-white">Archived Tasks Vault</h3>
+                  <p className="text-xs text-slate-500">{archivedTasks.length} archived task(s)</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowArchiveVault(false)}
+                className="text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {archivedTasks.length === 0 ? (
+              <div className="py-12 text-center text-slate-500 text-xs">
+                <Archive size={32} className="mx-auto mb-2 opacity-30 text-amber-400" />
+                <p>No archived tasks found in vault.</p>
+              </div>
+            ) : (
+              <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                {archivedTasks.map((t) => (
+                  <div
+                    key={t._id}
+                    className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs"
+                  >
+                    <div>
+                      <h4 className="font-semibold text-slate-200">{t.title}</h4>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-1">
+                        <span className="capitalize px-2 py-0.5 rounded bg-white/[0.06]">{t.status}</span>
+                        <span className="capitalize px-2 py-0.5 rounded bg-amber-500/10 text-amber-300">{t.priority} priority</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleArchiveTask(t._id, false)}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 transition-colors font-medium"
+                        title="Restore to board"
+                      >
+                        <ArchiveRestore size={13} />
+                        <span>Restore</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTask(t._id)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        title="Delete permanently"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

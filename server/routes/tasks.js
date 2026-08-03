@@ -167,6 +167,7 @@ router.put('/:id', async (req, res, next) => {
       subtasks,
       tags,
       attachments,
+      isArchived,
     } = req.body;
 
     const updates = {};
@@ -180,6 +181,7 @@ router.put('/:id', async (req, res, next) => {
     if (subtasks    !== undefined) updates.subtasks    = Array.isArray(subtasks) ? subtasks : [];
     if (tags        !== undefined) updates.tags        = Array.isArray(tags) ? tags : [];
     if (attachments !== undefined) updates.attachments = Array.isArray(attachments) ? attachments : [];
+    if (isArchived  !== undefined) updates.isArchived  = Boolean(isArchived);
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: 'No update fields provided.' });

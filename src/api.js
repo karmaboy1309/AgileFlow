@@ -64,6 +64,7 @@ export const tasksAPI = {
   delete: (id) => api.delete(`/tasks/${id}`),
   addComment: (id, text) => api.post(`/tasks/${id}/comments`, { text }),
   deleteComment: (id, commentId) => api.delete(`/tasks/${id}/comments/${commentId}`),
+  toggleArchive: (id, isArchived) => api.put(`/tasks/${id}`, { isArchived }),
 };
 
 export default api;
