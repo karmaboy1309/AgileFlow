@@ -354,6 +354,61 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
+// ─── POST /api/epics/:id/duplicate ───────────────────────────────────────────
+router.post('/:id/duplicate', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!isValidId(id)) {
+      return res.status(400).json({ message: 'Invalid Epic ID format.' });
+    }
+
+    const sourceEpic = await Epic.findOne({ _id: id, createdBy: req.user.id });
+    if (!sourceEpic) {
+      return res.status(404).json({ message: 'Epic not found or access denied.' });
+    }
+
+    const clonedEpic = await Epic.create({
+      title: `${sourceEpic.title} (Copy)`,
+      description: sourceEpic.description || '',
+      color: sourceEpic.color || '#6366f1',
+      startDate: sourceEpic.startDate,
+      targetDate: sourceEpic.targetDate,
+      createdBy: req.user.id,
+    });
+
+    const sourceTasks = await Task.find({ epicId: id });
+    let clonedTaskCount = 0;
+    for (const t of sourceTasks) {
+      await Task.create({
+        title: t.title,
+        description: t.description,
+        status: t.status,
+        priority: t.priority,
+        assignee: t.assignee,
+        epicId: clonedEpic._id,
+        dueDate: t.dueDate,
+        subtasks: Array.isArray(t.subtasks) ? t.subtasks : [],
+        tags: Array.isArray(t.tags) ? t.tags : [],
+        attachments: Array.isArray(t.attachments) ? t.attachments : [],
+        orderIndex: t.orderIndex,
+      });
+      clonedTaskCount++;
+    }
+
+    const payload = {
+      ...clonedEpic.toJSON(),
+      taskCount: clonedTaskCount,
+      doneCount: sourceTasks.filter((t) => t.status === 'done').length,
+    };
+
+    console.log(`📋  [epics] Duplicated: "${sourceEpic.title}" → "${clonedEpic.title}" (${clonedTaskCount} tasks)`);
+    res.status(201).json({ epic: payload });
+  } catch (error) {
+    console.error(`❗  [epics/POST /:id/duplicate]`, error.message);
+    next(error);
+  }
+});
+
 // ─── DELETE /api/epics/:id ────────────────────────────────────────────────────
 /**
  * Cascade-deletes all Tasks belonging to the Epic before removing the Epic itself.

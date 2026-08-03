@@ -54,6 +54,7 @@ export const epicsAPI = {
   getById: (id) => api.get(`/epics/${id}`),
   update: (id, data) => api.put(`/epics/${id}`, data),
   delete: (id) => api.delete(`/epics/${id}`),
+  duplicate: (id) => api.post(`/epics/${id}/duplicate`),
 };
 
 // ─── Tasks Endpoints ─────────────────────────────────────────────────────────

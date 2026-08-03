@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X, BarChart3, ChevronDown, ChevronUp, Download, Upload } from 'lucide-react';
+import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X, BarChart3, ChevronDown, ChevronUp, Download, Upload, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { epicsAPI } from '../api';
 import Navbar from '../components/Navbar';
@@ -16,7 +16,7 @@ function EpicSkeleton() {
 }
 
 // ─── Epic Card ─────────────────────────────────────────────────────────────────
-function EpicCard({ epic, onClick, onEdit, onDelete }) {
+function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -70,11 +70,21 @@ function EpicCard({ epic, onClick, onEdit, onDelete }) {
             <button
               id={`epic-edit-btn-${epic._id}`}
               onClick={() => { setMenuOpen(false); onEdit(epic); }}
-              className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-slate-300 hover:bg-white/05 transition-colors"
+              className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-slate-300 hover:bg-white/05 transition-colors border-b border-white/[0.06]"
             >
               <Pencil size={13} />
               Edit epic
             </button>
+            {onDuplicate && (
+              <button
+                id={`epic-duplicate-btn-${epic._id}`}
+                onClick={() => { setMenuOpen(false); onDuplicate(epic); }}
+                className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-indigo-300 hover:bg-white/05 transition-colors border-b border-white/[0.06]"
+              >
+                <Copy size={13} />
+                Duplicate epic
+              </button>
+            )}
             <button
               id={`epic-delete-btn-${epic._id}`}
               onClick={() => { setMenuOpen(false); onDelete(epic); }}
@@ -243,6 +253,18 @@ export default function DashboardPage() {
       toast.error(err.response?.data?.message || 'Failed to update epic.');
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleDuplicateEpic = async (epicToDuplicate) => {
+    try {
+      const { data } = await epicsAPI.duplicate(epicToDuplicate._id);
+      const newEpic = data.epic ?? data;
+      setEpics((prev) => [newEpic, ...prev]);
+      toast.success(`Duplicated "${epicToDuplicate.title}" ✨`);
+      fetchAnalytics();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to duplicate epic.');
     }
   };
 
@@ -500,6 +522,7 @@ export default function DashboardPage() {
                 onClick={() => navigate(`/board/${epic._id}`)}
                 onEdit={(e) => setEditingEpic(e)}
                 onDelete={(e) => setDeletingEpic(e)}
+                onDuplicate={handleDuplicateEpic}
               />
             ))}
           </div>
