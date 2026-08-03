@@ -99,6 +99,14 @@ const taskSchema = new mongoose.Schema(
       },
     ],
 
+    // Task External Link Attachments / Resources
+    attachments: [
+      {
+        title: { type: String, required: true, trim: true },
+        url: { type: String, required: true, trim: true },
+      },
+    ],
+
     // Used to maintain drag-and-drop order within a column.
     // Client should send the new index on every PUT /api/tasks/:id call.
     orderIndex: {

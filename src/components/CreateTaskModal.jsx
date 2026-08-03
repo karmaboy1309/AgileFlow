@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Plus, Trash2, Tag } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Plus, Trash2, Tag, Link } from 'lucide-react';
 import Spinner from './Spinner';
 
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -18,6 +18,9 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [tags, setTags] = useState([]);
   const [customTag, setCustomTag] = useState('');
+  const [attachments, setAttachments] = useState([]);
+  const [newAttachTitle, setNewAttachTitle] = useState('');
+  const [newAttachUrl, setNewAttachUrl] = useState('');
 
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -53,9 +56,24 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
     setCustomTag('');
   };
 
+  const handleAddAttachment = (e) => {
+    e.preventDefault();
+    if (!newAttachTitle.trim() || !newAttachUrl.trim()) return;
+    setAttachments((prev) => [
+      ...prev,
+      { title: newAttachTitle.trim(), url: newAttachUrl.trim() },
+    ]);
+    setNewAttachTitle('');
+    setNewAttachUrl('');
+  };
+
+  const handleRemoveAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...form, subtasks, tags });
+    onSubmit({ ...form, subtasks, tags, attachments });
   };
 
   const priorityColors = {
@@ -339,6 +357,58 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
                 <Plus size={13} />
                 <span>Tag</span>
               </button>
+            </div>
+          </div>
+
+          {/* Link Attachments */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              <span className="flex items-center gap-1.5"><Link size={12} /> Link Resources & Attachments</span>
+            </label>
+            {attachments.length > 0 && (
+              <div className="space-y-1.5 mb-2">
+                {attachments.map((att, idx) => (
+                  <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs">
+                    <a href={att.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-indigo-300 hover:underline truncate">
+                      <Link size={12} />
+                      <span className="font-medium">{att.title}</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAttachment(idx)}
+                      className="text-slate-500 hover:text-red-400 transition-colors p-1"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-2 mb-1">
+              <input
+                type="text"
+                value={newAttachTitle}
+                onChange={(e) => setNewAttachTitle(e.target.value)}
+                placeholder="Link title (e.g. Figma)"
+                className="input-dark text-xs h-9"
+              />
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={newAttachUrl}
+                  onChange={(e) => setNewAttachUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="input-dark text-xs h-9 flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddAttachment}
+                  className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 text-xs font-medium rounded-xl border border-white/[0.08] transition-colors flex items-center gap-1"
+                >
+                  <Plus size={13} />
+                  <span>Link</span>
+                </button>
+              </div>
             </div>
           </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Pencil, Plus, Trash2, Tag, MessageSquare, Send } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Pencil, Plus, Trash2, Tag, MessageSquare, Send, Link } from 'lucide-react';
 import Spinner from './Spinner';
 import { tasksAPI } from '../api';
 import toast from 'react-hot-toast';
@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
  * components/EditTaskModal.jsx
  *
  * Pre-fills all task fields for in-place editing.
- * Calls onSubmit({ title, description, status, priority, assignee, dueDate, subtasks, tags }).
+ * Calls onSubmit({ title, description, status, priority, assignee, dueDate, subtasks, tags, attachments }).
  */
 
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -41,6 +41,9 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
   const [comments, setComments] = useState(task.comments || []);
   const [newCommentText, setNewCommentText] = useState('');
   const [postingComment, setPostingComment] = useState(false);
+  const [attachments, setAttachments] = useState(task.attachments || []);
+  const [newAttachTitle, setNewAttachTitle] = useState('');
+  const [newAttachUrl, setNewAttachUrl] = useState('');
 
   useEffect(() => {
     setForm({
@@ -54,6 +57,7 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
     setSubtasks(task.subtasks || []);
     setTags(task.tags || []);
     setComments(task.comments || []);
+    setAttachments(task.attachments || []);
   }, [task]);
 
   const handleAddComment = async (e) => {
@@ -118,9 +122,24 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
     setCustomTag('');
   };
 
+  const handleAddAttachment = (e) => {
+    e.preventDefault();
+    if (!newAttachTitle.trim() || !newAttachUrl.trim()) return;
+    setAttachments((prev) => [
+      ...prev,
+      { title: newAttachTitle.trim(), url: newAttachUrl.trim() },
+    ]);
+    setNewAttachTitle('');
+    setNewAttachUrl('');
+  };
+
+  const handleRemoveAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...form, subtasks, tags });
+    onSubmit({ ...form, subtasks, tags, attachments });
   };
 
   return (
@@ -398,6 +417,58 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
                 <Plus size={13} />
                 <span>Tag</span>
               </button>
+            </div>
+          </div>
+
+          {/* Link Attachments */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              <span className="flex items-center gap-1.5"><Link size={12} /> Link Resources & Attachments</span>
+            </label>
+            {attachments.length > 0 && (
+              <div className="space-y-1.5 mb-2">
+                {attachments.map((att, idx) => (
+                  <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs">
+                    <a href={att.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-indigo-300 hover:underline truncate">
+                      <Link size={12} />
+                      <span className="font-medium">{att.title}</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAttachment(idx)}
+                      className="text-slate-500 hover:text-red-400 transition-colors p-1"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-2 mb-1">
+              <input
+                type="text"
+                value={newAttachTitle}
+                onChange={(e) => setNewAttachTitle(e.target.value)}
+                placeholder="Link title (e.g. Figma)"
+                className="input-dark text-xs h-9"
+              />
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={newAttachUrl}
+                  onChange={(e) => setNewAttachUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="input-dark text-xs h-9 flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddAttachment}
+                  className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 text-xs font-medium rounded-xl border border-white/[0.08] transition-colors flex items-center gap-1"
+                >
+                  <Plus size={13} />
+                  <span>Link</span>
+                </button>
+              </div>
             </div>
           </div>
 
