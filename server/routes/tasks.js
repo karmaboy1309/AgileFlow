@@ -284,4 +284,41 @@ router.delete('/:id/comments/:commentId', async (req, res, next) => {
   }
 });
 
+// ─── POST /api/tasks/bulk-update ──────────────────────────────────────────────
+router.post('/bulk-update', async (req, res, next) => {
+  try {
+    const { taskIds, updates } = req.body;
+    if (!Array.isArray(taskIds) || taskIds.length === 0 || !updates) {
+      return res.status(400).json({ message: 'taskIds array and updates object are required.' });
+    }
+
+    const payload = {};
+    if (updates.status !== undefined) payload.status = updates.status;
+    if (updates.priority !== undefined) payload.priority = updates.priority;
+    if (updates.isArchived !== undefined) payload.isArchived = Boolean(updates.isArchived);
+
+    await Task.updateMany({ _id: { $in: taskIds } }, { $set: payload });
+    res.json({ message: `Updated ${taskIds.length} task(s).` });
+  } catch (error) {
+    console.error('❗  [tasks/POST /bulk-update]', error.message);
+    next(error);
+  }
+});
+
+// ─── POST /api/tasks/bulk-delete ──────────────────────────────────────────────
+router.post('/bulk-delete', async (req, res, next) => {
+  try {
+    const { taskIds } = req.body;
+    if (!Array.isArray(taskIds) || taskIds.length === 0) {
+      return res.status(400).json({ message: 'taskIds array is required.' });
+    }
+
+    await Task.deleteMany({ _id: { $in: taskIds } });
+    res.json({ message: `Deleted ${taskIds.length} task(s).` });
+  } catch (error) {
+    console.error('❗  [tasks/POST /bulk-delete]', error.message);
+    next(error);
+  }
+});
+
 module.exports = router;

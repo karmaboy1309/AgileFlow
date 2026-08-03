@@ -42,7 +42,7 @@ const PRIORITY_CONFIG = {
 };
 
 // ─── Task Card ────────────────────────────────────────────────────────────────
-function TaskCard({ task, index, onDelete, onEdit, onArchive }) {
+function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelectToggle }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const priority = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
@@ -68,22 +68,38 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive }) {
           id={`task-card-${task._id}`}
           className={`group relative rounded-xl border p-4 mb-3 cursor-grab active:cursor-grabbing transition-all duration-200 ${
             snapshot.isDragging ? 'task-card-dragging' : ''
-          }`}
+          } ${selected ? 'border-indigo-500 bg-indigo-500/10' : ''}`}
           style={{
             ...provided.draggableProps.style,
-            background: snapshot.isDragging
+            background: selected
+              ? 'rgba(99,102,241,0.12)'
+              : snapshot.isDragging
               ? 'rgba(30,30,45,0.98)'
               : 'rgba(255,255,255,0.04)',
-            borderColor: snapshot.isDragging
+            borderColor: selected
+              ? 'rgba(99,102,241,0.6)'
+              : snapshot.isDragging
               ? 'rgba(99,102,241,0.6)'
               : 'rgba(255,255,255,0.07)',
           }}
           aria-label={`Task: ${task.title}`}
         >
+          {/* Checkbox for bulk selection */}
+          <input
+            type="checkbox"
+            checked={!!selected}
+            onChange={(e) => {
+              e.stopPropagation();
+              if (onSelectToggle) onSelectToggle(task._id);
+            }}
+            className="absolute left-2.5 top-3.5 z-10 w-4 h-4 rounded border-white/20 accent-indigo-600 cursor-pointer opacity-70 hover:opacity-100 group-hover:opacity-100"
+            title="Select task for bulk actions"
+          />
+
           {/* Drag handle */}
           <div
             {...provided.dragHandleProps}
-            className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 transition-opacity text-slate-500"
+            className="absolute left-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 transition-opacity text-slate-500"
             aria-label="Drag handle"
           >
             <GripVertical size={14} />
@@ -242,7 +258,7 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive }) {
 }
 
 // ─── Column ───────────────────────────────────────────────────────────────────
-function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit, onArchive }) {
+function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit, onArchive, selectedTaskIds, onSelectToggle }) {
   return (
     <div
       className="flex flex-col rounded-2xl border border-white/[0.06] overflow-hidden"
@@ -319,6 +335,8 @@ function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit, onArchive })
                 onDelete={onDelete}
                 onEdit={onEdit}
                 onArchive={onArchive}
+                selected={selectedTaskIds?.includes(task._id)}
+                onSelectToggle={onSelectToggle}
               />
             ))}
             {provided.placeholder}
@@ -390,6 +408,59 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   const [tagFilter, setTagFilter]           = useState('all');
   const [showArchiveVault, setShowArchiveVault] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds]       = useState([]);
+
+  const handleToggleSelectTask = (id) => {
+    setSelectedTaskIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkStatusChange = async (status) => {
+    if (selectedTaskIds.length === 0) return;
+    try {
+      await tasksAPI.bulkUpdate(selectedTaskIds, { status });
+      const updatedTasks = tasks.map((t) =>
+        selectedTaskIds.includes(t._id) ? { ...t, status } : t
+      );
+      setTasks(updatedTasks);
+      if (onTasksChange) onTasksChange(updatedTasks);
+      toast.success(`Moved ${selectedTaskIds.length} task(s) to ${status}`);
+      setSelectedTaskIds([]);
+    } catch {
+      toast.error('Failed to update tasks.');
+    }
+  };
+
+  const handleBulkPriorityChange = async (priority) => {
+    if (selectedTaskIds.length === 0) return;
+    try {
+      await tasksAPI.bulkUpdate(selectedTaskIds, { priority });
+      const updatedTasks = tasks.map((t) =>
+        selectedTaskIds.includes(t._id) ? { ...t, priority } : t
+      );
+      setTasks(updatedTasks);
+      if (onTasksChange) onTasksChange(updatedTasks);
+      toast.success(`Updated priority for ${selectedTaskIds.length} task(s)`);
+      setSelectedTaskIds([]);
+    } catch {
+      toast.error('Failed to update priority.');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedTaskIds.length === 0) return;
+    try {
+      await tasksAPI.bulkDelete(selectedTaskIds);
+      const updatedTasks = tasks.filter((t) => !selectedTaskIds.includes(t._id));
+      setTasks(updatedTasks);
+      if (onTasksChange) onTasksChange(updatedTasks);
+      toast.success(`Deleted ${selectedTaskIds.length} task(s)`);
+      setSelectedTaskIds([]);
+    } catch {
+      toast.error('Failed to delete tasks.');
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -695,10 +766,72 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
               onDelete={handleDeleteTask}
               onEdit={(task) => setEditingTask(task)}
               onArchive={handleArchiveTask}
+              selectedTaskIds={selectedTaskIds}
+              onSelectToggle={handleToggleSelectTask}
             />
           ))}
         </div>
       </DragDropContext>
+
+      {/* Floating Bulk Actions Bar */}
+      {selectedTaskIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 glass-panel border border-indigo-500/40 rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-3 animate-fade-in-up">
+          <span className="text-xs font-semibold text-white bg-indigo-500/20 px-2.5 py-1 rounded-lg border border-indigo-500/30">
+            {selectedTaskIds.length} selected
+          </span>
+
+          <div className="h-4 w-[1px] bg-white/10" />
+
+          {/* Bulk Move */}
+          <div className="flex items-center gap-1 text-xs text-slate-300">
+            <span className="text-slate-500 hidden sm:inline">Move:</span>
+            {['todo', 'in-progress', 'done'].map((s) => (
+              <button
+                key={s}
+                onClick={() => handleBulkStatusChange(s)}
+                className="px-2 py-1 rounded-lg bg-white/[0.06] hover:bg-indigo-600 text-slate-200 hover:text-white transition-colors text-[11px] capitalize font-medium"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
+          <div className="h-4 w-[1px] bg-white/10" />
+
+          {/* Bulk Priority */}
+          <div className="flex items-center gap-1 text-xs text-slate-300">
+            <span className="text-slate-500 hidden sm:inline">Priority:</span>
+            {['high', 'medium', 'low'].map((p) => (
+              <button
+                key={p}
+                onClick={() => handleBulkPriorityChange(p)}
+                className="px-2 py-1 rounded-lg bg-white/[0.06] hover:bg-amber-600 text-slate-200 hover:text-white transition-colors text-[11px] capitalize font-medium"
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+
+          <div className="h-4 w-[1px] bg-white/10" />
+
+          {/* Bulk Delete */}
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 text-xs font-medium transition-colors"
+          >
+            <Trash2 size={13} />
+            <span>Delete</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedTaskIds([])}
+            className="text-slate-500 hover:text-slate-300 text-xs ml-1"
+            title="Clear selection"
+          >
+            <X size={15} />
+          </button>
+        </div>
+      )}
 
       {showModal && (
         <CreateTaskModal
