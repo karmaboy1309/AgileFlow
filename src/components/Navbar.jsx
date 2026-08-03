@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield } from 'lucide-react';
+import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield, Palette } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authAPI } from '../api';
 
 const AVATAR_COLORS = [
   '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6'
+];
+
+const THEMES = [
+  { id: 'dark',     label: 'Dark',     bg: '#0f0f17' },
+  { id: 'midnight', label: 'Midnight', bg: '#0a0e1a' },
+  { id: 'slate',    label: 'Slate',    bg: '#0f172a' },
+  { id: 'emerald',  label: 'Emerald',  bg: '#061a14' },
 ];
 
 function getInitials(name = '') {
@@ -19,11 +26,18 @@ export default function Navbar({ title }) {
   const [user, setUser] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('agileflow_theme') || 'dark');
   const [profileForm, setProfileForm] = useState({
     name: '',
     role: '',
     avatarColor: '#6366f1',
   });
+
+  useEffect(() => {
+    const selectedTheme = THEMES.find((t) => t.id === theme) || THEMES[0];
+    document.body.style.backgroundColor = selectedTheme.bg;
+    localStorage.setItem('agileflow_theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     authAPI.getMe()
@@ -87,8 +101,25 @@ export default function Navbar({ title }) {
           </div>
         )}
 
-        {/* Right: avatar + logout */}
+        {/* Right: theme + avatar + logout */}
         <div className="flex items-center gap-3">
+          {/* Theme selector */}
+          <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-white/[0.06]">
+            <Palette size={13} className="text-slate-400 ml-1.5 hidden sm:inline" />
+            <select
+              id="theme-selector-btn"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              className="bg-transparent text-xs text-slate-300 font-medium px-2 py-0.5 rounded-lg focus:outline-none cursor-pointer"
+            >
+              {THEMES.map((t) => (
+                <option key={t.id} value={t.id} style={{ background: '#1e1e2d', color: '#fff' }}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* User profile avatar pill */}
           <button
             id="navbar-profile-btn"
