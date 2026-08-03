@@ -12,6 +12,7 @@
 const express = require('express');
 const jwt     = require('jsonwebtoken');
 const User    = require('../models/User');
+const protect = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ const signToken = (userId) =>
 // ─── POST /api/auth/register ─────────────────────────────────────────────────
 /**
  * Body: { name, email, password }
- * Returns: { token, user: { id, name, email } }
+ * Returns: { token, user: { id, name, email, role, avatarColor } }
  */
 router.post('/register', async (req, res, next) => {
   try {
@@ -55,7 +56,7 @@ router.post('/register', async (req, res, next) => {
 
     res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user,
     });
   } catch (error) {
     console.error('❗  [auth/register]', error.message);
@@ -66,7 +67,7 @@ router.post('/register', async (req, res, next) => {
 // ─── POST /api/auth/login ─────────────────────────────────────────────────────
 /**
  * Body: { email, password }
- * Returns: { token, user: { id, name, email } }
+ * Returns: { token, user }
  */
 router.post('/login', async (req, res, next) => {
   try {
@@ -95,10 +96,44 @@ router.post('/login', async (req, res, next) => {
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user,
     });
   } catch (error) {
     console.error('❗  [auth/login]', error.message);
+    next(error);
+  }
+});
+
+// ─── GET /api/auth/me ─────────────────────────────────────────────────────────
+router.get('/me', protect, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+    res.json({ user });
+  } catch (error) {
+    console.error('❗  [auth/me]', error.message);
+    next(error);
+  }
+});
+
+// ─── PUT /api/auth/profile ───────────────────────────────────────────────────
+router.put('/profile', protect, async (req, res, next) => {
+  try {
+    const { name, role, avatarColor } = req.body;
+    const updates = {};
+    if (name !== undefined) updates.name = name.trim();
+    if (role !== undefined) updates.role = role.trim();
+    if (avatarColor !== undefined) updates.avatarColor = avatarColor;
+
+    const user = await User.findByIdAndUpdate(req.user.id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    console.log(`✏️   [auth] Profile updated: ${user.email}`);
+    res.json({ user });
+  } catch (error) {
+    console.error('❗  [auth/profile]', error.message);
     next(error);
   }
 });

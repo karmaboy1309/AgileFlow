@@ -41,6 +41,19 @@ const userSchema = new mongoose.Schema(
       minlength: [8, 'Password must be at least 8 characters.'],
       select   : false,            // Never returned in query results by default
     },
+
+    role: {
+      type   : String,
+      default: 'Developer',
+      trim   : true,
+      maxlength: [60, 'Role cannot exceed 60 characters.'],
+    },
+
+    avatarColor: {
+      type   : String,
+      default: '#6366f1',
+      match  : [/^#[0-9A-Fa-f]{6}$/, 'Avatar color must be a valid hex code.'],
+    },
   },
   {
     timestamps: true,              // Adds createdAt / updatedAt automatically

@@ -1,43 +1,68 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, LogOut, LayoutDashboard } from 'lucide-react';
+import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { authAPI } from '../api';
 
-/**
- * Decodes the JWT payload (without verification — server handles that).
- * Returns null if the token is missing or malformed.
- */
-function decodeToken(token) {
-  try {
-    const payload = token.split('.')[1];
-    return JSON.parse(atob(payload));
-  } catch {
-    return null;
-  }
-}
+const AVATAR_COLORS = [
+  '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6'
+];
 
-/**
- * Returns the user's initials from their full name (max 2 chars).
- * e.g. "Jane Smith" → "JS", "Alice" → "AL"
- */
 function getInitials(name = '') {
   const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return name.slice(0, 2).toUpperCase();
+  if (parts.length >= 2 && parts[0] && parts[1]) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase() || 'U';
 }
 
 export default function Navbar({ title }) {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    name: '',
+    role: '',
+    avatarColor: '#6366f1',
+  });
 
-  // Decode the stored JWT to get the current user's name
-  const token   = localStorage.getItem('agileflow_token');
-  const payload = token ? decodeToken(token) : null;
-  const userName = payload?.name || '';
+  useEffect(() => {
+    authAPI.getMe()
+      .then(({ data }) => {
+        setUser(data.user);
+        setProfileForm({
+          name: data.user.name || '',
+          role: data.user.role || 'Developer',
+          avatarColor: data.user.avatarColor || '#6366f1',
+        });
+      })
+      .catch(() => {
+        // Fallback if offline or guest token
+      });
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('agileflow_token');
     toast.success('Logged out successfully');
     navigate('/login');
   };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const { data } = await authAPI.updateProfile(profileForm);
+      setUser(data.user);
+      setShowProfileModal(false);
+      toast.success('Profile updated successfully! ✨');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const userName = user?.name || 'User';
+  const avatarBg = user?.avatarColor || '#6366f1';
 
   return (
     <header className="glass sticky top-0 z-50 border-b border-white/[0.06]">
@@ -64,22 +89,30 @@ export default function Navbar({ title }) {
 
         {/* Right: avatar + logout */}
         <div className="flex items-center gap-3">
-          {/* User avatar with initials */}
-          {userName && (
+          {/* User profile avatar pill */}
+          <button
+            id="navbar-profile-btn"
+            onClick={() => setShowProfileModal(true)}
+            title="Edit User Profile"
+            className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+          >
             <div
-              title={userName}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+              className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: avatarBg }}
             >
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0">
-                <span className="text-[9px] font-bold text-white leading-none">
-                  {getInitials(userName)}
-                </span>
-              </div>
-              <span className="hidden sm:inline text-xs font-medium text-slate-300 max-w-[120px] truncate">
-                {userName}
+              <span className="text-[9px] font-bold text-white leading-none">
+                {getInitials(userName)}
               </span>
             </div>
-          )}
+            <div className="hidden sm:flex flex-col text-left leading-tight">
+              <span className="text-xs font-medium text-slate-200 max-w-[110px] truncate">
+                {userName}
+              </span>
+              <span className="text-[10px] text-slate-500 max-w-[110px] truncate">
+                {user?.role || 'Developer'}
+              </span>
+            </div>
+          </button>
 
           {/* Logout */}
           <button
@@ -92,6 +125,100 @@ export default function Navbar({ title }) {
           </button>
         </div>
       </div>
+
+      {/* Profile Settings Modal */}
+      {showProfileModal && (
+        <div
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowProfileModal(false)}
+        >
+          <div
+            className="animate-fade-in-up w-full max-w-md rounded-2xl border border-white/[0.09] shadow-2xl p-6"
+            style={{ background: '#16161f' }}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.07] mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                  <User size={16} />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-white">Profile Settings</h3>
+                  <p className="text-xs text-slate-500">Update your workspace profile</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowProfileModal(false)}
+                className="text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Display Name</label>
+                <input
+                  type="text"
+                  required
+                  value={profileForm.name}
+                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                  className="input-dark text-xs h-9"
+                  placeholder="Your full name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <span className="flex items-center gap-1"><Shield size={12} /> Workspace Role</span>
+                </label>
+                <input
+                  type="text"
+                  value={profileForm.role}
+                  onChange={(e) => setProfileForm({ ...profileForm, role: e.target.value })}
+                  className="input-dark text-xs h-9"
+                  placeholder="e.g. Lead Developer, Product Owner"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-2">Avatar Accent Color</label>
+                <div className="flex items-center gap-2">
+                  {AVATAR_COLORS.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setProfileForm({ ...profileForm, avatarColor: c })}
+                      className="w-7 h-7 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+                      style={{ background: c }}
+                    >
+                      {profileForm.avatarColor === c && <Check size={14} className="text-white" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowProfileModal(false)}
+                  className="flex-1 h-9 text-xs font-medium text-slate-400 border border-white/[0.08] rounded-xl hover:bg-white/[0.04]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary flex-1 h-9 text-xs flex items-center justify-center gap-2"
+                >
+                  {saving ? 'Saving…' : 'Save Profile'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
