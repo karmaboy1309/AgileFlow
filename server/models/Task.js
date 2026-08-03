@@ -82,6 +82,14 @@ const taskSchema = new mongoose.Schema(
       },
     ],
 
+    // Custom Category Labels / Tags
+    tags: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+
     // Used to maintain drag-and-drop order within a column.
     // Client should send the new index on every PUT /api/tasks/:id call.
     orderIndex: {

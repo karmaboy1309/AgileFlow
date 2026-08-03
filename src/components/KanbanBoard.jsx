@@ -138,6 +138,21 @@ function TaskCard({ task, index, onDelete, onEdit }) {
               </p>
             )}
 
+            {/* Category Tags */}
+            {task.tags && task.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2.5">
+                {task.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 tracking-wide"
+                  >
+                    <Tag size={9} />
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
             {/* Footer: priority + assignee + due date */}
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${priority.className}`}>

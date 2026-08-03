@@ -87,6 +87,7 @@ router.post('/', async (req, res, next) => {
       orderIndex,
       dueDate,
       subtasks,
+      tags,
     } = req.body;
 
     if (!epicId || !title) {
@@ -113,6 +114,7 @@ router.post('/', async (req, res, next) => {
       orderIndex : idx,
       dueDate    : dueDate ? new Date(dueDate) : null,
       subtasks   : Array.isArray(subtasks) ? subtasks : [],
+      tags       : Array.isArray(tags) ? tags : [],
     });
 
     console.log(`✅  [tasks] Created: "${task.title}" (${task._id}) in epic ${epicId}`);
@@ -161,6 +163,7 @@ router.put('/:id', async (req, res, next) => {
       orderIndex,
       dueDate,
       subtasks,
+      tags,
     } = req.body;
 
     const updates = {};
@@ -172,6 +175,7 @@ router.put('/:id', async (req, res, next) => {
     if (orderIndex  !== undefined) updates.orderIndex  = Number(orderIndex);
     if (dueDate     !== undefined) updates.dueDate     = dueDate ? new Date(dueDate) : null;
     if (subtasks    !== undefined) updates.subtasks    = Array.isArray(subtasks) ? subtasks : [];
+    if (tags        !== undefined) updates.tags        = Array.isArray(tags) ? tags : [];
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: 'No update fields provided.' });

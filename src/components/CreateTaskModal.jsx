@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Plus, Trash2 } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Plus, Trash2, Tag } from 'lucide-react';
 import Spinner from './Spinner';
 
 const PRIORITIES = ['low', 'medium', 'high'];
+const PRESET_TAGS = ['Feature', 'Bug', 'Design', 'DevOps', 'Refactor'];
 
 export default function CreateTaskModal({ onClose, onSubmit, loading, defaultStatus = 'todo' }) {
   const [form, setForm] = useState({
@@ -15,6 +16,8 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
   });
   const [subtasks, setSubtasks] = useState([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [tags, setTags] = useState([]);
+  const [customTag, setCustomTag] = useState('');
 
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -36,9 +39,23 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
     setSubtasks((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleToggleTag = (tag) => {
+    setTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleAddCustomTag = (e) => {
+    e.preventDefault();
+    const t = customTag.trim();
+    if (!t || tags.includes(t)) return;
+    setTags((prev) => [...prev, t]);
+    setCustomTag('');
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...form, subtasks });
+    onSubmit({ ...form, subtasks, tags });
   };
 
   const priorityColors = {
@@ -258,6 +275,69 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
               >
                 <Plus size={13} />
                 <span>Add</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Category Tags */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              <span className="flex items-center gap-1.5"><Tag size={12} /> Category Tags</span>
+            </label>
+            <div className="flex flex-wrap gap-1.5 mb-2.5">
+              {PRESET_TAGS.map((t) => {
+                const active = tags.includes(t);
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => handleToggleTag(t)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${
+                      active
+                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+                        : 'bg-white/[0.03] text-slate-400 border-white/[0.06] hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    + {t}
+                  </button>
+                );
+              })}
+            </div>
+            {tags.filter((t) => !PRESET_TAGS.includes(t)).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {tags.filter((t) => !PRESET_TAGS.includes(t)).map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                  >
+                    {t}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleTag(t)}
+                      className="hover:text-red-400"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={customTag}
+                onChange={(e) => setCustomTag(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomTag(e))}
+                placeholder="Or type custom tag…"
+                className="input-dark text-xs h-9 flex-1"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomTag}
+                className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 text-xs font-medium rounded-xl border border-white/[0.08] transition-colors flex items-center gap-1"
+              >
+                <Plus size={13} />
+                <span>Tag</span>
               </button>
             </div>
           </div>
