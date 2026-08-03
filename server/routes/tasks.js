@@ -232,4 +232,50 @@ router.delete('/:id', async (req, res, next) => {
   }
 });
 
+// ─── POST /api/tasks/:id/comments ────────────────────────────────────────────
+router.post('/:id/comments', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { text } = req.body;
+    if (!text || !text.trim()) {
+      return res.status(400).json({ message: 'Comment text is required.' });
+    }
+
+    const task = await Task.findById(id);
+    if (!task) return res.status(404).json({ message: 'Task not found.' });
+
+    const epic = await Epic.findOne({ _id: task.epicId, createdBy: req.user.id });
+    if (!epic) return res.status(403).json({ message: 'Access denied.' });
+
+    const authorName = req.user.name || req.user.email || 'Member';
+    task.comments.push({ text: text.trim(), author: authorName, createdAt: new Date() });
+    await task.save();
+
+    res.status(201).json({ task });
+  } catch (error) {
+    console.error('❗  [tasks/POST /:id/comments]', error.message);
+    next(error);
+  }
+});
+
+// ─── DELETE /api/tasks/:id/comments/:commentId ───────────────────────────────
+router.delete('/:id/comments/:commentId', async (req, res, next) => {
+  try {
+    const { id, commentId } = req.params;
+    const task = await Task.findById(id);
+    if (!task) return res.status(404).json({ message: 'Task not found.' });
+
+    const epic = await Epic.findOne({ _id: task.epicId, createdBy: req.user.id });
+    if (!epic) return res.status(403).json({ message: 'Access denied.' });
+
+    task.comments = task.comments.filter((c) => c._id.toString() !== commentId);
+    await task.save();
+
+    res.json({ task });
+  } catch (error) {
+    console.error('❗  [tasks/DELETE /:id/comments/:commentId]', error.message);
+    next(error);
+  }
+});
+
 module.exports = router;

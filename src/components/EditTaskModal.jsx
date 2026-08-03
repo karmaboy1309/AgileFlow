@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Pencil, Plus, Trash2, Tag } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Pencil, Plus, Trash2, Tag, MessageSquare, Send } from 'lucide-react';
 import Spinner from './Spinner';
+import { tasksAPI } from '../api';
+import toast from 'react-hot-toast';
 
 /**
  * components/EditTaskModal.jsx
@@ -36,6 +38,9 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [tags, setTags] = useState(task.tags || []);
   const [customTag, setCustomTag] = useState('');
+  const [comments, setComments] = useState(task.comments || []);
+  const [newCommentText, setNewCommentText] = useState('');
+  const [postingComment, setPostingComment] = useState(false);
 
   useEffect(() => {
     setForm({
@@ -48,7 +53,36 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
     });
     setSubtasks(task.subtasks || []);
     setTags(task.tags || []);
+    setComments(task.comments || []);
   }, [task]);
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!newCommentText.trim()) return;
+    setPostingComment(true);
+    try {
+      const { data } = await tasksAPI.addComment(task._id, newCommentText);
+      const updatedTask = data.task ?? data;
+      setComments(updatedTask.comments || []);
+      setNewCommentText('');
+      toast.success('Comment added');
+    } catch {
+      toast.error('Failed to post comment');
+    } finally {
+      setPostingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const { data } = await tasksAPI.deleteComment(task._id, commentId);
+      const updatedTask = data.task ?? data;
+      setComments(updatedTask.comments || []);
+      toast.success('Comment deleted');
+    } catch {
+      toast.error('Failed to delete comment');
+    }
+  };
 
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -363,6 +397,54 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
               >
                 <Plus size={13} />
                 <span>Tag</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Comments & Discussion */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              <span className="flex items-center gap-1.5"><MessageSquare size={12} /> Discussion Stream ({comments.length})</span>
+            </label>
+            {comments.length > 0 && (
+              <div className="space-y-2 mb-3 max-h-36 overflow-y-auto pr-1">
+                {comments.map((c) => (
+                  <div key={c._id} className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs">
+                    <div className="flex items-center justify-between text-slate-400 mb-1 text-[11px]">
+                      <span className="font-semibold text-indigo-300">{c.author}</span>
+                      <div className="flex items-center gap-2">
+                        <span>{new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteComment(c._id)}
+                          className="hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-slate-200 leading-relaxed">{c.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newCommentText}
+                onChange={(e) => setNewCommentText(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddComment(e))}
+                placeholder="Write a comment…"
+                className="input-dark text-xs h-9 flex-1"
+              />
+              <button
+                type="button"
+                onClick={handleAddComment}
+                disabled={postingComment || !newCommentText.trim()}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-xl transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Send size={12} />
+                <span>{postingComment ? 'Posting…' : 'Post'}</span>
               </button>
             </div>
           </div>

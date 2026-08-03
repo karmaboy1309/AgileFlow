@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
@@ -178,6 +178,15 @@ function TaskCard({ task, index, onDelete, onEdit }) {
                     </span>
                   );
                 })()}
+                {task.comments && task.comments.length > 0 && (
+                  <span
+                    className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-500/20"
+                    title={`${task.comments.length} comment(s)`}
+                  >
+                    <MessageSquare size={9} />
+                    {task.comments.length}
+                  </span>
+                )}
                 {task.dueDate && (() => {
                   const due  = new Date(task.dueDate);
                   const now  = new Date();

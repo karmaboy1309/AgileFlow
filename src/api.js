@@ -62,6 +62,8 @@ export const tasksAPI = {
   create: (data) => api.post('/tasks', data),
   update: (id, data) => api.put(`/tasks/${id}`, data),
   delete: (id) => api.delete(`/tasks/${id}`),
+  addComment: (id, text) => api.post(`/tasks/${id}/comments`, { text }),
+  deleteComment: (id, commentId) => api.delete(`/tasks/${id}/comments/${commentId}`),
 };
 
 export default api;

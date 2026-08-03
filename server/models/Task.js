@@ -90,6 +90,15 @@ const taskSchema = new mongoose.Schema(
       },
     ],
 
+    // Task Comments & Discussion Stream
+    comments: [
+      {
+        text: { type: String, required: true, trim: true },
+        author: { type: String, default: 'Workspace Member', trim: true },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+
     // Used to maintain drag-and-drop order within a column.
     // Client should send the new index on every PUT /api/tasks/:id call.
     orderIndex: {
