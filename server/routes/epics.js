@@ -75,6 +75,52 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// ─── GET /api/epics/analytics ────────────────────────────────────────────────
+/**
+ * Workspace Analytics Endpoint
+ * Computes high-level project velocity, completion percentage, priority breakdown,
+ * and overdue task count across all user epics.
+ */
+router.get('/analytics', async (req, res, next) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+    const userEpics = await Epic.find({ createdBy: userId }).select('_id');
+    const epicIds = userEpics.map((e) => e._id);
+
+    const totalEpics = userEpics.length;
+    const allTasks = await Task.find({ epicId: { $in: epicIds } });
+
+    const totalTasks = allTasks.length;
+    const completedTasks = allTasks.filter((t) => t.status === 'done').length;
+    const inProgressTasks = allTasks.filter((t) => t.status === 'in-progress').length;
+    const todoTasks = allTasks.filter((t) => t.status === 'todo').length;
+    const highPriorityTasks = allTasks.filter((t) => t.priority === 'high').length;
+
+    const now = new Date();
+    const overdueTasks = allTasks.filter(
+      (t) => t.dueDate && new Date(t.dueDate) < now && t.status !== 'done'
+    ).length;
+
+    const overallProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+    res.json({
+      analytics: {
+        totalEpics,
+        totalTasks,
+        completedTasks,
+        inProgressTasks,
+        todoTasks,
+        highPriorityTasks,
+        overdueTasks,
+        overallProgress,
+      },
+    });
+  } catch (error) {
+    console.error('❗  [epics/GET /analytics]', error.message);
+    next(error);
+  }
+});
+
 // ─── POST /api/epics ──────────────────────────────────────────────────────────
 /**
  * Body: { title, description?, color? }

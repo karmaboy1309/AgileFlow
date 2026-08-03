@@ -45,6 +45,9 @@ export const authAPI = {
 // ─── Epics Endpoints ─────────────────────────────────────────────────────────
 export const epicsAPI = {
   getAll: () => api.get('/epics'),
+  getAnalytics: () => api.get('/epics/analytics'),
+  exportWorkspace: () => api.get('/epics/export'),
+  importWorkspace: (data) => api.post('/epics/import', data),
   create: (data) => api.post('/epics', data),
   getById: (id) => api.get(`/epics/${id}`),
   update: (id, data) => api.put(`/epics/${id}`, data),

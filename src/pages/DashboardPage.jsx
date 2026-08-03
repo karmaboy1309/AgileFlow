@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X } from 'lucide-react';
+import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { epicsAPI } from '../api';
 import Navbar from '../components/Navbar';
@@ -165,16 +165,29 @@ export default function DashboardPage() {
   const [deletingEpic, setDeletingEpic] = useState(null); // epic object pending delete confirmation
   const [deleting, setDeleting]         = useState(false);
 
+  const [analytics, setAnalytics]         = useState(null);
+  const [showAnalytics, setShowAnalytics] = useState(true);
+
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      const { data } = await epicsAPI.getAnalytics();
+      setAnalytics(data.analytics);
+    } catch (err) {
+      console.error('Failed to load analytics', err);
+    }
+  }, []);
+
   const fetchEpics = useCallback(async () => {
     try {
       const { data } = await epicsAPI.getAll();
       setEpics(Array.isArray(data) ? data : data.epics ?? []);
+      fetchAnalytics();
     } catch {
       toast.error('Failed to load epics. Please refresh.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchAnalytics]);
 
   useEffect(() => { fetchEpics(); }, [fetchEpics]);
 
@@ -242,6 +255,72 @@ export default function DashboardPage() {
       <Navbar title="Dashboard" />
 
       <main className="max-w-screen-xl mx-auto px-6 py-10">
+        {/* Workspace Analytics Panel */}
+        {analytics && (
+          <div className="glass rounded-2xl p-6 mb-8 border border-white/[0.08] relative overflow-hidden">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                  <BarChart3 size={16} />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-white">Workspace Analytics & Velocity</h2>
+                  <p className="text-xs text-slate-500">Real-time aggregate performance metrics across all epics</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAnalytics((v) => !v)}
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 bg-white/[0.04] hover:bg-white/[0.08] px-3 py-1.5 rounded-xl border border-white/[0.06] transition-colors"
+              >
+                <span>{showAnalytics ? 'Hide' : 'Show'} details</span>
+                {showAnalytics ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+            </div>
+
+            {showAnalytics && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 pt-2">
+                {/* Total Epics */}
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                  <p className="text-2xl font-bold text-white">{analytics.totalEpics}</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Epics</p>
+                </div>
+
+                {/* Total Tasks */}
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                  <p className="text-2xl font-bold text-indigo-400">{analytics.totalTasks}</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Tasks</p>
+                </div>
+
+                {/* Completion Rate */}
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                  <p className="text-2xl font-bold text-emerald-400">{analytics.overallProgress}%</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">Completion Rate</p>
+                </div>
+
+                {/* In Progress */}
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                  <p className="text-2xl font-bold text-amber-400">{analytics.inProgressTasks}</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">In Progress</p>
+                </div>
+
+                {/* High Priority */}
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                  <p className="text-2xl font-bold text-rose-400">{analytics.highPriorityTasks}</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">High Priority</p>
+                </div>
+
+                {/* Overdue Tasks */}
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                  <p className={`text-2xl font-bold ${analytics.overdueTasks > 0 ? 'text-red-500' : 'text-slate-400'}`}>
+                    {analytics.overdueTasks}
+                  </p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">Overdue Tasks</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Page header & Search bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
