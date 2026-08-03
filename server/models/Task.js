@@ -74,6 +74,14 @@ const taskSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Subtasks / Checklist items
+    subtasks: [
+      {
+        title: { type: String, required: true, trim: true },
+        completed: { type: Boolean, default: false },
+      },
+    ],
+
     // Used to maintain drag-and-drop order within a column.
     // Client should send the new index on every PUT /api/tasks/:id call.
     orderIndex: {

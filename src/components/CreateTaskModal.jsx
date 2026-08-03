@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, CheckSquare, AlignLeft, Flag, User, Calendar } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Plus, Trash2 } from 'lucide-react';
 import Spinner from './Spinner';
 
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -13,13 +13,32 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
     assignee: '',
     dueDate: '',
   });
+  const [subtasks, setSubtasks] = useState([]);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+  const handleAddSubtask = (e) => {
+    e.preventDefault();
+    if (!newSubtaskTitle.trim()) return;
+    setSubtasks((prev) => [...prev, { title: newSubtaskTitle.trim(), completed: false }]);
+    setNewSubtaskTitle('');
+  };
+
+  const handleToggleSubtask = (index) => {
+    setSubtasks((prev) =>
+      prev.map((sub, i) => (i === index ? { ...sub, completed: !sub.completed } : sub))
+    );
+  };
+
+  const handleRemoveSubtask = (index) => {
+    setSubtasks((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(form);
+    onSubmit({ ...form, subtasks });
   };
 
   const priorityColors = {
@@ -189,6 +208,57 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
                 className="input-dark"
                 style={{ paddingLeft: '2.75rem', colorScheme: 'dark' }}
               />
+            </div>
+          </div>
+
+          {/* Subtasks / Checklist */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              <span className="flex items-center gap-1.5"><CheckSquare size={12} /> Subtasks / Checklist</span>
+            </label>
+            {subtasks.length > 0 && (
+              <div className="space-y-2 mb-2 max-h-36 overflow-y-auto pr-1">
+                {subtasks.map((sub, idx) => (
+                  <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs">
+                    <label className="flex items-center gap-2 flex-1 cursor-pointer truncate">
+                      <input
+                        type="checkbox"
+                        checked={sub.completed}
+                        onChange={() => handleToggleSubtask(idx)}
+                        className="rounded border-slate-600 text-indigo-500 focus:ring-0"
+                      />
+                      <span className={sub.completed ? 'line-through text-slate-500' : 'text-slate-200'}>
+                        {sub.title}
+                      </span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSubtask(idx)}
+                      className="text-slate-500 hover:text-red-400 transition-colors p-1"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newSubtaskTitle}
+                onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSubtask(e))}
+                placeholder="Add checklist item…"
+                className="input-dark text-xs h-9 flex-1"
+              />
+              <button
+                type="button"
+                onClick={handleAddSubtask}
+                className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 text-xs font-medium rounded-xl border border-white/[0.08] transition-colors flex items-center gap-1"
+              >
+                <Plus size={13} />
+                <span>Add</span>
+              </button>
             </div>
           </div>
 

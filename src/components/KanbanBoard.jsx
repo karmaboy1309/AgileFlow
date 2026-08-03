@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
@@ -145,6 +145,24 @@ function TaskCard({ task, index, onDelete, onEdit }) {
                 {priority.label}
               </span>
               <div className="flex items-center gap-2">
+                {task.subtasks && task.subtasks.length > 0 && (() => {
+                  const done = task.subtasks.filter((s) => s.completed).length;
+                  const total = task.subtasks.length;
+                  const allDone = done === total;
+                  return (
+                    <span
+                      className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium"
+                      style={{
+                        background: allDone ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)',
+                        color     : allDone ? '#10b981' : '#94a3b8',
+                      }}
+                      title={`${done} of ${total} subtasks completed`}
+                    >
+                      <CheckSquare size={9} />
+                      {done}/{total}
+                    </span>
+                  );
+                })()}
                 {task.dueDate && (() => {
                   const due  = new Date(task.dueDate);
                   const now  = new Date();
