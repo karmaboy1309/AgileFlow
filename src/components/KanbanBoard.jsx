@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare, MessageSquare, Link, Archive, ArchiveRestore } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare, MessageSquare, Link, Archive, ArchiveRestore, Keyboard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
@@ -389,6 +389,38 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [tagFilter, setTagFilter]           = useState('all');
   const [showArchiveVault, setShowArchiveVault] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+        if (e.key === 'Escape') {
+          document.activeElement.blur();
+        }
+        return;
+      }
+
+      if (e.key === '?') {
+        e.preventDefault();
+        setShowShortcutsModal((v) => !v);
+      } else if (e.key === '/') {
+        e.preventDefault();
+        document.getElementById('kanban-search-input')?.focus();
+      } else if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setModalStatus('todo');
+        setShowModal(true);
+      } else if (e.key === 'Escape') {
+        setShowShortcutsModal(false);
+        setShowArchiveVault(false);
+        setShowModal(false);
+        setEditingTask(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Keep local tasks in sync when parent re-fetches
   const [prevInitial, setPrevInitial] = useState(initialTasks);
@@ -597,11 +629,22 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
         <button
           id="archive-vault-toggle-btn"
           onClick={() => setShowArchiveVault(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/[0.08] text-xs font-medium text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-colors ml-auto"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/[0.08] text-xs font-medium text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
           title="Open Archived Tasks Vault"
         >
           <Archive size={13} />
           <span>Vault ({archivedTasks.length})</span>
+        </button>
+
+        {/* Keyboard Shortcuts Button */}
+        <button
+          id="keyboard-shortcuts-toggle-btn"
+          onClick={() => setShowShortcutsModal(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/[0.08] text-xs font-medium text-slate-300 hover:bg-white/[0.05] transition-colors ml-auto"
+          title="Keyboard Shortcuts (?)"
+        >
+          <Keyboard size={13} className="text-indigo-400" />
+          <span>Shortcuts (?)</span>
         </button>
 
         {/* Tag Filter Dropdown */}
@@ -745,6 +788,58 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Keyboard Shortcuts Modal */}
+      {showShortcutsModal && (
+        <div
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowShortcutsModal(false)}
+        >
+          <div
+            className="animate-fade-in-up w-full max-w-md rounded-2xl border border-white/[0.09] shadow-2xl p-6"
+            style={{ background: '#16161f' }}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.07] mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                  <Keyboard size={16} />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-white">Keyboard Shortcuts</h3>
+                  <p className="text-xs text-slate-500">Power user navigation keys</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowShortcutsModal(false)}
+                className="text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-2.5 text-xs">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Focus Search Bar</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[11px] border border-white/10">/</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Create New Task</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[11px] border border-white/10">N</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Toggle Shortcuts Dialog</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[11px] border border-white/10">?</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Close Modals / Dismiss</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[11px] border border-white/10">Esc</kbd>
+              </div>
+            </div>
           </div>
         </div>
       )}
