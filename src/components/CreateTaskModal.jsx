@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Plus, Trash2, Tag, Link } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Plus, Trash2, Tag, Link, Clock } from 'lucide-react';
 import Spinner from './Spinner';
 
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -13,6 +13,8 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
     priority: 'medium',
     assignee: '',
     dueDate: '',
+    estimatedHours: 0,
+    loggedHours: 0,
   });
   const [subtasks, setSubtasks] = useState([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
@@ -242,6 +244,42 @@ export default function CreateTaskModal({ onClose, onSubmit, loading, defaultSta
                 onChange={handleChange}
                 className="input-dark"
                 style={{ paddingLeft: '2.75rem', colorScheme: 'dark' }}
+              />
+            </div>
+          </div>
+
+          {/* Time Tracking */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="task-estimated-hours" className="block text-sm font-medium text-slate-300 mb-2">
+                <span className="flex items-center gap-1.5"><Clock size={12} /> Est. Hours</span>
+              </label>
+              <input
+                id="task-estimated-hours"
+                name="estimatedHours"
+                type="number"
+                min="0"
+                step="0.5"
+                value={form.estimatedHours}
+                onChange={handleChange}
+                placeholder="e.g. 8"
+                className="input-dark text-xs h-9"
+              />
+            </div>
+            <div>
+              <label htmlFor="task-logged-hours" className="block text-sm font-medium text-slate-300 mb-2">
+                <span className="flex items-center gap-1.5"><Clock size={12} /> Logged Hours</span>
+              </label>
+              <input
+                id="task-logged-hours"
+                name="loggedHours"
+                type="number"
+                min="0"
+                step="0.5"
+                value={form.loggedHours}
+                onChange={handleChange}
+                placeholder="e.g. 4"
+                className="input-dark text-xs h-9"
               />
             </div>
           </div>

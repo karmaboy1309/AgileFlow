@@ -89,6 +89,8 @@ router.post('/', async (req, res, next) => {
       subtasks,
       tags,
       attachments,
+      estimatedHours = 0,
+      loggedHours    = 0,
     } = req.body;
 
     if (!epicId || !title) {
@@ -106,17 +108,19 @@ router.post('/', async (req, res, next) => {
     }
 
     const task = await Task.create({
-      title      : title.trim(),
-      description: description.trim(),
+      title          : title.trim(),
+      description    : description.trim(),
       status,
       priority,
-      assignee   : assignee.trim(),
+      assignee       : assignee.trim(),
       epicId,
-      orderIndex : idx,
-      dueDate    : dueDate ? new Date(dueDate) : null,
-      subtasks   : Array.isArray(subtasks) ? subtasks : [],
-      tags       : Array.isArray(tags) ? tags : [],
-      attachments: Array.isArray(attachments) ? attachments : [],
+      orderIndex     : idx,
+      dueDate        : dueDate ? new Date(dueDate) : null,
+      subtasks       : Array.isArray(subtasks) ? subtasks : [],
+      tags           : Array.isArray(tags) ? tags : [],
+      attachments    : Array.isArray(attachments) ? attachments : [],
+      estimatedHours : Number(estimatedHours) || 0,
+      loggedHours    : Number(loggedHours) || 0,
     });
 
     console.log(`✅  [tasks] Created: "${task.title}" (${task._id}) in epic ${epicId}`);
@@ -168,20 +172,24 @@ router.put('/:id', async (req, res, next) => {
       tags,
       attachments,
       isArchived,
+      estimatedHours,
+      loggedHours,
     } = req.body;
 
     const updates = {};
-    if (title       !== undefined) updates.title       = title.trim();
-    if (description !== undefined) updates.description = description.trim();
-    if (status      !== undefined) updates.status      = status;
-    if (priority    !== undefined) updates.priority    = priority;
-    if (assignee    !== undefined) updates.assignee    = assignee.trim();
-    if (orderIndex  !== undefined) updates.orderIndex  = Number(orderIndex);
-    if (dueDate     !== undefined) updates.dueDate     = dueDate ? new Date(dueDate) : null;
-    if (subtasks    !== undefined) updates.subtasks    = Array.isArray(subtasks) ? subtasks : [];
-    if (tags        !== undefined) updates.tags        = Array.isArray(tags) ? tags : [];
-    if (attachments !== undefined) updates.attachments = Array.isArray(attachments) ? attachments : [];
-    if (isArchived  !== undefined) updates.isArchived  = Boolean(isArchived);
+    if (title          !== undefined) updates.title          = title.trim();
+    if (description    !== undefined) updates.description    = description.trim();
+    if (status         !== undefined) updates.status         = status;
+    if (priority       !== undefined) updates.priority       = priority;
+    if (assignee       !== undefined) updates.assignee       = assignee.trim();
+    if (orderIndex     !== undefined) updates.orderIndex     = Number(orderIndex);
+    if (dueDate        !== undefined) updates.dueDate        = dueDate ? new Date(dueDate) : null;
+    if (subtasks       !== undefined) updates.subtasks       = Array.isArray(subtasks) ? subtasks : [];
+    if (tags           !== undefined) updates.tags           = Array.isArray(tags) ? tags : [];
+    if (attachments    !== undefined) updates.attachments    = Array.isArray(attachments) ? attachments : [];
+    if (isArchived     !== undefined) updates.isArchived     = Boolean(isArchived);
+    if (estimatedHours !== undefined) updates.estimatedHours = Number(estimatedHours) || 0;
+    if (loggedHours    !== undefined) updates.loggedHours    = Number(loggedHours) || 0;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: 'No update fields provided.' });

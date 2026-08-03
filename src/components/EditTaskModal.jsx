@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Pencil, Plus, Trash2, Tag, MessageSquare, Send, Link } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, Flag, User, Calendar, Pencil, Plus, Trash2, Tag, MessageSquare, Send, Link, Clock } from 'lucide-react';
 import Spinner from './Spinner';
 import { tasksAPI } from '../api';
 import toast from 'react-hot-toast';
@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
  * components/EditTaskModal.jsx
  *
  * Pre-fills all task fields for in-place editing.
- * Calls onSubmit({ title, description, status, priority, assignee, dueDate, subtasks, tags, attachments }).
+ * Calls onSubmit({ title, description, status, priority, assignee, dueDate, subtasks, tags, attachments, estimatedHours, loggedHours }).
  */
 
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -27,12 +27,14 @@ function toDateInputValue(dateStr) {
 
 export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
   const [form, setForm] = useState({
-    title      : task.title       || '',
-    description: task.description || '',
-    status     : task.status      || 'todo',
-    priority   : task.priority    || 'medium',
-    assignee   : task.assignee    || '',
-    dueDate    : toDateInputValue(task.dueDate),
+    title          : task.title          || '',
+    description    : task.description    || '',
+    status         : task.status         || 'todo',
+    priority       : task.priority       || 'medium',
+    assignee       : task.assignee       || '',
+    dueDate        : toDateInputValue(task.dueDate),
+    estimatedHours : task.estimatedHours || 0,
+    loggedHours    : task.loggedHours    || 0,
   });
   const [subtasks, setSubtasks] = useState(task.subtasks || []);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
@@ -47,12 +49,14 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
 
   useEffect(() => {
     setForm({
-      title      : task.title       || '',
-      description: task.description || '',
-      status     : task.status      || 'todo',
-      priority   : task.priority    || 'medium',
-      assignee   : task.assignee    || '',
-      dueDate    : toDateInputValue(task.dueDate),
+      title          : task.title          || '',
+      description    : task.description    || '',
+      status         : task.status         || 'todo',
+      priority       : task.priority       || 'medium',
+      assignee       : task.assignee       || '',
+      dueDate        : toDateInputValue(task.dueDate),
+      estimatedHours : task.estimatedHours || 0,
+      loggedHours    : task.loggedHours    || 0,
     });
     setSubtasks(task.subtasks || []);
     setTags(task.tags || []);
@@ -302,6 +306,42 @@ export default function EditTaskModal({ task, onClose, onSubmit, loading }) {
                 onChange={handleChange}
                 className="input-dark"
                 style={{ paddingLeft: '2.75rem', colorScheme: 'dark' }}
+              />
+            </div>
+          </div>
+
+          {/* Time Tracking */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="edit-task-estimated-hours" className="block text-sm font-medium text-slate-300 mb-2">
+                <span className="flex items-center gap-1.5"><Clock size={12} /> Est. Hours</span>
+              </label>
+              <input
+                id="edit-task-estimated-hours"
+                name="estimatedHours"
+                type="number"
+                min="0"
+                step="0.5"
+                value={form.estimatedHours}
+                onChange={handleChange}
+                placeholder="e.g. 8"
+                className="input-dark text-xs h-9"
+              />
+            </div>
+            <div>
+              <label htmlFor="edit-task-logged-hours" className="block text-sm font-medium text-slate-300 mb-2">
+                <span className="flex items-center gap-1.5"><Clock size={12} /> Logged Hours</span>
+              </label>
+              <input
+                id="edit-task-logged-hours"
+                name="loggedHours"
+                type="number"
+                min="0"
+                step="0.5"
+                value={form.loggedHours}
+                onChange={handleChange}
+                placeholder="e.g. 4"
+                className="input-dark text-xs h-9"
               />
             </div>
           </div>

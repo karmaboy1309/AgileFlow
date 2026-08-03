@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare, MessageSquare, Link, Archive, ArchiveRestore, Keyboard } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag, CheckSquare, MessageSquare, Link, Archive, ArchiveRestore, Keyboard, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
@@ -220,6 +220,15 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
                   >
                     <Link size={9} />
                     {task.attachments.length}
+                  </span>
+                )}
+                {(task.estimatedHours > 0 || task.loggedHours > 0) && (
+                  <span
+                    className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20"
+                    title={`Logged ${task.loggedHours || 0}h / Estimated ${task.estimatedHours || 0}h`}
+                  >
+                    <Clock size={9} />
+                    {task.loggedHours || 0}h{task.estimatedHours ? `/${task.estimatedHours}h` : ''}
                   </span>
                 )}
                 {task.dueDate && (() => {

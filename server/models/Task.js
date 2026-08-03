@@ -113,6 +113,18 @@ const taskSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Time tracking (hours)
+    estimatedHours: {
+      type   : Number,
+      default: 0,
+      min    : 0,
+    },
+    loggedHours: {
+      type   : Number,
+      default: 0,
+      min    : 0,
+    },
+
     // Used to maintain drag-and-drop order within a column.
     // Client should send the new index on every PUT /api/tasks/:id call.
     orderIndex: {
