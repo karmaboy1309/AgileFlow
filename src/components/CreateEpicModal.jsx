@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Layers, AlignLeft, Tag } from 'lucide-react';
+import { X, Layers, AlignLeft, Tag, Calendar } from 'lucide-react';
 import Spinner from './Spinner';
 
 const COLORS = [
@@ -12,7 +12,7 @@ const COLORS = [
 ];
 
 export default function CreateEpicModal({ onClose, onSubmit, loading }) {
-  const [form, setForm] = useState({ title: '', description: '', color: COLORS[0].value });
+  const [form, setForm] = useState({ title: '', description: '', color: COLORS[0].value, targetDate: '' });
 
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -96,6 +96,25 @@ export default function CreateEpicModal({ onClose, onSubmit, loading }) {
                 placeholder="What is this epic about?"
                 className="input-dark resize-none"
                 style={{ paddingLeft: '2.75rem', lineHeight: '1.6' }}
+              />
+            </div>
+          </div>
+
+          {/* Target Date */}
+          <div>
+            <label htmlFor="epic-targetDate" className="block text-sm font-medium text-slate-300 mb-2">
+              Target Milestone Date
+            </label>
+            <div className="relative">
+              <Calendar size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" style={{ pointerEvents: 'none' }} />
+              <input
+                id="epic-targetDate"
+                name="targetDate"
+                type="date"
+                value={form.targetDate}
+                onChange={handleChange}
+                className="input-dark"
+                style={{ paddingLeft: '2.75rem' }}
               />
             </div>
           </div>

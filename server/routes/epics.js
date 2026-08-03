@@ -223,12 +223,12 @@ router.post('/import', async (req, res, next) => {
 
 // ─── POST /api/epics ──────────────────────────────────────────────────────────
 /**
- * Body: { title, description?, color? }
+ * Body: { title, description?, color?, startDate?, targetDate? }
  * Returns: { epic }
  */
 router.post('/', async (req, res, next) => {
   try {
-    const { title, description, color } = req.body;
+    const { title, description, color, startDate, targetDate } = req.body;
 
     if (!title || !title.trim()) {
       return res.status(400).json({ message: 'Epic title is required.' });
@@ -238,6 +238,8 @@ router.post('/', async (req, res, next) => {
       title      : title.trim(),
       description: description?.trim() || '',
       color      : color || '#6366f1',
+      startDate  : startDate ? new Date(startDate) : null,
+      targetDate : targetDate ? new Date(targetDate) : null,
       createdBy  : req.user.id,
     });
 

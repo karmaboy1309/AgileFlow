@@ -123,11 +123,34 @@ function EpicCard({ epic, onClick, onEdit, onDelete }) {
         </div>
       </div>
 
+      {/* Target Milestone Date Indicator */}
+      {epic.targetDate && (() => {
+        const target = new Date(epic.targetDate);
+        const now = new Date();
+        const overdue = target < now && progress < 100;
+        const targetLabel = target.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return (
+          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-white/[0.06]">
+            <span className="flex items-center gap-1.5 text-slate-400">
+              <Calendar size={12} className={overdue ? 'text-red-400' : 'text-indigo-400'} />
+              <span>Target: <strong className={overdue ? 'text-red-400' : 'text-slate-200'}>{targetLabel}</strong></span>
+            </span>
+            {overdue && (
+              <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-500/15 text-red-400 border border-red-500/30">
+                Overdue
+              </span>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Footer meta */}
       {createdAt && (
-        <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-4">
-          <Calendar size={11} />
-          <span>Created {createdAt}</span>
+        <div className="flex items-center justify-between text-xs text-slate-600 mt-3">
+          <span className="flex items-center gap-1.5">
+            <Calendar size={11} />
+            <span>Created {createdAt}</span>
+          </span>
         </div>
       )}
     </article>

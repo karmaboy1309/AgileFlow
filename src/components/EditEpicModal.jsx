@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, Layers, AlignLeft, Tag, Pencil } from 'lucide-react';
+import { X, Layers, AlignLeft, Tag, Pencil, Calendar } from 'lucide-react';
 import Spinner from './Spinner';
 
 /**
  * components/EditEpicModal.jsx
  *
  * Pre-fills the form with the epic's current values so the user can
- * update the title, description, or color accent.
+ * update the title, description, color accent, or target date.
  * Mirrors the structure of CreateEpicModal.
  */
 
@@ -19,11 +19,17 @@ const COLORS = [
   { label: 'Rose',    value: '#f43f5e' },
 ];
 
+function toDateInputValue(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toISOString().split('T')[0];
+}
+
 export default function EditEpicModal({ epic, onClose, onSubmit, loading }) {
   const [form, setForm] = useState({
     title      : epic.title       || '',
     description: epic.description || '',
     color      : epic.color       || COLORS[0].value,
+    targetDate : toDateInputValue(epic.targetDate),
   });
 
   // Keep form in sync if epic prop changes (e.g. stale data)
@@ -32,6 +38,7 @@ export default function EditEpicModal({ epic, onClose, onSubmit, loading }) {
       title      : epic.title       || '',
       description: epic.description || '',
       color      : epic.color       || COLORS[0].value,
+      targetDate : toDateInputValue(epic.targetDate),
     });
   }, [epic]);
 
@@ -115,6 +122,25 @@ export default function EditEpicModal({ epic, onClose, onSubmit, loading }) {
                 placeholder="What is this epic about?"
                 className="input-dark resize-none"
                 style={{ paddingLeft: '2.75rem', lineHeight: '1.6' }}
+              />
+            </div>
+          </div>
+
+          {/* Target Date */}
+          <div>
+            <label htmlFor="edit-epic-targetDate" className="block text-sm font-medium text-slate-300 mb-2">
+              Target Milestone Date
+            </label>
+            <div className="relative">
+              <Calendar size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" style={{ pointerEvents: 'none' }} />
+              <input
+                id="edit-epic-targetDate"
+                name="targetDate"
+                type="date"
+                value={form.targetDate}
+                onChange={handleChange}
+                className="input-dark"
+                style={{ paddingLeft: '2.75rem' }}
               />
             </div>
           </div>

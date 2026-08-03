@@ -34,6 +34,16 @@ const epicSchema = new mongoose.Schema(
       match  : [/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex code (e.g. #6366f1).'],
     },
 
+    startDate: {
+      type   : Date,
+      default: null,
+    },
+
+    targetDate: {
+      type   : Date,
+      default: null,
+    },
+
     // Reference to the User who owns this Epic
     createdBy: {
       type    : mongoose.Schema.Types.ObjectId,
