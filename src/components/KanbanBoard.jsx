@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, MoreHorizontal, Trash2, GripVertical, User, Flag, Calendar, Pencil } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, GripVertical, User, Calendar, Pencil, Search, Filter, X, Tag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
@@ -323,6 +323,10 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   const [editingTask, setEditingTask] = useState(null);  // task being edited
   const [saving,     setSaving]     = useState(false);
 
+  const [searchQuery, setSearchQuery]       = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [tagFilter, setTagFilter]           = useState('all');
+
   // Keep local tasks in sync when parent re-fetches
   const [prevInitial, setPrevInitial] = useState(initialTasks);
   if (initialTasks !== prevInitial) {
@@ -330,9 +334,31 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
     setTasks(initialTasks);
   }
 
-  // Map tasks into columns
+  // Available unique tags from current tasks
+  const availableTags = Array.from(
+    new Set(tasks.flatMap((t) => t.tags || []))
+  );
+
+  // Filtered tasks mapping
+  const filteredTasks = tasks.filter((task) => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const titleMatch    = task.title.toLowerCase().includes(q);
+      const descMatch     = task.description && task.description.toLowerCase().includes(q);
+      const assigneeMatch = task.assignee && task.assignee.toLowerCase().includes(q);
+      if (!titleMatch && !descMatch && !assigneeMatch) return false;
+    }
+    if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false;
+    if (tagFilter !== 'all') {
+      if (!task.tags || !task.tags.includes(tagFilter)) return false;
+    }
+    return true;
+  });
+
   const getColumnTasks = (columnId) =>
-    tasks.filter((t) => t.status === columnId);
+    filteredTasks.filter((t) => t.status === columnId);
+
+  const hasActiveFilters = searchQuery.trim() !== '' || priorityFilter !== 'all' || tagFilter !== 'all';
 
   // ─── Drag End Handler ──────────────────────────────────────────────────────
   const handleDragEnd = useCallback(
@@ -440,6 +466,91 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   return (
     <div>
       <StatsBar tasks={tasks} />
+
+      {/* Board Search & Filter Control Bar */}
+      <div className="glass rounded-2xl p-3.5 mb-6 flex flex-wrap items-center justify-between gap-3 text-xs border border-white/[0.08]">
+        {/* Search input */}
+        <div className="relative flex-1 min-w-[220px]">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input
+            id="kanban-search-input"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search tasks by title, description, or assignee…"
+            className="input-dark text-xs h-9 pl-9 pr-8 w-full"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              aria-label="Clear search"
+            >
+              <X size={13} />
+            </button>
+          )}
+        </div>
+
+        {/* Priority Filter Pills */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-slate-500 flex items-center gap-1 mr-1 font-medium">
+            <Filter size={12} /> Priority:
+          </span>
+          {['all', 'high', 'medium', 'low'].map((p) => {
+            const active = priorityFilter === p;
+            const labels = { all: 'All', high: 'High', medium: 'Med', low: 'Low' };
+            return (
+              <button
+                key={p}
+                onClick={() => setPriorityFilter(p)}
+                className={`px-3 py-1 rounded-lg transition-all capitalize font-medium text-xs ${
+                  active
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
+                    : 'text-slate-400 bg-white/[0.04] hover:bg-white/[0.08] hover:text-slate-200'
+                }`}
+              >
+                {labels[p]}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tag Filter Dropdown */}
+        {availableTags.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            <span className="text-slate-500 flex items-center gap-1 font-medium">
+              <Tag size={12} /> Tag:
+            </span>
+            <select
+              value={tagFilter}
+              onChange={(e) => setTagFilter(e.target.value)}
+              className="input-dark text-xs h-9 px-3 py-1 bg-[#1e1e2d] border border-white/10 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500"
+            >
+              <option value="all">All Tags</option>
+              {availableTags.map((tag) => (
+                <option key={tag} value={tag}>
+                  {tag}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Reset Filters */}
+        {hasActiveFilters && (
+          <button
+            onClick={() => {
+              setSearchQuery('');
+              setPriorityFilter('all');
+              setTagFilter('all');
+            }}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors font-medium ml-auto sm:ml-0"
+          >
+            <X size={13} />
+            <span>Reset filters</span>
+          </button>
+        )}
+      </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
