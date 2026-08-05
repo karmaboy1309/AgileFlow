@@ -21,9 +21,10 @@ const cors     = require('cors');
 const helmet   = require('helmet');
 
 // ─── Route Imports ────────────────────────────────────────────────────────────
-const authRoutes  = require('./routes/auth');
-const epicRoutes  = require('./routes/epics');
-const taskRoutes  = require('./routes/tasks');
+const authRoutes    = require('./routes/auth');
+const epicRoutes    = require('./routes/epics');
+const taskRoutes    = require('./routes/tasks');
+const projectRoutes = require('./routes/projects');
 
 // ─── App Initialisation ───────────────────────────────────────────────────────
 const app  = express();
@@ -107,9 +108,10 @@ const authLimiter = rateLimit({
 });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
-app.use('/api/auth',  authLimiter, authRoutes);   // POST /api/auth/register  POST /api/auth/login
-app.use('/api/epics', epicRoutes);                // GET/POST/PUT/DELETE /api/epics[/:id]
-app.use('/api/tasks', taskRoutes);                // GET/POST/PUT/DELETE /api/tasks[/:id]
+app.use('/api/auth',     authLimiter, authRoutes);   // POST /api/auth/register  POST /api/auth/login
+app.use('/api/epics',    epicRoutes);                // GET/POST/PUT/DELETE /api/epics[/:id]
+app.use('/api/tasks',    taskRoutes);                // GET/POST/PUT/DELETE /api/tasks[/:id]
+app.use('/api/projects', projectRoutes);             // GET/POST/PUT/DELETE /api/projects[/:id]
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req, res) => {

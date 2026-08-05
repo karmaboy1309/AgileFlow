@@ -71,4 +71,12 @@ export const tasksAPI = {
   bulkDelete: (taskIds) => api.post('/tasks/bulk-delete', { taskIds }),
 };
 
+export const projectsAPI = {
+  getAll: () => api.get('/projects'),
+  create: (data) => api.post('/projects', data),
+  getById: (id) => api.get(`/projects/${id}`),
+  update: (id, data) => api.put(`/projects/${id}`, data),
+  delete: (id) => api.delete(`/projects/${id}`),
+};
+
 export default api;
