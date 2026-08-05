@@ -17,6 +17,7 @@ const mongoose = require('mongoose');
 const protect  = require('../middleware/auth');
 const Task     = require('../models/Task');
 const Epic     = require('../models/Epic');
+const Project  = require('../models/Project');
 
 const router = express.Router();
 
@@ -92,6 +93,8 @@ router.post('/', async (req, res, next) => {
   try {
     const {
       epicId,
+      projectId: reqProjectId,
+      issueType   = 'task',
       title,
       description = '',
       status      = 'todo',
@@ -104,6 +107,8 @@ router.post('/', async (req, res, next) => {
       attachments,
       estimatedHours = 0,
       loggedHours    = 0,
+      storyPoints    = 0,
+      sprintId       = null,
     } = req.body;
 
     if (!epicId || !title) {
@@ -114,6 +119,33 @@ router.post('/', async (req, res, next) => {
     const epic = await assertEpicOwnership(epicId, req.user.id, res);
     if (!epic) return;
 
+    // Determine associated Project or default project for key generation
+    let targetProject = null;
+    if (reqProjectId) {
+      targetProject = await Project.findOne({ _id: reqProjectId, createdBy: req.user.id });
+    }
+    if (!targetProject) {
+      // Find default project or create default 'AGILE' project for user
+      targetProject = await Project.findOne({ createdBy: req.user.id });
+      if (!targetProject) {
+        targetProject = await Project.create({
+          name: 'AgileFlow Default',
+          key: 'AGILE',
+          createdBy: req.user.id,
+          lead: req.user.id,
+        });
+      }
+    }
+
+    // Atomically increment project sequence counter
+    const updatedProject = await Project.findByIdAndUpdate(
+      targetProject._id,
+      { $inc: { seq: 1 } },
+      { new: true }
+    );
+
+    const generatedKey = `${updatedProject.key}-${updatedProject.seq}`;
+
     // Auto-assign orderIndex = current task count if not provided
     let idx = orderIndex;
     if (idx === undefined || idx === null) {
@@ -123,6 +155,10 @@ router.post('/', async (req, res, next) => {
     const task = await Task.create({
       title          : title.trim(),
       description    : description.trim(),
+      issueType      : issueType || 'task',
+      issueKey       : generatedKey,
+      projectId      : updatedProject._id,
+      sprintId       : sprintId || null,
       status,
       priority,
       assignee       : assignee.trim(),
@@ -134,6 +170,7 @@ router.post('/', async (req, res, next) => {
       attachments    : Array.isArray(attachments) ? attachments : [],
       estimatedHours : Number(estimatedHours) || 0,
       loggedHours    : Number(loggedHours) || 0,
+      storyPoints    : Number(storyPoints) || 0,
       activityLog    : [{
         action: 'created',
         actor : req.user.name || req.user.email,
