@@ -16,6 +16,9 @@ const TASK_STATUSES = ['todo', 'in-progress', 'done'];
 // Priority levels surfaced by the CreateTaskModal on the frontend
 const TASK_PRIORITIES = ['low', 'medium', 'high'];
 
+// Jira Issue Types
+const ISSUE_TYPES = ['story', 'bug', 'task', 'epic', 'subtask'];
+
 // ─── Schema ───────────────────────────────────────────────────────────────────
 const taskSchema = new mongoose.Schema(
   {
@@ -32,6 +35,27 @@ const taskSchema = new mongoose.Schema(
       default  : '',
       trim     : true,
       maxlength: [2000, 'Description cannot exceed 2000 characters.'],
+    },
+
+    issueType: {
+      type    : String,
+      enum    : {
+        values : ISSUE_TYPES,
+        message: `issueType must be one of: ${ISSUE_TYPES.join(', ')}.`,
+      },
+      default : 'task',
+    },
+
+    issueKey: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+      index: true,
     },
 
     status: {
