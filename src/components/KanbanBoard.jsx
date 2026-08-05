@@ -158,6 +158,17 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
             </div>
 
             {/* Description snippet */}
+            {/* Overdue badge — shown prominently for tasks past deadline */}
+            {task.dueDate && task.status !== 'done' && new Date(task.dueDate) < new Date() && (
+              <div className="flex mb-2">
+                <span
+                  className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
+                  style={{ background: 'rgba(239,68,68,0.18)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }}
+                >
+                  <span>⚠</span> Overdue
+                </span>
+              </div>
+            )}
             {task.description && (
               <p className="text-xs text-slate-500 mb-3 line-clamp-2 leading-relaxed">
                 {task.description}
@@ -232,20 +243,28 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
                   </span>
                 )}
                 {task.dueDate && (() => {
-                  const due  = new Date(task.dueDate);
-                  const now  = new Date();
-                  const overdue = due < now && task.status !== 'done';
+                  const due    = new Date(task.dueDate);
+                  const now    = new Date();
+                  const msLeft = due - now;
+                  const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+                  const isDone   = task.status === 'done';
+                  const isOverdue = daysLeft <= 0 && !isDone;
+                  const isSoon    = daysLeft > 0 && daysLeft <= 7 && !isDone;
                   const label = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                  // Color logic: red=overdue, amber=within 7 days, green=safe
+                  const color  = isOverdue ? '#ef4444' : isSoon ? '#f59e0b' : '#10b981';
+                  const bg     = isOverdue ? 'rgba(239,68,68,0.13)' : isSoon ? 'rgba(245,158,11,0.13)' : 'rgba(16,185,129,0.12)';
+
                   return (
                     <span
                       className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium"
-                      style={{
-                        background: overdue ? 'rgba(239,68,68,0.15)' : 'rgba(99,102,241,0.12)',
-                        color     : overdue ? '#ef4444' : '#818cf8',
-                      }}
+                      style={{ background: bg, color }}
+                      title={isOverdue ? 'Overdue!' : isSoon ? `Due in ${daysLeft} day(s)` : `Due ${label}`}
                     >
                       <Calendar size={9} />
                       {label}
+                      {isOverdue && <span className="text-[9px] font-bold ml-0.5">!</span>}
                     </span>
                   );
                 })()}
