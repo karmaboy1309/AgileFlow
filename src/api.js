@@ -79,4 +79,13 @@ export const projectsAPI = {
   delete: (id) => api.delete(`/projects/${id}`),
 };
 
+export const sprintsAPI = {
+  getAll: (projectId) => api.get(projectId ? `/sprints?projectId=${projectId}` : '/sprints'),
+  create: (data) => api.post('/sprints', data),
+  update: (id, data) => api.put(`/sprints/${id}`, data),
+  start: (id, data) => api.post(`/sprints/${id}/start`, data),
+  complete: (id) => api.post(`/sprints/${id}/complete`),
+  delete: (id) => api.delete(`/sprints/${id}`),
+};
+
 export default api;
