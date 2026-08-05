@@ -138,4 +138,50 @@ router.put('/profile', protect, async (req, res, next) => {
   }
 });
 
+// \u2500\u2500\u2500 PUT /api/auth/password \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+/**
+ * Body: { currentPassword, newPassword }
+ * Verifies the current password before updating to the new one.
+ * Returns: { message }
+ */
+router.put('/password', protect, async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current password and new password are required.' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'New password must be at least 8 characters.' });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: 'New password must be different from the current password.' });
+    }
+
+    // Explicitly select password field (it is excluded by default via select: false)
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Current password is incorrect.' });
+    }
+
+    // Assign new password \u2014 the pre-save hook in User.js will hash it automatically
+    user.password = newPassword;
+    await user.save();
+
+    console.log(`\u2705  [auth] Password changed for: ${user.email}`);
+    res.json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('\u2757  [auth/password]', error.message);
+    next(error);
+  }
+});
+
 module.exports = router;
+

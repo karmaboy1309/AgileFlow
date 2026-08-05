@@ -42,6 +42,7 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
   updateProfile: (data) => api.put('/auth/profile', data),
+  changePassword: (data) => api.put('/auth/password', data),
 };
 
 // ─── Epics Endpoints ─────────────────────────────────────────────────────────

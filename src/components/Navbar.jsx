@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield, Palette } from 'lucide-react';
+import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield, Palette, KeyRound } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authAPI } from '../api';
 
@@ -32,6 +32,9 @@ export default function Navbar({ title }) {
     role: '',
     avatarColor: '#6366f1',
   });
+  const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'security'
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [pwSaving, setPwSaving] = useState(false);
 
   useEffect(() => {
     const selectedTheme = THEMES.find((t) => t.id === theme) || THEMES[0];
@@ -72,6 +75,28 @@ export default function Navbar({ title }) {
       toast.error(err.response?.data?.message || 'Failed to update profile.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (pwForm.newPassword !== pwForm.confirmPassword) {
+      toast.error('New passwords do not match.');
+      return;
+    }
+    setPwSaving(true);
+    try {
+      await authAPI.changePassword({
+        currentPassword: pwForm.currentPassword,
+        newPassword: pwForm.newPassword,
+      });
+      setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setShowProfileModal(false);
+      toast.success('Password changed successfully! 🔒');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to change password.');
+    } finally {
+      setPwSaving(false);
     }
   };
 
@@ -187,66 +212,154 @@ export default function Navbar({ title }) {
               </button>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Display Name</label>
-                <input
-                  type="text"
-                  required
-                  value={profileForm.name}
-                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                  className="input-dark text-xs h-9"
-                  placeholder="Your full name"
-                />
-              </div>
+            {/* Tabs */}
+            <div className="flex gap-1 mb-5 bg-white/[0.04] p-1 rounded-xl border border-white/[0.06]">
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-lg transition-colors ${
+                  activeTab === 'profile' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <User size={12} /> Profile
+              </button>
+              <button
+                onClick={() => setActiveTab('security')}
+                className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-lg transition-colors ${
+                  activeTab === 'security' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <KeyRound size={12} /> Security
+              </button>
+            </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  <span className="flex items-center gap-1"><Shield size={12} /> Workspace Role</span>
-                </label>
-                <input
-                  type="text"
-                  value={profileForm.role}
-                  onChange={(e) => setProfileForm({ ...profileForm, role: e.target.value })}
-                  className="input-dark text-xs h-9"
-                  placeholder="e.g. Lead Developer, Product Owner"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-2">Avatar Accent Color</label>
-                <div className="flex items-center gap-2">
-                  {AVATAR_COLORS.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setProfileForm({ ...profileForm, avatarColor: c })}
-                      className="w-7 h-7 rounded-full flex items-center justify-center transition-transform hover:scale-110"
-                      style={{ background: c }}
-                    >
-                      {profileForm.avatarColor === c && <Check size={14} className="text-white" />}
-                    </button>
-                  ))}
+            {/* Profile Tab */}
+            {activeTab === 'profile' && (
+              <form onSubmit={handleSaveProfile} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">Display Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                    className="input-dark text-xs h-9"
+                    placeholder="Your full name"
+                  />
                 </div>
-              </div>
 
-              <div className="flex gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setShowProfileModal(false)}
-                  className="flex-1 h-9 text-xs font-medium text-slate-400 border border-white/[0.08] rounded-xl hover:bg-white/[0.04]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="btn-primary flex-1 h-9 text-xs flex items-center justify-center gap-2"
-                >
-                  {saving ? 'Saving…' : 'Save Profile'}
-                </button>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                    <span className="flex items-center gap-1"><Shield size={12} /> Workspace Role</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.role}
+                    onChange={(e) => setProfileForm({ ...profileForm, role: e.target.value })}
+                    className="input-dark text-xs h-9"
+                    placeholder="e.g. Lead Developer, Product Owner"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-2">Avatar Accent Color</label>
+                  <div className="flex items-center gap-2">
+                    {AVATAR_COLORS.map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setProfileForm({ ...profileForm, avatarColor: c })}
+                        className="w-7 h-7 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+                        style={{ background: c }}
+                      >
+                        {profileForm.avatarColor === c && <Check size={14} className="text-white" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowProfileModal(false)}
+                    className="flex-1 h-9 text-xs font-medium text-slate-400 border border-white/[0.08] rounded-xl hover:bg-white/[0.04]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="btn-primary flex-1 h-9 text-xs flex items-center justify-center gap-2"
+                  >
+                    {saving ? 'Saving…' : 'Save Profile'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Security Tab */}
+            {activeTab === 'security' && (
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">Current Password</label>
+                  <input
+                    id="current-password-input"
+                    type="password"
+                    required
+                    value={pwForm.currentPassword}
+                    onChange={(e) => setPwForm({ ...pwForm, currentPassword: e.target.value })}
+                    className="input-dark text-xs h-9"
+                    placeholder="Your current password"
+                    autoComplete="current-password"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">New Password</label>
+                  <input
+                    id="new-password-input"
+                    type="password"
+                    required
+                    minLength={8}
+                    value={pwForm.newPassword}
+                    onChange={(e) => setPwForm({ ...pwForm, newPassword: e.target.value })}
+                    className="input-dark text-xs h-9"
+                    placeholder="Min. 8 characters"
+                    autoComplete="new-password"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">Confirm New Password</label>
+                  <input
+                    id="confirm-password-input"
+                    type="password"
+                    required
+                    minLength={8}
+                    value={pwForm.confirmPassword}
+                    onChange={(e) => setPwForm({ ...pwForm, confirmPassword: e.target.value })}
+                    className="input-dark text-xs h-9"
+                    placeholder="Repeat new password"
+                    autoComplete="new-password"
+                  />
+                </div>
+                <div className="flex gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowProfileModal(false)}
+                    className="flex-1 h-9 text-xs font-medium text-slate-400 border border-white/[0.08] rounded-xl hover:bg-white/[0.04]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    id="change-password-btn"
+                    type="submit"
+                    disabled={pwSaving}
+                    className="btn-primary flex-1 h-9 text-xs flex items-center justify-center gap-2"
+                  >
+                    <KeyRound size={13} />
+                    {pwSaving ? 'Saving…' : 'Change Password'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
