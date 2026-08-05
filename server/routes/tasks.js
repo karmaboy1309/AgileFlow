@@ -292,6 +292,21 @@ router.delete('/:id/comments/:commentId', async (req, res, next) => {
   }
 });
 
+// ─── Helper: Verify bulk task ownership ───────────────────────────────────────
+/**
+ * Returns the set of task IDs that the current user actually owns.
+ * Ownership is traced via task.epicId → epic.createdBy.
+ */
+const filterOwnedTaskIds = async (taskIds, userId) => {
+  const tasks = await Task.find({ _id: { $in: taskIds } }).select('epicId');
+  const epicIds = [...new Set(tasks.map((t) => t.epicId.toString()))];
+  const ownedEpics = await Epic.find({ _id: { $in: epicIds }, createdBy: userId }).select('_id');
+  const ownedEpicSet = new Set(ownedEpics.map((e) => e._id.toString()));
+  return tasks
+    .filter((t) => ownedEpicSet.has(t.epicId.toString()))
+    .map((t) => t._id);
+};
+
 // ─── POST /api/tasks/bulk-update ──────────────────────────────────────────────
 router.post('/bulk-update', async (req, res, next) => {
   try {
@@ -300,13 +315,20 @@ router.post('/bulk-update', async (req, res, next) => {
       return res.status(400).json({ message: 'taskIds array and updates object are required.' });
     }
 
+    // Security: only operate on tasks the caller owns
+    const ownedIds = await filterOwnedTaskIds(taskIds, req.user.id);
+    if (ownedIds.length === 0) {
+      return res.status(403).json({ message: 'Access denied. None of the tasks belong to you.' });
+    }
+
     const payload = {};
-    if (updates.status !== undefined) payload.status = updates.status;
-    if (updates.priority !== undefined) payload.priority = updates.priority;
+    if (updates.status    !== undefined) payload.status    = updates.status;
+    if (updates.priority  !== undefined) payload.priority  = updates.priority;
     if (updates.isArchived !== undefined) payload.isArchived = Boolean(updates.isArchived);
 
-    await Task.updateMany({ _id: { $in: taskIds } }, { $set: payload });
-    res.json({ message: `Updated ${taskIds.length} task(s).` });
+    await Task.updateMany({ _id: { $in: ownedIds } }, { $set: payload });
+    console.log(`✅  [tasks] Bulk update: ${ownedIds.length} task(s) by ${req.user.email}`);
+    res.json({ message: `Updated ${ownedIds.length} task(s).` });
   } catch (error) {
     console.error('❗  [tasks/POST /bulk-update]', error.message);
     next(error);
