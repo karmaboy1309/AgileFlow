@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import CreateTaskModal from './CreateTaskModal';
 import EditTaskModal from './EditTaskModal';
+import IssueTypeIcon from './IssueTypeIcon';
 
 // ─── Column Definitions ───────────────────────────────────────────────────────
 const COLUMNS = [
@@ -107,6 +108,21 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
 
           {/* Card content */}
           <div className="pl-2">
+            {/* Issue Key & Type Row */}
+            <div className="flex items-center justify-between gap-2 mb-1.5 text-[11px]">
+              <div className="flex items-center gap-1.5">
+                <IssueTypeIcon type={task.issueType} size={12} />
+                <span className="font-mono font-bold text-slate-400">
+                  {task.issueKey || 'AGILE-?'}
+                </span>
+              </div>
+              {task.storyPoints > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-[10px]">
+                  {task.storyPoints} pts
+                </span>
+              )}
+            </div>
+
             {/* Title + menu */}
             <div className="flex items-start justify-between gap-2 mb-3">
               <p className="text-sm font-medium text-slate-100 leading-snug flex-1">

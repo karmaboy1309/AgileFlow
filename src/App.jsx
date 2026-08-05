@@ -7,6 +7,8 @@ import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+import BacklogPage from './pages/BacklogPage';
+
 // ─── Protected Route Guard ────────────────────────────────────────────────────
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('agileflow_token');
@@ -75,6 +77,22 @@ export default function App() {
           element={
             <PrivateRoute>
               <BoardPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/backlog"
+          element={
+            <PrivateRoute>
+              <BacklogPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/projects/:projectId/backlog"
+          element={
+            <PrivateRoute>
+              <BacklogPage />
             </PrivateRoute>
           }
         />
