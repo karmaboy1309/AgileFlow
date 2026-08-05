@@ -418,6 +418,48 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   const [showArchiveVault, setShowArchiveVault] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds]       = useState([]);
+  // Sort state — persisted so preference survives page refreshes
+  const [sortBy, setSortBy]   = useState(() => localStorage.getItem('agileflow_sort') || 'order');
+  const [sortDir, setSortDir] = useState(() => localStorage.getItem('agileflow_sort_dir') || 'asc');
+
+  const handleSortChange = (newSortBy) => {
+    if (newSortBy === sortBy) {
+      const newDir = sortDir === 'asc' ? 'desc' : 'asc';
+      setSortDir(newDir);
+      localStorage.setItem('agileflow_sort_dir', newDir);
+    } else {
+      setSortBy(newSortBy);
+      setSortDir('asc');
+      localStorage.setItem('agileflow_sort', newSortBy);
+      localStorage.setItem('agileflow_sort_dir', 'asc');
+    }
+  };
+
+  const sortTasks = (taskList) => {
+    const dir = sortDir === 'asc' ? 1 : -1;
+    return [...taskList].sort((a, b) => {
+      switch (sortBy) {
+        case 'priority': {
+          const order = { high: 0, medium: 1, low: 2 };
+          return dir * ((order[a.priority] ?? 1) - (order[b.priority] ?? 1));
+        }
+        case 'dueDate': {
+          const da = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+          const db = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+          return dir * (da - db);
+        }
+        case 'createdAt': {
+          const ca = new Date(a.createdAt || 0).getTime();
+          const cb = new Date(b.createdAt || 0).getTime();
+          return dir * (ca - cb);
+        }
+        case 'title':
+          return dir * a.title.localeCompare(b.title);
+        default: // 'order'
+          return dir * ((a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+      }
+    });
+  };
 
   const handleToggleSelectTask = (id) => {
     setSelectedTaskIds((prev) =>
@@ -531,7 +573,7 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
   });
 
   const getColumnTasks = (columnId) =>
-    filteredTasks.filter((t) => !t.isArchived && t.status === columnId);
+    sortTasks(filteredTasks.filter((t) => !t.isArchived && t.status === columnId));
 
   const archivedTasks = tasks.filter((t) => t.isArchived);
 
@@ -762,6 +804,31 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
             <span>Reset filters</span>
           </button>
         )}
+
+        {/* Sort Control */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-slate-500 font-medium">Sort:</span>
+          <select
+            id="kanban-sort-select"
+            value={sortBy}
+            onChange={(e) => handleSortChange(e.target.value)}
+            className="input-dark text-xs h-9 px-3 py-1 bg-[#1e1e2d] border border-white/10 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500"
+          >
+            <option value="order">Drag Order</option>
+            <option value="priority">Priority</option>
+            <option value="dueDate">Due Date</option>
+            <option value="createdAt">Created</option>
+            <option value="title">Title A–Z</option>
+          </select>
+          <button
+            id="kanban-sort-dir-btn"
+            onClick={() => handleSortChange(sortBy)}
+            title={`Direction: ${sortDir === 'asc' ? 'Ascending' : 'Descending'}`}
+            className="flex items-center justify-center w-9 h-9 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors font-bold"
+          >
+            {sortDir === 'asc' ? '↑' : '↓'}
+          </button>
+        </div>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
