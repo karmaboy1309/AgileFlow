@@ -4,6 +4,7 @@ import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Sear
 import toast from 'react-hot-toast';
 import { epicsAPI } from '../api';
 import Navbar from '../components/Navbar';
+import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import CreateEpicModal from '../components/CreateEpicModal';
 import EditEpicModal from '../components/EditEpicModal';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -15,6 +16,10 @@ const STATUS_CONFIG = {
   completed : { label: 'Done',     color: '#6366f1', bg: 'rgba(99,102,241,0.12)',  border: 'rgba(99,102,241,0.25)'  },
   archived  : { label: 'Archived', color: '#64748b', bg: 'rgba(100,116,139,0.12)', border: 'rgba(100,116,139,0.25)' },
 };
+
+// ─── Global keyboard shortcuts ───────────────────────────────────────────────────
+
+// ─── Export & Import Backup ──────────────────────────────────────────────────────
 
 function StatusBadge({ status }) {
   const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.active;
@@ -349,6 +354,10 @@ export default function DashboardPage() {
       toast.error(err.response?.data?.message || 'Failed to update epic status.');
     }
   };
+
+  // Global keyboard shortcuts
+  useKeyboardShortcut('e', () => setShowCreateModal(true));
+  useKeyboardShortcut('/', () => document.getElementById('search-epics-input')?.focus());
 
   // ── Export & Import Backup ───────────────────────────────────────────────────────
   const [importing, setImporting] = useState(false);
