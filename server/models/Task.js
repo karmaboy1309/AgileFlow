@@ -137,6 +137,13 @@ const taskSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Story Points estimation (Fibonacci sequence: 1, 2, 3, 5, 8, 13, 21)
+    storyPoints: {
+      type   : Number,
+      default: 0,
+      min    : 0,
+    },
+
     // Time tracking (hours)
     estimatedHours: {
       type   : Number,

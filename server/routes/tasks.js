@@ -217,6 +217,7 @@ router.put('/:id', async (req, res, next) => {
     const {
       title,
       description,
+      issueType,
       status,
       priority,
       assignee,
@@ -228,11 +229,14 @@ router.put('/:id', async (req, res, next) => {
       isArchived,
       estimatedHours,
       loggedHours,
+      storyPoints,
+      sprintId,
     } = req.body;
 
     const updates = {};
     if (title          !== undefined) updates.title          = title.trim();
     if (description    !== undefined) updates.description    = description.trim();
+    if (issueType      !== undefined) updates.issueType      = issueType;
     if (status         !== undefined) updates.status         = status;
     if (priority       !== undefined) updates.priority       = priority;
     if (assignee       !== undefined) updates.assignee       = assignee.trim();
@@ -244,6 +248,8 @@ router.put('/:id', async (req, res, next) => {
     if (isArchived     !== undefined) updates.isArchived     = Boolean(isArchived);
     if (estimatedHours !== undefined) updates.estimatedHours = Number(estimatedHours) || 0;
     if (loggedHours    !== undefined) updates.loggedHours    = Number(loggedHours) || 0;
+    if (storyPoints    !== undefined) updates.storyPoints    = Number(storyPoints) || 0;
+    if (sprintId       !== undefined) updates.sprintId       = sprintId || null;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: 'No update fields provided.' });
@@ -252,7 +258,7 @@ router.put('/:id', async (req, res, next) => {
     // ── Build activity log entries for auditable field changes ────────────────
     const actorName = req.user.name || req.user.email;
     const newLogEntries = [];
-    const auditableFields = ['status', 'priority', 'assignee', 'isArchived'];
+    const auditableFields = ['status', 'priority', 'assignee', 'isArchived', 'storyPoints', 'issueType', 'sprintId'];
     for (const field of auditableFields) {
       if (updates[field] !== undefined && String(task[field]) !== String(updates[field])) {
         newLogEntries.push({
