@@ -45,9 +45,9 @@ export const authAPI = {
   changePassword: (data) => api.put('/auth/password', data),
 };
 
-// ─── Epics Endpoints ─────────────────────────────────────────────────────────
+// ─── Epics Endpoints ────────────────────────────────────────────────
 export const epicsAPI = {
-  getAll: () => api.get('/epics'),
+  getAll: (status) => api.get(status ? `/epics?status=${status}` : '/epics'),
   getAnalytics: () => api.get('/epics/analytics'),
   exportWorkspace: () => api.get('/epics/export'),
   importWorkspace: (data) => api.post('/epics/import', data),

@@ -37,9 +37,15 @@ const isValidId = (id) => mongoose.isValidObjectId(id);
  */
 router.get('/', async (req, res, next) => {
   try {
+    // ?status=archived shows only archived epics; default excludes them
+    const { status } = req.query;
+    const statusMatch = status === 'archived'
+      ? { status: 'archived' }
+      : { status: { $ne: 'archived' } };
+
     // Aggregation pipeline: join tasks collection to get counts per epic
     const epics = await Epic.aggregate([
-      { $match: { createdBy: new mongoose.Types.ObjectId(req.user.id) } },
+      { $match: { createdBy: new mongoose.Types.ObjectId(req.user.id), ...statusMatch } },
       { $sort : { createdAt: -1 } },
       {
         $lookup: {
@@ -228,7 +234,7 @@ router.post('/import', async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
   try {
-    const { title, description, color, startDate, targetDate } = req.body;
+    const { title, description, color, startDate, targetDate, status } = req.body;
 
     if (!title || !title.trim()) {
       return res.status(400).json({ message: 'Epic title is required.' });
@@ -240,6 +246,7 @@ router.post('/', async (req, res, next) => {
       color      : color || '#6366f1',
       startDate  : startDate ? new Date(startDate) : null,
       targetDate : targetDate ? new Date(targetDate) : null,
+      status     : status || 'active',
       createdBy  : req.user.id,
     });
 
@@ -323,13 +330,16 @@ router.put('/:id', async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid Epic ID format.' });
     }
 
-    const { title, description, color } = req.body;
+    const { title, description, color, startDate, targetDate, status } = req.body;
 
     // Build update object — only include fields that were actually sent
     const updates = {};
     if (title       !== undefined) updates.title       = title.trim();
     if (description !== undefined) updates.description = description.trim();
     if (color       !== undefined) updates.color       = color;
+    if (startDate   !== undefined) updates.startDate   = startDate ? new Date(startDate) : null;
+    if (targetDate  !== undefined) updates.targetDate  = targetDate ? new Date(targetDate) : null;
+    if (status      !== undefined) updates.status      = status;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: 'No update fields provided.' });

@@ -51,6 +51,17 @@ const epicSchema = new mongoose.Schema(
       required: [true, 'createdBy (owner) is required.'],
       index   : true,   // Fast lookup of all Epics for a given user
     },
+
+    // Lifecycle status of the epic
+    status: {
+      type   : String,
+      enum   : {
+        values : ['active', 'on-hold', 'completed', 'archived'],
+        message: 'Status must be one of: active, on-hold, completed, archived.',
+      },
+      default: 'active',
+      index  : true,
+    },
   },
   {
     timestamps: true,

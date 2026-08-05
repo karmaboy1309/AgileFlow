@@ -1,12 +1,32 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X, BarChart3, ChevronDown, ChevronUp, Download, Upload, Copy } from 'lucide-react';
+import { Plus, Calendar, ArrowRight, Inbox, MoreHorizontal, Pencil, Trash2, Search, X, BarChart3, ChevronDown, ChevronUp, Download, Upload, Copy, Archive, ArchiveRestore } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { epicsAPI } from '../api';
 import Navbar from '../components/Navbar';
 import CreateEpicModal from '../components/CreateEpicModal';
 import EditEpicModal from '../components/EditEpicModal';
 import ConfirmDialog from '../components/ConfirmDialog';
+
+// ─── Status Badge ────────────────────────────────────────────────────────────────
+const STATUS_CONFIG = {
+  active    : { label: 'Active',    color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)' },
+  'on-hold' : { label: 'On Hold',  color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.25)'  },
+  completed : { label: 'Done',     color: '#6366f1', bg: 'rgba(99,102,241,0.12)',  border: 'rgba(99,102,241,0.25)'  },
+  archived  : { label: 'Archived', color: '#64748b', bg: 'rgba(100,116,139,0.12)', border: 'rgba(100,116,139,0.25)' },
+};
+
+function StatusBadge({ status }) {
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.active;
+  return (
+    <span
+      className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full"
+      style={{ color: cfg.color, background: cfg.bg, border: `1px solid ${cfg.border}` }}
+    >
+      {cfg.label}
+    </span>
+  );
+}
 
 // ─── Skeleton Card ─────────────────────────────────────────────────────────────
 function EpicSkeleton() {
@@ -48,6 +68,12 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
       aria-label={`Open board for epic: ${epic.title}`}
     >
+      {/* Status badge */}
+      {epic.status && epic.status !== 'active' && (
+        <div className="absolute top-4 left-4 z-10" onClick={(e) => e.stopPropagation()}>
+          <StatusBadge status={epic.status} />
+        </div>
+      )}
       {/* ⋯ menu */}
       <div
         ref={menuRef}
@@ -65,7 +91,7 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
         {menuOpen && (
           <div
             className="absolute right-0 top-7 z-20 rounded-xl border border-white/[0.08] shadow-xl overflow-hidden"
-            style={{ background: '#1e1e2d', minWidth: '150px' }}
+            style={{ background: '#1e1e2d', minWidth: '160px' }}
           >
             <button
               id={`epic-edit-btn-${epic._id}`}
@@ -83,6 +109,26 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
               >
                 <Copy size={13} />
                 Duplicate epic
+              </button>
+            )}
+            {onArchive && epic.status !== 'archived' && (
+              <button
+                id={`epic-archive-btn-${epic._id}`}
+                onClick={() => { setMenuOpen(false); onArchive(epic, 'archived'); }}
+                className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-amber-400 hover:bg-amber-500/10 transition-colors border-b border-white/[0.06]"
+              >
+                <Archive size={13} />
+                Archive epic
+              </button>
+            )}
+            {onArchive && epic.status === 'archived' && (
+              <button
+                id={`epic-restore-btn-${epic._id}`}
+                onClick={() => { setMenuOpen(false); onArchive(epic, 'active'); }}
+                className="flex items-center gap-2 w-full px-4 py-2.5 text-xs text-emerald-400 hover:bg-emerald-500/10 transition-colors border-b border-white/[0.06]"
+              >
+                <ArchiveRestore size={13} />
+                Restore epic
               </button>
             )}
             <button
@@ -200,6 +246,7 @@ export default function DashboardPage() {
 
   const [analytics, setAnalytics]         = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(true);
+  const [showArchived, setShowArchived]   = useState(false);
 
   const fetchAnalytics = useCallback(async () => {
     try {
@@ -212,8 +259,13 @@ export default function DashboardPage() {
 
   const fetchEpics = useCallback(async () => {
     try {
-      const { data } = await epicsAPI.getAll();
-      setEpics(Array.isArray(data) ? data : data.epics ?? []);
+      const [activeRes, archivedRes] = await Promise.all([
+        epicsAPI.getAll(),
+        epicsAPI.getAll('archived'),
+      ]);
+      const active   = Array.isArray(activeRes.data) ? activeRes.data : activeRes.data.epics ?? [];
+      const archived = Array.isArray(archivedRes.data) ? archivedRes.data : archivedRes.data.epics ?? [];
+      setEpics([...active, ...archived]);
       fetchAnalytics();
     } catch {
       toast.error('Failed to load epics. Please refresh.');
@@ -285,7 +337,20 @@ export default function DashboardPage() {
     }
   };
 
-  // ── Export & Import Backup ───────────────────────────────────────────────
+  // ── Archive / Restore epic ────────────────────────────────────────────────────────
+  const handleArchiveEpic = async (epic, newStatus) => {
+    try {
+      const { data } = await epicsAPI.update(epic._id, { status: newStatus });
+      const updated = data.epic ?? data;
+      setEpics((prev) => prev.map((e) => (e._id === updated._id ? { ...e, ...updated } : e)));
+      const msg = newStatus === 'archived' ? `Epic "${epic.title}" archived.` : `Epic "${epic.title}" restored.`;
+      toast.success(msg);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update epic status.');
+    }
+  };
+
+  // ── Export & Import Backup ───────────────────────────────────────────────────────
   const [importing, setImporting] = useState(false);
 
   const handleExportWorkspace = async () => {
@@ -330,7 +395,11 @@ export default function DashboardPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredEpics = epics.filter((epic) => {
+  const activeEpics   = epics.filter((e) => e.status !== 'archived');
+  const archivedEpics = epics.filter((e) => e.status === 'archived');
+  const currentEpics  = showArchived ? archivedEpics : activeEpics;
+
+  const filteredEpics = currentEpics.filter((epic) => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
     return (
@@ -411,13 +480,15 @@ export default function DashboardPage() {
         )}
 
         {/* Page header & Search bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Your Epics</h1>
+            <h1 className="text-2xl font-bold text-white mb-1">
+              {showArchived ? 'Archived Epics' : 'Your Epics'}
+            </h1>
             <p className="text-slate-500 text-sm">
               {loading
                 ? '…'
-                : `${epics.length} epic${epics.length !== 1 ? 's' : ''} in your workspace`}
+                : `${currentEpics.length} epic${currentEpics.length !== 1 ? 's' : ''} ${showArchived ? 'archived' : 'in your workspace'}`}
             </p>
           </div>
 
@@ -488,6 +559,29 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Active / Archived tabs */}
+        <div className="flex items-center gap-2 mb-6 mt-2">
+          <button
+            id="tab-active-epics-btn"
+            onClick={() => setShowArchived(false)}
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              !showArchived ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-400 bg-white/[0.04] hover:bg-white/[0.08]'
+            }`}
+          >
+            Active ({activeEpics.length})
+          </button>
+          <button
+            id="tab-archived-epics-btn"
+            onClick={() => setShowArchived(true)}
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              showArchived ? 'bg-amber-600 text-white shadow-md shadow-amber-500/20' : 'text-slate-400 bg-white/[0.04] hover:bg-white/[0.08]'
+            }`}
+          >
+            <Archive size={11} className="inline mr-1" />
+            Archived ({archivedEpics.length})
+          </button>
+        </div>
+
         {/* Grid */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -523,6 +617,7 @@ export default function DashboardPage() {
                 onEdit={(e) => setEditingEpic(e)}
                 onDelete={(e) => setDeletingEpic(e)}
                 onDuplicate={handleDuplicateEpic}
+                onArchive={handleArchiveEpic}
               />
             ))}
           </div>
