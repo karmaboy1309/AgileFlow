@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const express = require('express');
 const router = express.Router();
@@ -63,10 +63,17 @@ router.get('/:id', async (req, res, next) => {
 // PUT /api/projects/:id
 router.put('/:id', async (req, res, next) => {
   try {
-    const { name, description, category, lead } = req.body;
+    const { name, description, category, lead, statuses } = req.body;
+    const updates = {};
+    if (name !== undefined) updates.name = name.trim();
+    if (description !== undefined) updates.description = description.trim();
+    if (category !== undefined) updates.category = category;
+    if (lead !== undefined) updates.lead = lead;
+    if (Array.isArray(statuses)) updates.statuses = statuses;
+
     const project = await Project.findOneAndUpdate(
       { _id: req.params.id, createdBy: req.user.id },
-      { name, description, category, lead },
+      updates,
       { new: true, runValidators: true }
     );
     if (!project) return res.status(404).json({ message: 'Project not found.' });

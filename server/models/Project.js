@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const mongoose = require('mongoose');
 
@@ -32,6 +32,21 @@ const projectSchema = new mongoose.Schema(
       type: String,
       default: 'Software',
       enum: ['Software', 'Business', 'Service Desk', 'Marketing'],
+    },
+    // Configurable Kanban/Scrum Workflow Statuses
+    statuses: {
+      type: [
+        {
+          id: { type: String, required: true },
+          label: { type: String, required: true },
+          category: { type: String, enum: ['todo', 'in-progress', 'done'], default: 'todo' },
+        },
+      ],
+      default: [
+        { id: 'todo', label: 'To Do', category: 'todo' },
+        { id: 'in-progress', label: 'In Progress', category: 'in-progress' },
+        { id: 'done', label: 'Done', category: 'done' },
+      ],
     },
     // Auto-increment sequence counter for issue keys (e.g. AGILE-1, AGILE-2)
     seq: {
