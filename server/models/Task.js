@@ -131,6 +131,18 @@ const taskSchema = new mongoose.Schema(
       type   : Number,
       default: 0,
     },
+
+    // Activity / Audit Log — immutable history of changes to this task
+    activityLog: [
+      {
+        action   : { type: String, required: true },          // e.g. 'status_change', 'created', 'priority_change'
+        field    : { type: String, default: null },           // e.g. 'status'
+        from     : { type: String, default: null },           // previous value
+        to       : { type: String, default: null },           // new value
+        actor    : { type: String, default: 'Workspace Member' }, // display name or email
+        createdAt: { type: Date,   default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,
@@ -142,5 +154,7 @@ const taskSchema = new mongoose.Schema(
 taskSchema.index({ epicId: 1, orderIndex: 1 });
 // Secondary: filter by status within an epic
 taskSchema.index({ epicId: 1, status: 1 });
+// Tertiary: sort by creation date to surface most recent activity
+taskSchema.index({ epicId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Task', taskSchema);

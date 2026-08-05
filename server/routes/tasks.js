@@ -121,6 +121,10 @@ router.post('/', async (req, res, next) => {
       attachments    : Array.isArray(attachments) ? attachments : [],
       estimatedHours : Number(estimatedHours) || 0,
       loggedHours    : Number(loggedHours) || 0,
+      activityLog    : [{
+        action: 'created',
+        actor : req.user.name || req.user.email,
+      }],
     });
 
     console.log(`✅  [tasks] Created: "${task.title}" (${task._id}) in epic ${epicId}`);
@@ -195,9 +199,32 @@ router.put('/:id', async (req, res, next) => {
       return res.status(400).json({ message: 'No update fields provided.' });
     }
 
+    // ── Build activity log entries for auditable field changes ────────────────
+    const actorName = req.user.name || req.user.email;
+    const newLogEntries = [];
+    const auditableFields = ['status', 'priority', 'assignee', 'isArchived'];
+    for (const field of auditableFields) {
+      if (updates[field] !== undefined && String(task[field]) !== String(updates[field])) {
+        newLogEntries.push({
+          action   : `${field}_change`,
+          field,
+          from     : String(task[field] ?? ''),
+          to       : String(updates[field]),
+          actor    : actorName,
+          createdAt: new Date(),
+        });
+      }
+    }
+
+    // Use $set for data updates and $push to append log entries atomically
+    const mongoUpdate = { $set: updates };
+    if (newLogEntries.length > 0) {
+      mongoUpdate.$push = { activityLog: { $each: newLogEntries } };
+    }
+
     const updatedTask = await Task.findByIdAndUpdate(
       id,
-      updates,
+      mongoUpdate,
       { new: true, runValidators: true }
     );
 
