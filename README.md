@@ -66,30 +66,34 @@ Built on a decoupled **MERN stack** architecture, AgileFlow pairs a fluid, state
 
 ## ⚡ Key Highlights & Capabilities
 
-### 🔒 Enterprise Authentication & Security Guards
-- **Salt-Factor 12 Password Hashing**: Uses `bcryptjs` cryptography for credential storage.
+### 🔒 Enterprise Security & Robust Integrity
+- **HTTP Security Headers (Helmet.js)**: Enforces Content Security Policy, HSTS, frameguard, and XSS headers.
+- **Payload Limits & Input Sanitization**: Limits request body size (2MB) and sanitizes NoSQL injection attacks using `express-mongo-sanitize`.
+- **Bulk Operation Ownership Verification**: Protects bulk update/delete endpoints against IDOR vulnerabilities by verifying task-to-epic ownership.
+- **Salt-Factor 12 Password Hashing & In-App Password Change**: Uses `bcryptjs` cryptography with a secure password change endpoint and UI.
 - **Signed JSON Web Token (JWT)**: Secures API endpoints with bearer authorization headers.
-- **Strict Route Guards**: `PrivateRoute` and `PublicRoute` client wrappers prevent unauthorized access and handle seamless redirects.
-- **API Protection Layer**: Rate limiting (`express-rate-limit`) and Nosql injection prevention (`express-mongo-sanitize`).
 
 ---
 
-### 📊 Real-Time Epic Aggregations & Analytics
+### 📊 Real-Time Epic Aggregations, Statuses & Analytics
+- **Epic Status Lifecycle**: Manage epics with `Active`, `On-Hold`, `Completed`, and `Archived` states and dedicated Dashboard views.
 - **MongoDB Pipeline Aggregations**: Executes aggregate queries (`$lookup`, `$group`, `$project`) to compute total and completed task metrics in a single database pass.
-- **Dynamic Progress Meters**: Smooth HTML5 progress bars calculating completion percentage per Epic.
-- **Hex Color Engine**: Personalize each Epic's identity on the workspace dashboard with custom color tags.
+- **Dynamic Progress Meters & Workspace Analytics**: Real-time velocity tracker and progress meters per Epic.
 
 ---
 
-### 📋 Drag-and-Drop Kanban Workflow Engine
+### 📋 Advanced Kanban Engine, Sorting & Audit Logs
 - **Preserved DnD Interactions**: Powered by `@hello-pangea/dnd` for smooth, cross-column card movement (`To Do`, `In Progress`, `Done`).
-- **Priority Indicator Badges**: Quick visual hierarchy with color-coded badges (`▼ Low`, `■ Med`, `▲ High`).
-- **Assignee Metadata**: Detailed assignee tagging and ownership tracking on every task card.
-- **Cascade Deletions**: Deleting an Epic automatically purges all child tasks to maintain data integrity.
+- **Flexible Task Sorting & Filtering**: Sort tasks by Drag Order, Priority, Due Date, Creation Date, or Title A–Z with ascending/descending toggles.
+- **Task Activity & Audit Trail**: Immutable history log tracking task creation, status changes, priority edits, and assignee updates.
+- **3-Tier Due Date System & Overdue Badges**: Color-coded deadline indicators (green/amber/red) with prominent Overdue pills on cards.
+- **Task Pagination & Lazy Loading**: Efficient pagination (`limit`/`skip`) with a "Load More Tasks" interface for large boards.
+- **Global Keyboard Shortcuts**: Quick actions (`E` = new epic, `N` = new task, `/` = search, `?` = shortcuts modal, `Esc` = cancel).
 
 ---
 
-### 🧼 Modern Dark Mode UX
+### 🧼 Modern Dark Mode UX & Error Resilience
+- **React ErrorBoundary**: Global component error catching with graceful fallback UI and quick reload capabilities.
 - **Toast Feedback System**: Real-time action alerts powered by `react-hot-toast` with styled dark themes.
 - **Glassmorphic UI Controls**: Backdrop blurs, subtle borders, hover scale effects, and custom scrollbars built with Tailwind CSS v4.
 
