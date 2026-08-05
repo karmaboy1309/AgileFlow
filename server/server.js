@@ -18,6 +18,7 @@ dotenv.config();                     // Must be called before any other require 
 const express  = require('express');
 const mongoose = require('mongoose');
 const cors     = require('cors');
+const helmet   = require('helmet');
 
 // ─── Route Imports ────────────────────────────────────────────────────────────
 const authRoutes  = require('./routes/auth');
@@ -44,6 +45,16 @@ const connectDB = async () => {
 connectDB();
 
 // ─── Global Middleware ────────────────────────────────────────────────────────
+
+// Security headers — sets X-Content-Type-Options, X-Frame-Options, HSTS, etc.
+// Placed before CORS so headers are always present even for preflight rejections.
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // allow CDN fonts/images
+    contentSecurityPolicy: process.env.NODE_ENV === 'production', // only in prod
+  })
+);
+
 // CORS — allow requests from the Vite dev server (and any extra origins in the env)
 const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
   .split(',')
@@ -64,8 +75,9 @@ app.use(
 
 const mongoSanitize = require('express-mongo-sanitize');
 
-app.use(express.json());             // Parse application/json bodies
-app.use(express.urlencoded({ extended: true }));  // Parse URL-encoded bodies
+// Limit request body size to 2 MB to prevent payload-based DoS attacks
+app.use(express.json({ limit: '2mb' }));             // Parse application/json bodies
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));  // Parse URL-encoded bodies
 app.use(mongoSanitize());            // Sanitize input data to prevent NoSQL query injection
 
 // ─── Request Logger (development convenience) ─────────────────────────────────
