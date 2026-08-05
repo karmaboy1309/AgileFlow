@@ -50,7 +50,7 @@ const assertEpicOwnership = async (epicId, userId, res) => {
  */
 router.get('/', async (req, res, next) => {
   try {
-    const { epicId } = req.query;
+    const { epicId, limit: limitStr, skip: skipStr, status } = req.query;
 
     if (!epicId) {
       return res.status(400).json({ message: 'Query parameter "epicId" is required.' });
@@ -60,10 +60,23 @@ router.get('/', async (req, res, next) => {
     const epic = await assertEpicOwnership(epicId, req.user.id, res);
     if (!epic) return;   // Response already sent inside assertEpicOwnership
 
-    const tasks = await Task.find({ epicId }).sort({ orderIndex: 1, createdAt: 1 });
+    // Pagination — default 50 tasks per page, cap at 200
+    const limit = Math.min(parseInt(limitStr, 10) || 50, 200);
+    const skip  = parseInt(skipStr, 10)  || 0;
 
-    console.log(`📋  [tasks] GET /?epicId=${epicId} — ${tasks.length} task(s)`);
-    res.json({ tasks });
+    // Optional status filter for column-level lazy loading
+    const filter = { epicId };
+    if (status) filter.status = status;
+
+    const [tasks, totalCount] = await Promise.all([
+      Task.find(filter).sort({ orderIndex: 1, createdAt: 1 }).skip(skip).limit(limit),
+      Task.countDocuments(filter),
+    ]);
+
+    const hasMore = skip + tasks.length < totalCount;
+
+    console.log(`📋  [tasks] GET /?epicId=${epicId} — ${tasks.length} of ${totalCount} task(s) (skip=${skip}, limit=${limit})`);
+    res.json({ tasks, totalCount, hasMore });
   } catch (error) {
     console.error('❗  [tasks/GET /]', error.message);
     next(error);

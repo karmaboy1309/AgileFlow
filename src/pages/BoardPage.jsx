@@ -34,6 +34,9 @@ export default function BoardPage() {
   const [epic,  setEpic]    = useState(null);
   const [tasks, setTasks]   = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const [error,   setError]   = useState(null);
 
   const fetchData = useCallback(async () => {
@@ -42,12 +45,14 @@ export default function BoardPage() {
     try {
       const [epicRes, tasksRes] = await Promise.all([
         epicsAPI.getById(epicId),
-        tasksAPI.getByEpic(epicId),
+        tasksAPI.getByEpic(epicId, { limit: 50, skip: 0 }),
       ]);
       const epicData  = epicRes.data.epic  ?? epicRes.data;
       const tasksData = tasksRes.data.tasks ?? tasksRes.data;
       setEpic(epicData);
       setTasks(Array.isArray(tasksData) ? tasksData : []);
+      setHasMore(Boolean(tasksRes.data.hasMore));
+      setTotalCount(tasksRes.data.totalCount || (Array.isArray(tasksData) ? tasksData.length : 0));
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to load board.';
       setError(msg);
@@ -56,6 +61,21 @@ export default function BoardPage() {
       setLoading(false);
     }
   }, [epicId]);
+
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const tasksRes = await tasksAPI.getByEpic(epicId, { limit: 50, skip: tasks.length });
+      const newTasks = tasksRes.data.tasks || [];
+      setTasks((prev) => [...prev, ...newTasks]);
+      setHasMore(Boolean(tasksRes.data.hasMore));
+    } catch {
+      toast.error('Failed to load more tasks.');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -150,6 +170,10 @@ export default function BoardPage() {
             tasks={tasks}
             epicId={epicId}
             onTasksChange={handleTasksChange}
+            hasMore={hasMore}
+            totalCount={totalCount}
+            onLoadMore={handleLoadMore}
+            loadingMore={loadingMore}
           />
         )}
       </main>

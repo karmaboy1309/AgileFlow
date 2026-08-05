@@ -422,8 +422,15 @@ function StatsBar({ tasks }) {
   );
 }
 
-// ─── Main KanbanBoard Export ──────────────────────────────────────────────────
-export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange }) {
+export default function KanbanBoard({
+  tasks: initialTasks,
+  epicId,
+  onTasksChange,
+  hasMore = false,
+  totalCount = 0,
+  onLoadMore = null,
+  loadingMore = false,
+}) {
   const [tasks,      setTasks]      = useState(initialTasks);
   const [showModal,  setShowModal]  = useState(false);
   const [modalStatus, setModalStatus] = useState('todo');
@@ -867,6 +874,24 @@ export default function KanbanBoard({ tasks: initialTasks, epicId, onTasksChange
           ))}
         </div>
       </DragDropContext>
+
+      {/* Load More Tasks Button (Pagination) */}
+      {hasMore && onLoadMore && (
+        <div className="flex justify-center mt-6">
+          <button
+            id="kanban-load-more-btn"
+            onClick={onLoadMore}
+            disabled={loadingMore}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 font-medium text-xs transition-colors"
+          >
+            {loadingMore ? (
+              <span>Loading more tasks…</span>
+            ) : (
+              <span>Load More Tasks ({tasks.length} of {totalCount})</span>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Floating Bulk Actions Bar */}
       {selectedTaskIds.length > 0 && (

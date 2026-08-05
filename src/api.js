@@ -60,7 +60,7 @@ export const epicsAPI = {
 
 // ─── Tasks Endpoints ─────────────────────────────────────────────────────────
 export const tasksAPI = {
-  getByEpic: (epicId) => api.get(`/tasks?epicId=${epicId}`),
+  getByEpic: (epicId, params = {}) => api.get(`/tasks?epicId=${epicId}`, { params }),
   create: (data) => api.post('/tasks', data),
   update: (id, data) => api.put(`/tasks/${id}`, data),
   delete: (id) => api.delete(`/tasks/${id}`),
