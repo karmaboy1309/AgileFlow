@@ -106,6 +106,29 @@ const taskSchema = new mongoose.Schema(
       },
     ],
 
+    // Issue Dependencies & Linking
+    issueLinks: [
+      {
+        relationship: {
+          type: String,
+          enum: ['blocks', 'is_blocked_by', 'relates_to', 'duplicates'],
+          required: true,
+        },
+        targetTaskId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Task',
+          required: true,
+        },
+      },
+    ],
+
+    // Fix Version / Release reference
+    fixVersionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Release',
+      default: null,
+    },
+
     // Custom Category Labels / Tags
     tags: [
       {
