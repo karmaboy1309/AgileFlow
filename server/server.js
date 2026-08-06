@@ -26,6 +26,8 @@ const epicRoutes    = require('./routes/epics');
 const taskRoutes    = require('./routes/tasks');
 const projectRoutes = require('./routes/projects');
 const sprintRoutes  = require('./routes/sprints');
+const reportRoutes  = require('./routes/reports');
+const releaseRoutes = require('./routes/releases');
 
 // ─── App Initialisation ───────────────────────────────────────────────────────
 const app  = express();
@@ -114,6 +116,8 @@ app.use('/api/epics',    epicRoutes);                // GET/POST/PUT/DELETE /api
 app.use('/api/tasks',    taskRoutes);                // GET/POST/PUT/DELETE /api/tasks[/:id]
 app.use('/api/projects', projectRoutes);             // GET/POST/PUT/DELETE /api/projects[/:id]
 app.use('/api/sprints',  sprintRoutes);              // GET/POST/PUT/DELETE /api/sprints[/:id]
+app.use('/api/reports',  reportRoutes);              // GET /api/reports/burndown /velocity
+app.use('/api/releases', releaseRoutes);             // GET/POST/PUT/DELETE /api/releases
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req, res) => {

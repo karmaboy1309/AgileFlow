@@ -5,9 +5,11 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
-import NotFoundPage from './pages/NotFoundPage';
-
 import BacklogPage from './pages/BacklogPage';
+import ReportsPage from './pages/ReportsPage';
+import ReleasePage from './pages/ReleasePage';
+import ProjectSettingsPage from './pages/ProjectSettingsPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // ─── Protected Route Guard ────────────────────────────────────────────────────
 function PrivateRoute({ children }) {
@@ -25,82 +27,106 @@ export default function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-      {/* Global toast notifications */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          style: {
-            background: '#1e1e2d',
-            color: '#e2e8f0',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '12px',
-            fontFamily: 'Inter, sans-serif',
-          },
-          success: { iconTheme: { primary: '#10b981', secondary: '#0f0f17' } },
-          error:   { iconTheme: { primary: '#ef4444', secondary: '#0f0f17' } },
-        }}
-      />
-
-      <Routes>
-        {/* Root → redirect based on auth state */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-        {/* Public auth routes */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <PublicRoute>
-              <RegisterPage />
-            </PublicRoute>
-          }
+        {/* Global toast notifications */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#1e1e2d',
+              color: '#e2e8f0',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '12px',
+              fontFamily: 'Inter, sans-serif',
+            },
+            success: { iconTheme: { primary: '#10b981', secondary: '#0f0f17' } },
+            error: { iconTheme: { primary: '#ef4444', secondary: '#0f0f17' } },
+          }}
         />
 
-        {/* Protected app routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <DashboardPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/board/:epicId"
-          element={
-            <PrivateRoute>
-              <BoardPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/backlog"
-          element={
-            <PrivateRoute>
-              <BacklogPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/projects/:projectId/backlog"
-          element={
-            <PrivateRoute>
-              <BacklogPage />
-            </PrivateRoute>
-          }
-        />
+        <Routes>
+          {/* Root → redirect based on auth state */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* Catch-all → 404 */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Public auth routes */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            }
+          />
+
+          {/* Protected app routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <DashboardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/board/:epicId"
+            element={
+              <PrivateRoute>
+                <BoardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/backlog"
+            element={
+              <PrivateRoute>
+                <BacklogPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/:projectId/backlog"
+            element={
+              <PrivateRoute>
+                <BacklogPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <PrivateRoute>
+                <ReportsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/releases"
+            element={
+              <PrivateRoute>
+                <ReleasePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <PrivateRoute>
+                <ProjectSettingsPage />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Catch-all → 404 */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 }
