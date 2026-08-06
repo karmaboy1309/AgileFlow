@@ -115,6 +115,11 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
                 <span className="font-mono font-bold text-slate-400">
                   {task.issueKey || 'AGILE-?'}
                 </span>
+                {task.subtasks && task.subtasks.length > 0 && (
+                  <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono">
+                    ✓ {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length}
+                  </span>
+                )}
               </div>
               {task.storyPoints > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-[10px]">

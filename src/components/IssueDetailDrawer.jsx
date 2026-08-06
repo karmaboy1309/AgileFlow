@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { X, User, Calendar, Clock, MessageSquare, Tag, Shield, History, Save, Trash2, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, User, Calendar, Clock, MessageSquare, Tag, Shield, History, Save, Trash2, CheckSquare, Link as LinkIcon, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import IssueTypeIcon from './IssueTypeIcon';
@@ -17,6 +17,13 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
     loggedHours: issue.loggedHours || 0,
   });
 
+  const [subtasks, setSubtasks] = useState(issue.subtasks || []);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+
+  const [issueLinks, setIssueLinks] = useState(issue.issueLinks || []);
+  const [newLinkRel, setNewLinkRel] = useState('blocks');
+  const [newLinkTargetKey, setNewLinkTargetKey] = useState('');
+
   const [saving, setSaving] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [addingComment, setAddingComment] = useState(false);
@@ -25,7 +32,12 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
     e?.preventDefault();
     setSaving(true);
     try {
-      const { data } = await tasksAPI.update(issue._id, form);
+      const payload = {
+        ...form,
+        subtasks,
+        issueLinks,
+      };
+      const { data } = await tasksAPI.update(issue._id, payload);
       const updated = data.task ?? data;
       toast.success('Issue updated! ✨');
       if (onUpdate) onUpdate(updated);
@@ -34,6 +46,22 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAddSubtask = () => {
+    if (!newSubtaskTitle.trim()) return;
+    setSubtasks([...subtasks, { title: newSubtaskTitle.trim(), completed: false }]);
+    setNewSubtaskTitle('');
+  };
+
+  const handleToggleSubtask = (index) => {
+    const updated = [...subtasks];
+    updated[index].completed = !updated[index].completed;
+    setSubtasks(updated);
+  };
+
+  const handleDeleteSubtask = (index) => {
+    setSubtasks(subtasks.filter((_, i) => i !== index));
   };
 
   const handleAddComment = async (e) => {
@@ -52,6 +80,8 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
       setAddingComment(false);
     }
   };
+
+  const completedSubtaskCount = subtasks.filter((s) => s.completed).length;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs">
@@ -177,12 +207,73 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
           <div>
             <label className="block text-xs font-semibold text-slate-400 mb-1">Description</label>
             <textarea
-              rows={5}
+              rows={4}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Add description or acceptance criteria…"
               className="input-dark text-xs w-full p-3 leading-relaxed"
             />
+          </div>
+
+          {/* Subtasks Checklist (Feature 6) */}
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                <CheckSquare size={14} className="text-emerald-400" /> Subtask Checklist ({completedSubtaskCount}/{subtasks.length})
+              </h4>
+              {subtasks.length > 0 && (
+                <span className="text-[11px] font-mono text-emerald-400">
+                  {Math.round((completedSubtaskCount / subtasks.length) * 100)}%
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              {subtasks.map((st, idx) => (
+                <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
+                  <label className="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0">
+                    <input
+                      type="checkbox"
+                      checked={st.completed}
+                      onChange={() => handleToggleSubtask(idx)}
+                      className="rounded border-slate-700 text-emerald-500 focus:ring-0 cursor-pointer"
+                    />
+                    <span className={st.completed ? 'line-through text-slate-500' : 'text-slate-200'}>
+                      {st.title}
+                    </span>
+                  </label>
+                  <button
+                    onClick={() => handleDeleteSubtask(idx)}
+                    className="text-slate-500 hover:text-red-400 p-1"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="text"
+                value={newSubtaskTitle}
+                onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                placeholder="Add a subtask item..."
+                className="input-dark text-xs h-8 flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddSubtask();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleAddSubtask}
+                className="btn-primary text-xs h-8 px-3 flex items-center gap-1"
+              >
+                <Plus size={13} /> Add
+              </button>
+            </div>
           </div>
 
           {/* Activity Log / History */}
