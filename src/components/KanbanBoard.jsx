@@ -24,6 +24,7 @@ const COLUMNS = [
     accentColor: '#f59e0b',
     bgColor: 'rgba(245,158,11,0.06)',
     dotColor: '#f59e0b',
+    wipLimit: 5,
   },
   {
     id: 'done',
@@ -339,12 +340,25 @@ function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit, onArchive, s
             />
             <h2 className="text-sm font-semibold text-slate-200">{column.label}</h2>
             <span
-              className="text-xs font-medium px-2 py-0.5 rounded-full"
-              style={{ background: `${column.accentColor}20`, color: column.accentColor }}
+              className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                column.wipLimit && tasks.length > column.wipLimit
+                  ? 'bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse font-bold'
+                  : ''
+              }`}
+              style={
+                column.wipLimit && tasks.length > column.wipLimit
+                  ? {}
+                  : { background: `${column.accentColor}20`, color: column.accentColor }
+              }
             >
-              {tasks.length}
+              {tasks.length} {column.wipLimit ? `/ ${column.wipLimit} MAX` : ''}
             </span>
           </div>
+          {column.wipLimit && tasks.length > column.wipLimit && (
+            <span className="text-[10px] text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+              WIP Exceeded!
+            </span>
+          )}
           <button
             id={`add-task-${column.id}-btn`}
             onClick={() => onAddTask(column.id)}
