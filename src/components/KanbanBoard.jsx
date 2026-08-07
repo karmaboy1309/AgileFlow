@@ -488,6 +488,7 @@ export default function KanbanBoard({
 
   const [searchQuery, setSearchQuery]       = useState('');
   const [swimlaneBy, setSwimlaneBy]         = useState('none');
+  const [cardDensity, setCardDensity]       = useState(() => localStorage.getItem('agileflow_card_density') || 'detailed');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [tagFilter, setTagFilter]           = useState('all');
   const [showArchiveVault, setShowArchiveVault] = useState(false);
@@ -844,7 +845,19 @@ export default function KanbanBoard({
           <span>Shortcuts (?)</span>
         </button>
 
-        {/* Swimlane Control */}
+        {/* Density Control */}
+        <button
+          id="kanban-density-btn"
+          onClick={() => {
+            const next = cardDensity === 'compact' ? 'detailed' : 'compact';
+            setCardDensity(next);
+            localStorage.setItem('agileflow_card_density', next);
+          }}
+          className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/05 transition-colors"
+          title={`Switch to ${cardDensity === 'compact' ? 'Detailed' : 'Compact'} View`}
+        >
+          <span>{cardDensity === 'compact' ? '📱 Compact' : '📄 Detailed'}</span>
+        </button>
         <div className="flex items-center gap-1.5">
           <span className="text-slate-500 font-medium text-xs">Swimlanes:</span>
           <select
