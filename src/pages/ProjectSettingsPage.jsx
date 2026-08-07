@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import Spinner from '../components/Spinner';
-import { projectsAPI } from '../api';
-import { Settings, Save, Trash2, Plus, Sliders, Shield } from 'lucide-react';
+import { projectsAPI, componentsAPI } from '../api';
+import { Settings, Save, Trash2, Plus, Sliders, Shield, Layers } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ProjectSettingsPage() {
@@ -16,6 +16,12 @@ export default function ProjectSettingsPage() {
   const [description, setDescription] = useState('');
   const [statuses, setStatuses] = useState([]);
   const [newStatusName, setNewStatusName] = useState('');
+
+  // Component Management State
+  const [components, setComponents] = useState([]);
+  const [newCompName, setNewCompName] = useState('');
+  const [newCompDesc, setNewCompDesc] = useState('');
+  const [newCompLead, setNewCompLead] = useState('');
 
   useEffect(() => {
     fetchProjects();
@@ -30,8 +36,18 @@ export default function ProjectSettingsPage() {
         setDescription(p.description || '');
         setStatuses(p.statuses || ['todo', 'in-progress', 'done']);
       }
+      fetchComponents(selectedProjectId);
     }
   }, [selectedProjectId, projects]);
+
+  const fetchComponents = async (projId) => {
+    try {
+      const res = await componentsAPI.getAll(projId);
+      setComponents(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchProjects = async () => {
     try {
@@ -81,6 +97,36 @@ export default function ProjectSettingsPage() {
       return;
     }
     setStatuses(statuses.filter((s) => s !== statusToRemove));
+  };
+
+  const handleCreateComponent = async (e) => {
+    e.preventDefault();
+    if (!newCompName.trim() || !selectedProjectId) return;
+    try {
+      await componentsAPI.create({
+        name: newCompName.trim(),
+        description: newCompDesc.trim(),
+        lead: newCompLead.trim(),
+        projectId: selectedProjectId,
+      });
+      toast.success('Component created!');
+      setNewCompName('');
+      setNewCompDesc('');
+      setNewCompLead('');
+      fetchComponents(selectedProjectId);
+    } catch (err) {
+      toast.error('Failed to create component');
+    }
+  };
+
+  const handleDeleteComponent = async (id) => {
+    try {
+      await componentsAPI.delete(id);
+      toast.success('Component deleted');
+      fetchComponents(selectedProjectId);
+    } catch (err) {
+      toast.error('Failed to delete component');
+    }
   };
 
   if (loading) {
@@ -186,6 +232,86 @@ export default function ProjectSettingsPage() {
                   <Plus className="w-3.5 h-3.5" /> Add
                 </button>
               </div>
+            </div>
+
+            {/* Component Management Box */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+              <h2 className="text-sm font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-amber-400" /> Project Components & Modules
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <input
+                  type="text"
+                  placeholder="Component Name (e.g. Frontend)"
+                  value={newCompName}
+                  onChange={(e) => setNewCompName(e.target.value)}
+                  className="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Lead / Owner (optional)"
+                  value={newCompLead}
+                  onChange={(e) => setNewCompLead(e.target.value)}
+                  className="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500"
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Description (optional)"
+                    value={newCompDesc}
+                    onChange={(e) => setNewCompDesc(e.target.value)}
+                    className="w-full bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateComponent}
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-xs font-semibold text-white rounded-lg flex items-center gap-1 shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add
+                  </button>
+                </div>
+              </div>
+
+              {components.length === 0 ? (
+                <p className="text-xs text-slate-500 italic">No components defined for this project yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {components.map((comp) => (
+                    <div
+                      key={comp._id}
+                      className="flex items-center justify-between p-3 bg-slate-800/60 border border-slate-700/60 rounded-xl"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-amber-300 px-2 py-0.5 bg-amber-950/60 border border-amber-800/60 rounded-md">
+                            {comp.name}
+                          </span>
+                          {comp.lead && (
+                            <span className="text-[11px] text-slate-400">Lead: {comp.lead}</span>
+                          )}
+                        </div>
+                        {comp.description && (
+                          <p className="text-xs text-slate-400 mt-1">{comp.description}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-slate-400 font-mono">
+                          {comp.completedTasks || 0}/{comp.totalTasks || 0} issues
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteComponent(comp._id)}
+                          className="text-slate-500 hover:text-red-400 transition-colors p-1"
+                          title="Delete Component"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end">
