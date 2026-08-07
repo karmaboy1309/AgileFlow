@@ -144,4 +144,9 @@ export const filtersAPI = {
   delete: (id) => api.delete(`/filters/${id}`),
 };
 
+export const reportsAPI = {
+  getBurndown: (sprintId) => api.get(`/reports/burndown?sprintId=${sprintId}`),
+  getVelocity: (projectId) => api.get(projectId ? `/reports/velocity?projectId=${projectId}` : '/reports/velocity'),
+};
+
 export default api;

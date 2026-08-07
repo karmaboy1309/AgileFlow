@@ -1,110 +1,91 @@
-'use strict';
-
-/**
- * routes/reports.js
- *
- * REST API endpoints for Agile Burndown Charts & Sprint Velocity Reports.
- */
+﻿'use strict';
 
 const express = require('express');
 const router = express.Router();
-const authGuard = require('../middleware/auth');
 const Sprint = require('../models/Sprint');
 const Task = require('../models/Task');
-const Epic = require('../models/Epic');
+const protect = require('../middleware/auth');
 
-router.use(authGuard);
+router.use(protect);
 
-// GET /api/reports/burndown/:sprintId
-router.get('/burndown/:sprintId', async (req, res) => {
+// GET /api/reports/burndown?sprintId=...
+router.get('/burndown', async (req, res, next) => {
   try {
-    const { sprintId } = req.params;
-    const sprint = await Sprint.findOne({ _id: sprintId, createdBy: req.userId });
-    if (!sprint) {
-      return res.status(404).json({ error: 'Sprint not found.' });
-    }
+    const { sprintId } = req.query;
+    if (!sprintId) return res.status(400).json({ message: 'sprintId parameter is required.' });
+
+    const sprint = await Sprint.findOne({ _id: sprintId, createdBy: req.user.id });
+    if (!sprint) return res.status(404).json({ message: 'Sprint not found.' });
 
     const tasks = await Task.find({ sprintId });
     const totalPoints = tasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
-    const completedPoints = tasks
-      .filter((t) => t.status === 'done')
-      .reduce((sum, t) => sum + (t.storyPoints || 0), 0);
 
-    const startDate = sprint.startDate || sprint.createdAt;
-    const endDate = sprint.endDate || new Date(new Date(startDate).getTime() + 14 * 24 * 60 * 60 * 1000);
+    const start = sprint.startDate || sprint.createdAt;
+    const end = sprint.endDate || new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const durationDays = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
 
-    // Build timeline points (14 day duration)
-    const durationDays = Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)));
-    const daysArray = [];
-    const idealStep = totalPoints / durationDays;
+    // Generate daily burndown data points
+    const dailyData = [];
+    const pointsPerDay = totalPoints / durationDays;
 
-    let runningRemaining = totalPoints;
+    for (let day = 0; day <= durationDays; day++) {
+      const currentDate = new Date(start.getTime() + day * 24 * 60 * 60 * 1000);
+      const idealRemaining = Math.max(0, Math.round((totalPoints - day * pointsPerDay) * 10) / 10);
 
-    for (let i = 0; i <= durationDays; i++) {
-      const currentDate = new Date(new Date(startDate).getTime() + i * 24 * 60 * 60 * 1000);
-      const dayLabel = `Day ${i}`;
-      const idealRemaining = Math.max(0, Math.round((totalPoints - i * idealStep) * 10) / 10);
+      // Tasks completed on or before this day
+      const completedOnDay = tasks.filter(
+        t => t.status === 'done' && t.updatedAt <= currentDate
+      ).reduce((sum, t) => sum + (t.storyPoints || 0), 0);
 
-      // Count tasks completed on or before currentDate
-      const completedUpToDay = tasks
-        .filter((t) => t.status === 'done' && new Date(t.updatedAt) <= currentDate)
-        .reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+      const actualRemaining = Math.max(0, totalPoints - completedOnDay);
 
-      const actualRemaining = Math.max(0, totalPoints - completedUpToDay);
-
-      daysArray.push({
-        day: dayLabel,
-        date: currentDate.toISOString().split('T')[0],
+      dailyData.push({
+        day: `Day ${day}`,
+        date: currentDate.toISOString().slice(0, 10),
         ideal: idealRemaining,
-        actual: actualRemaining,
+        actual: currentDate <= new Date() ? actualRemaining : null,
       });
     }
 
     res.json({
-      sprint,
+      sprintName: sprint.name,
       totalPoints,
-      completedPoints,
-      remainingPoints: totalPoints - completedPoints,
-      dataPoints: daysArray,
+      durationDays,
+      burndown: dailyData,
     });
-  } catch (error) {
-    console.error('Error in GET /api/reports/burndown:', error);
-    res.status(500).json({ error: 'Failed to generate burndown report' });
+  } catch (err) {
+    next(err);
   }
 });
 
-// GET /api/reports/velocity/:projectId
-router.get('/velocity/:projectId', async (req, res) => {
+// GET /api/reports/velocity?projectId=...
+router.get('/velocity', async (req, res, next) => {
   try {
-    const { projectId } = req.params;
-    const sprints = await Sprint.find({ projectId, createdBy: req.userId }).sort({ createdAt: 1 });
+    const { projectId } = req.query;
+    const filter = { createdBy: req.user.id };
+    if (projectId) filter.projectId = projectId;
 
-    const velocityData = [];
+    const sprints = await Sprint.find(filter).sort({ createdAt: 1 }).limit(7);
+    const sprintIds = sprints.map(s => s._id);
+    const tasks = await Task.find({ sprintId: { $in: sprintIds } });
 
-    for (const sprint of sprints) {
-      const tasks = await Task.find({ sprintId: sprint._id });
-      const committedPoints = tasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
-      const completedPoints = tasks
-        .filter((t) => t.status === 'done')
+    const velocityData = sprints.map(s => {
+      const sTasks = tasks.filter(t => t.sprintId?.toString() === s._id.toString());
+      const committed = sTasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+      const completed = sTasks
+        .filter(t => t.status === 'done')
         .reduce((sum, t) => sum + (t.storyPoints || 0), 0);
 
-      velocityData.push({
-        sprintId: sprint._id,
-        sprintName: sprint.name,
-        status: sprint.status,
-        committedPoints,
-        completedPoints,
-      });
-    }
-
-    res.json({
-      projectId,
-      sprintsCount: sprints.length,
-      velocityData,
+      return {
+        sprintName: s.name,
+        committed,
+        completed,
+      };
     });
-  } catch (error) {
-    console.error('Error in GET /api/reports/velocity:', error);
-    res.status(500).json({ error: 'Failed to generate velocity report' });
+
+    res.json({ velocity: velocityData });
+  } catch (err) {
+    next(err);
   }
 });
 
