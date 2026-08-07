@@ -1,71 +1,68 @@
-'use strict';
-
-/**
- * routes/filters.js
- *
- * REST API routes for Saved Filters & JQL Query Presets.
- */
+﻿'use strict';
 
 const express = require('express');
 const router = express.Router();
-const authGuard = require('../middleware/auth');
 const SavedFilter = require('../models/SavedFilter');
+const protect = require('../middleware/auth');
 
-// All routes require JWT authentication
-router.use(authGuard);
+router.use(protect);
 
-// GET /api/filters?projectId=...
-router.get('/', async (req, res) => {
+// GET /api/filters
+router.get('/', async (req, res, next) => {
   try {
-    const { projectId } = req.query;
-    const filter = { userId: req.userId };
-    if (projectId) filter.projectId = projectId;
-
-    const filters = await SavedFilter.find(filter).sort({ isFavorite: -1, updatedAt: -1 });
-    res.json(filters);
-  } catch (error) {
-    console.error('Error in GET /api/filters:', error);
-    res.status(500).json({ error: 'Failed to fetch saved filters.' });
+    const filters = await SavedFilter.find({ createdBy: req.user.id }).sort({ isFavorite: -1, name: 1 });
+    res.json({ filters });
+  } catch (err) {
+    next(err);
   }
 });
 
 // POST /api/filters
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   try {
-    const { name, description, projectId, filterState, isFavorite } = req.body;
-    if (!name || !filterState) {
-      return res.status(400).json({ error: 'Filter name and filterState are required.' });
+    const { name, jql, description, isFavorite } = req.body;
+    if (!name || !jql) {
+      return res.status(400).json({ message: 'Filter name and JQL string are required.' });
     }
 
-    const savedFilter = await SavedFilter.create({
-      name,
-      description: description || '',
-      projectId: projectId || null,
-      userId: req.userId,
-      filterState,
+    const filter = await SavedFilter.create({
+      name: name.trim(),
+      jql: jql.trim(),
+      description: description?.trim() || '',
       isFavorite: Boolean(isFavorite),
+      createdBy: req.user.id,
     });
 
-    res.status(201).json(savedFilter);
-  } catch (error) {
-    console.error('Error in POST /api/filters:', error);
-    res.status(500).json({ error: 'Failed to create saved filter.' });
+    res.status(201).json({ filter });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/filters/:id
+router.put('/:id', async (req, res, next) => {
+  try {
+    const { name, jql, description, isFavorite } = req.body;
+    const filter = await SavedFilter.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user.id },
+      { name, jql, description, isFavorite },
+      { new: true, runValidators: true }
+    );
+    if (!filter) return res.status(404).json({ message: 'Filter not found.' });
+    res.json({ filter });
+  } catch (err) {
+    next(err);
   }
 });
 
 // DELETE /api/filters/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
   try {
-    const savedFilter = await SavedFilter.findOne({ _id: req.params.id, userId: req.userId });
-    if (!savedFilter) {
-      return res.status(404).json({ error: 'Saved filter not found.' });
-    }
-
-    await savedFilter.deleteOne();
-    res.json({ message: 'Saved filter deleted.' });
-  } catch (error) {
-    console.error('Error in DELETE /api/filters/:id:', error);
-    res.status(500).json({ error: 'Failed to delete filter.' });
+    const filter = await SavedFilter.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
+    if (!filter) return res.status(404).json({ message: 'Filter not found.' });
+    res.json({ message: 'Filter deleted.' });
+  } catch (err) {
+    next(err);
   }
 });
 

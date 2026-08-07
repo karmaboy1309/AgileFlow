@@ -29,6 +29,7 @@ const sprintRoutes  = require('./routes/sprints');
 const versionRoutes = require('./routes/versions');
 const componentRoutes = require('./routes/components');
 const jqlRoutes       = require('./routes/jql');
+const filterRoutes    = require('./routes/filters');
 const reportRoutes  = require('./routes/reports');
 const releaseRoutes = require('./routes/releases');
 const componentRoutes = require('./routes/components');
@@ -124,6 +125,7 @@ app.use('/api/sprints',  sprintRoutes);              // GET/POST/PUT/DELETE /api
 app.use('/api/versions', versionRoutes);             // GET/POST/PUT/DELETE /api/versions[/:id]
 app.use('/api/components', componentRoutes);         // GET/POST/PUT/DELETE /api/components[/:id]
 app.use('/api/jql',        jqlRoutes);               // POST /api/jql/search
+app.use('/api/filters',    filterRoutes);            // GET/POST/PUT/DELETE /api/filters[/:id]
 app.use('/api/reports',  reportRoutes);              // GET /api/reports/burndown /velocity
 app.use('/api/releases', releaseRoutes);             // GET/POST/PUT/DELETE /api/releases
 app.use('/api/components', componentRoutes);         // GET/POST/PUT/DELETE /api/components

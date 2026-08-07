@@ -137,4 +137,11 @@ export const jqlAPI = {
   search: (jql, limit = 50, skip = 0) => api.post('/jql/search', { jql, limit, skip }),
 };
 
+export const filtersAPI = {
+  getAll: () => api.get('/filters'),
+  create: (data) => api.post('/filters', data),
+  update: (id, data) => api.put(`/filters/${id}`, data),
+  delete: (id) => api.delete(`/filters/${id}`),
+};
+
 export default api;
