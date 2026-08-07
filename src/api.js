@@ -168,4 +168,8 @@ export const rolesAPI = {
   remove: (projectId, userId) => api.delete(`/projects/${projectId}/roles/${userId}`),
 };
 
+export const usersAPI = {
+  getAll: (query) => api.get(query ? `/users?query=${encodeURIComponent(query)}` : '/users'),
+};
+
 export default api;
