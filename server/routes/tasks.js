@@ -384,6 +384,49 @@ router.post('/:id/comments', async (req, res, next) => {
   }
 });
 
+// ─── POST /api/tasks/:id/attachments ──────────────────────────────────────────
+router.post('/:id/attachments', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { title, url } = req.body;
+    if (!title || !url) {
+      return res.status(400).json({ message: 'Attachment title and url are required.' });
+    }
+
+    const task = await Task.findById(id);
+    if (!task) return res.status(404).json({ message: 'Task not found.' });
+
+    task.attachments.push({ title: title.trim(), url: url.trim() });
+    task.activityLog.push({
+      action: 'attachment_added',
+      field: 'attachments',
+      to: title.trim(),
+      actor: req.user.name || req.user.email,
+    });
+    await task.save();
+
+    res.status(201).json({ task });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── DELETE /api/tasks/:id/attachments/:attachmentId ─────────────────────────
+router.delete('/:id/attachments/:attachmentId', async (req, res, next) => {
+  try {
+    const { id, attachmentId } = req.params;
+    const task = await Task.findById(id);
+    if (!task) return res.status(404).json({ message: 'Task not found.' });
+
+    task.attachments = task.attachments.filter((a) => a._id.toString() !== attachmentId);
+    await task.save();
+
+    res.json({ task });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ─── DELETE /api/tasks/:id/comments/:commentId ───────────────────────────────
 router.delete('/:id/comments/:commentId', async (req, res, next) => {
   try {
