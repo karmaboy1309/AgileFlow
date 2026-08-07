@@ -418,6 +418,35 @@ router.post('/:id/attachments', async (req, res, next) => {
   }
 });
 
+// ─── POST /api/tasks/:id/convert ──────────────────────────────────────────────
+router.post('/:id/convert', async (req, res, next) => {
+  try {
+    const { targetIssueType } = req.body;
+    const validTypes = ['story', 'bug', 'task', 'epic', 'subtask'];
+    if (!validTypes.includes(targetIssueType)) {
+      return res.status(400).json({ message: `Invalid targetIssueType: "${targetIssueType}"` });
+    }
+
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ message: 'Task not found.' });
+
+    const oldType = task.issueType;
+    task.issueType = targetIssueType;
+    task.activityLog.push({
+      action: 'issue_type_converted',
+      field: 'issueType',
+      from: oldType,
+      to: targetIssueType,
+      actor: req.user.name || req.user.email,
+    });
+    await task.save();
+
+    res.json({ task, message: `Converted ${task.issueKey || task.title} from ${oldType} to ${targetIssueType}.` });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ─── POST /api/tasks/:id/watch ────────────────────────────────────────────────
 router.post('/:id/watch', async (req, res, next) => {
   try {
