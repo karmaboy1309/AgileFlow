@@ -180,6 +180,18 @@ const taskSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Starred / Bookmarked
+    isStarred: {
+      type   : Boolean,
+      default: false,
+    },
+
+    // Issue Watchers
+    watchers: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    }],
+
     // Story Points estimation (Fibonacci sequence: 1, 2, 3, 5, 8, 13, 21)
     storyPoints: {
       type   : Number,

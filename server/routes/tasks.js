@@ -411,6 +411,41 @@ router.post('/:id/attachments', async (req, res, next) => {
   }
 });
 
+// ─── POST /api/tasks/:id/watch ────────────────────────────────────────────────
+router.post('/:id/watch', async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ message: 'Task not found.' });
+
+    const userIdx = task.watchers.indexOf(req.user.id);
+    if (userIdx > -1) {
+      task.watchers.splice(userIdx, 1);
+    } else {
+      task.watchers.push(req.user.id);
+    }
+    await task.save();
+
+    res.json({ task, watching: task.watchers.includes(req.user.id) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── POST /api/tasks/:id/star ─────────────────────────────────────────────────
+router.post('/:id/star', async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ message: 'Task not found.' });
+
+    task.isStarred = !task.isStarred;
+    await task.save();
+
+    res.json({ task, isStarred: task.isStarred });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ─── DELETE /api/tasks/:id/attachments/:attachmentId ─────────────────────────
 router.delete('/:id/attachments/:attachmentId', async (req, res, next) => {
   try {
