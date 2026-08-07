@@ -28,6 +28,8 @@ const projectRoutes = require('./routes/projects');
 const sprintRoutes  = require('./routes/sprints');
 const reportRoutes  = require('./routes/reports');
 const releaseRoutes = require('./routes/releases');
+const componentRoutes = require('./routes/components');
+const filterRoutes = require('./routes/filters');
 
 // ─── App Initialisation ───────────────────────────────────────────────────────
 const app  = express();
@@ -118,6 +120,8 @@ app.use('/api/projects', projectRoutes);             // GET/POST/PUT/DELETE /api
 app.use('/api/sprints',  sprintRoutes);              // GET/POST/PUT/DELETE /api/sprints[/:id]
 app.use('/api/reports',  reportRoutes);              // GET /api/reports/burndown /velocity
 app.use('/api/releases', releaseRoutes);             // GET/POST/PUT/DELETE /api/releases
+app.use('/api/components', componentRoutes);         // GET/POST/PUT/DELETE /api/components
+app.use('/api/filters', filterRoutes);               // GET/POST/DELETE /api/filters
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req, res) => {

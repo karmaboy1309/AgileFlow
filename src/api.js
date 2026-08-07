@@ -69,6 +69,10 @@ export const tasksAPI = {
   toggleArchive: (id, isArchived) => api.put(`/tasks/${id}`, { isArchived }),
   bulkUpdate: (taskIds, updates) => api.post('/tasks/bulk-update', { taskIds, updates }),
   bulkDelete: (taskIds) => api.post('/tasks/bulk-delete', { taskIds }),
+  logWork: (id, data) => api.post(`/tasks/${id}/worklog`, data),
+  deleteWorkLog: (id, logId) => api.delete(`/tasks/${id}/worklog/${logId}`),
+  exportTasks: (params) => api.get('/tasks/export', { params, responseType: params?.format === 'csv' ? 'blob' : 'json' }),
+  importTasks: (data) => api.post('/tasks/import', data),
 };
 
 export const projectsAPI = {
@@ -99,6 +103,19 @@ export const releasesAPI = {
   update: (id, data) => api.put(`/releases/${id}`, data),
   markReleased: (id) => api.post(`/releases/${id}/release`),
   delete: (id) => api.delete(`/releases/${id}`),
+};
+
+export const componentsAPI = {
+  getAll: (projectId) => api.get(projectId ? `/components?projectId=${projectId}` : '/components'),
+  create: (data) => api.post('/components', data),
+  update: (id, data) => api.put(`/components/${id}`, data),
+  delete: (id) => api.delete(`/components/${id}`),
+};
+
+export const filtersAPI = {
+  getAll: (projectId) => api.get(projectId ? `/filters?projectId=${projectId}` : '/filters'),
+  create: (data) => api.post('/filters', data),
+  delete: (id) => api.delete(`/filters/${id}`),
 };
 
 export default api;
