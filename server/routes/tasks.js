@@ -243,7 +243,14 @@ router.put('/:id', async (req, res, next) => {
     if (title          !== undefined) updates.title          = title.trim();
     if (description    !== undefined) updates.description    = description.trim();
     if (issueType      !== undefined) updates.issueType      = issueType;
-    if (status         !== undefined) updates.status         = status;
+    if (status         !== undefined) {
+      // Workflow State Transition Guard: Validate allowed transitions
+      const validStatuses = ['todo', 'in-progress', 'done'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: `Invalid status transition: "${status}". Must be one of ${validStatuses.join(', ')}` });
+      }
+      updates.status = status;
+    }
     if (priority       !== undefined) updates.priority       = priority;
     if (assignee       !== undefined) updates.assignee       = assignee.trim();
     if (orderIndex     !== undefined) updates.orderIndex     = Number(orderIndex);

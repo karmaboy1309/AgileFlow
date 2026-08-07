@@ -92,30 +92,12 @@ export const sprintsAPI = {
   delete: (id) => api.delete(`/sprints/${id}`),
 };
 
-export const reportsAPI = {
-  getBurndown: (sprintId) => api.get(`/reports/burndown/${sprintId}`),
-  getVelocity: (projectId) => api.get(`/reports/velocity/${projectId}`),
-};
-
 export const releasesAPI = {
   getAll: (projectId) => api.get(projectId ? `/releases?projectId=${projectId}` : '/releases'),
   create: (data) => api.post('/releases', data),
   update: (id, data) => api.put(`/releases/${id}`, data),
   markReleased: (id) => api.post(`/releases/${id}/release`),
   delete: (id) => api.delete(`/releases/${id}`),
-};
-
-export const componentsAPI = {
-  getAll: (projectId) => api.get(projectId ? `/components?projectId=${projectId}` : '/components'),
-  create: (data) => api.post('/components', data),
-  update: (id, data) => api.put(`/components/${id}`, data),
-  delete: (id) => api.delete(`/components/${id}`),
-};
-
-export const filtersAPI = {
-  getAll: (projectId) => api.get(projectId ? `/filters?projectId=${projectId}` : '/filters'),
-  create: (data) => api.post('/filters', data),
-  delete: (id) => api.delete(`/filters/${id}`),
 };
 
 export const versionsAPI = {
