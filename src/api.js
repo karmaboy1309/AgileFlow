@@ -150,4 +150,10 @@ export const reportsAPI = {
   getCFD: (projectId, days = 14) => api.get(`/reports/cfd?days=${days}${projectId ? `&projectId=${projectId}` : ''}`),
 };
 
+export const worklogsAPI = {
+  getByTask: (taskId) => api.get(`/tasks/${taskId}/worklogs`),
+  create: (taskId, data) => api.post(`/tasks/${taskId}/worklogs`, data),
+  delete: (id) => api.delete(`/worklogs/${id}`),
+};
+
 export default api;
