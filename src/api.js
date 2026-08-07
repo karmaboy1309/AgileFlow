@@ -133,4 +133,8 @@ export const componentsAPI = {
   delete: (id) => api.delete(`/components/${id}`),
 };
 
+export const jqlAPI = {
+  search: (jql, limit = 50, skip = 0) => api.post('/jql/search', { jql, limit, skip }),
+};
+
 export default api;
