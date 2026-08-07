@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
 import BacklogPage from './pages/BacklogPage';
 import RoadmapPage from './pages/RoadmapPage';
+import CrossBoardPage from './pages/CrossBoardPage';
 import ReportsPage from './pages/ReportsPage';
 import ReleasePage from './pages/ReleasePage';
 import ProjectSettingsPage from './pages/ProjectSettingsPage';
@@ -96,6 +97,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <BacklogPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/cross-board"
+            element={
+              <PrivateRoute>
+                <CrossBoardPage />
               </PrivateRoute>
             }
           />
