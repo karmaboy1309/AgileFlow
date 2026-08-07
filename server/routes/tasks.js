@@ -409,9 +409,13 @@ router.post('/bulk-update', async (req, res, next) => {
     }
 
     const payload = {};
-    if (updates.status    !== undefined) payload.status    = updates.status;
-    if (updates.priority  !== undefined) payload.priority  = updates.priority;
-    if (updates.isArchived !== undefined) payload.isArchived = Boolean(updates.isArchived);
+    if (updates.status       !== undefined) payload.status       = updates.status;
+    if (updates.priority     !== undefined) payload.priority     = updates.priority;
+    if (updates.isArchived   !== undefined) payload.isArchived   = Boolean(updates.isArchived);
+    if (updates.sprintId     !== undefined) payload.sprintId     = updates.sprintId || null;
+    if (updates.assignee     !== undefined) payload.assignee     = updates.assignee.trim();
+    if (updates.issueType    !== undefined) payload.issueType    = updates.issueType;
+    if (updates.fixVersionId !== undefined) payload.fixVersionId = updates.fixVersionId || null;
 
     await Task.updateMany({ _id: { $in: ownedIds } }, { $set: payload });
     console.log(`✅  [tasks] Bulk update: ${ownedIds.length} task(s) by ${req.user.email}`);
