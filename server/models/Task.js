@@ -64,6 +64,12 @@ const taskSchema = new mongoose.Schema(
       index: true,
     },
 
+    componentIds: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Component',
+      index: true,
+    }],
+
     status: {
       type    : String,
       enum    : {

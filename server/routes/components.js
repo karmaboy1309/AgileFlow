@@ -1,115 +1,92 @@
-'use strict';
-
-/**
- * routes/components.js
- *
- * REST API routes for Project Components.
- */
+﻿'use strict';
 
 const express = require('express');
 const router = express.Router();
-const authGuard = require('../middleware/auth');
 const Component = require('../models/Component');
 const Task = require('../models/Task');
+const protect = require('../middleware/auth');
 
-// All routes require JWT authentication
-router.use(authGuard);
+router.use(protect);
 
 // GET /api/components?projectId=...
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
     const { projectId } = req.query;
-    const filter = {};
+    const filter = { createdBy: req.user.id };
     if (projectId) filter.projectId = projectId;
 
-    const components = await Component.find(filter).sort({ name: 1 });
+    const components = await Component.find(filter)
+      .populate('lead', 'name email avatarColor')
+      .sort({ name: 1 });
 
-    // Compute task counts per component
+    // Calculate issues count per component
     const componentIds = components.map(c => c._id);
-    const tasks = await Task.find({ componentIds: { $in: componentIds } });
+    const tasks = await Task.find({ componentIds: { $in: componentIds } }).select('componentIds');
 
-    const componentsWithStats = components.map(comp => {
-      const compTasks = tasks.filter(t => t.componentIds && t.componentIds.some(cid => cid.toString() === comp._id.toString()));
-      const totalTasks = compTasks.length;
-      const completedTasks = compTasks.filter(t => t.status === 'done').length;
-
-      return {
-        ...comp.toObject(),
-        totalTasks,
-        completedTasks,
-      };
+    const result = components.map(c => {
+      const count = tasks.filter(t => t.componentIds?.some(id => id.toString() === c._id.toString())).length;
+      return { ...c.toJSON(), issueCount: count };
     });
 
-    res.json(componentsWithStats);
-  } catch (error) {
-    console.error('Error in GET /api/components:', error);
-    res.status(500).json({ error: 'Failed to fetch components.' });
+    res.json({ components: result });
+  } catch (err) {
+    next(err);
   }
 });
 
 // POST /api/components
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   try {
     const { name, description, lead, projectId } = req.body;
     if (!name || !projectId) {
-      return res.status(400).json({ error: 'Component name and projectId are required.' });
+      return res.status(400).json({ message: 'Component name and projectId are required.' });
     }
 
     const component = await Component.create({
-      name,
-      description: description || '',
-      lead: lead || '',
+      name: name.trim(),
+      description: description?.trim() || '',
+      lead: lead || null,
       projectId,
-      createdBy: req.userId,
+      createdBy: req.user.id,
     });
 
-    res.status(201).json(component);
-  } catch (error) {
-    console.error('Error in POST /api/components:', error);
-    res.status(500).json({ error: 'Failed to create component.' });
+    res.status(201).json({ component });
+  } catch (err) {
+    next(err);
   }
 });
 
 // PUT /api/components/:id
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const { name, description, lead } = req.body;
-    const component = await Component.findById(req.params.id);
-    if (!component) {
-      return res.status(404).json({ error: 'Component not found.' });
-    }
-
-    if (name !== undefined) component.name = name;
-    if (description !== undefined) component.description = description;
-    if (lead !== undefined) component.lead = lead;
-
-    await component.save();
-    res.json(component);
-  } catch (error) {
-    console.error('Error in PUT /api/components/:id:', error);
-    res.status(500).json({ error: 'Failed to update component.' });
+    const component = await Component.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user.id },
+      { name, description, lead },
+      { new: true, runValidators: true }
+    );
+    if (!component) return res.status(404).json({ message: 'Component not found.' });
+    res.json({ component });
+  } catch (err) {
+    next(err);
   }
 });
 
 // DELETE /api/components/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
   try {
-    const component = await Component.findById(req.params.id);
-    if (!component) {
-      return res.status(404).json({ error: 'Component not found.' });
-    }
+    const component = await Component.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
+    if (!component) return res.status(404).json({ message: 'Component not found.' });
 
-    // Remove component reference from tasks
+    // Pull component ID from all tasks
     await Task.updateMany(
-      { componentIds: component._id },
-      { $pull: { componentIds: component._id } }
+      { componentIds: req.params.id },
+      { $pull: { componentIds: req.params.id } }
     );
 
-    await component.deleteOne();
-    res.json({ message: 'Component deleted successfully.' });
-  } catch (error) {
-    console.error('Error in DELETE /api/components/:id:', error);
-    res.status(500).json({ error: 'Failed to delete component.' });
+    res.json({ message: 'Component deleted.' });
+  } catch (err) {
+    next(err);
   }
 });
 

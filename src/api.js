@@ -126,4 +126,11 @@ export const versionsAPI = {
   delete: (id) => api.delete(`/versions/${id}`),
 };
 
+export const componentsAPI = {
+  getAll: (projectId) => api.get(projectId ? `/components?projectId=${projectId}` : '/components'),
+  create: (data) => api.post('/components', data),
+  update: (id, data) => api.put(`/components/${id}`, data),
+  delete: (id) => api.delete(`/components/${id}`),
+};
+
 export default api;
