@@ -56,6 +56,12 @@ const projectSchema = new mongoose.Schema(
         options: [{ type: String, trim: true }], // For select dropdowns
       },
     ],
+    // Archiving status
+    isArchived: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     // Auto-increment sequence counter for issue keys (e.g. AGILE-1, AGILE-2)
     seq: {
       type: Number,

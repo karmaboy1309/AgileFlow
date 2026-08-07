@@ -83,7 +83,22 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-// DELETE /api/projects/:id
+// POST /api/projects/:id/archive - Toggle Project Archiving
+router.post('/:id/archive', async (req, res, next) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.id, createdBy: req.user.id });
+    if (!project) return res.status(404).json({ message: 'Project not found.' });
+
+    project.isArchived = !project.isArchived;
+    await project.save();
+
+    res.json({ project, message: project.isArchived ? 'Project archived.' : 'Project restored.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/projects/:id ───────────────────────────────────────────────────────
 router.delete('/:id', async (req, res, next) => {
   try {
     const project = await Project.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
