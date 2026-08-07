@@ -427,9 +427,144 @@ router.post('/bulk-delete', async (req, res, next) => {
     }
 
     await Task.deleteMany({ _id: { $in: taskIds } });
-    res.json({ message: `Deleted ${taskIds.length} task(s).` });
+// ─── POST /api/tasks/:id/worklog ──────────────────────────────────────────────
+router.post('/:id/worklog', async (req, res, next) => {
+  try {
+    const { timeSpentHours, comment, dateLogged } = req.body;
+    const hours = parseFloat(timeSpentHours);
+
+    if (isNaN(hours) || hours <= 0) {
+      return res.status(400).json({ message: 'Valid positive timeSpentHours is required.' });
+    }
+
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found.' });
+    }
+
+    const newLog = {
+      userId: req.user.id,
+      userName: req.user.name || req.user.email || 'Workspace Member',
+      timeSpentHours: hours,
+      dateLogged: dateLogged ? new Date(dateLogged) : new Date(),
+      comment: comment || '',
+      createdAt: new Date(),
+    };
+
+    task.workLogs.push(newLog);
+    task.loggedHours = task.workLogs.reduce((sum, w) => sum + (w.timeSpentHours || 0), 0);
+    if (task.originalEstimateHours > 0) {
+      task.remainingEstimateHours = Math.max(0, task.originalEstimateHours - task.loggedHours);
+    }
+
+    task.activityLog.push({
+      action: 'work_logged',
+      field: 'loggedHours',
+      from: `${task.loggedHours - hours}h`,
+      to: `${task.loggedHours}h`,
+      actor: req.user.name || req.user.email || 'Workspace Member',
+    });
+
+    await task.save();
+    res.json(task);
   } catch (error) {
-    console.error('❗  [tasks/POST /bulk-delete]', error.message);
+    console.error('❗ [tasks/POST /:id/worklog]', error.message);
+    next(error);
+  }
+});
+
+// ─── DELETE /api/tasks/:id/worklog/:logId ────────────────────────────────────
+router.delete('/:id/worklog/:logId', async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found.' });
+    }
+
+    task.workLogs = task.workLogs.filter((w) => w._id.toString() !== req.params.logId);
+    task.loggedHours = task.workLogs.reduce((sum, w) => sum + (w.timeSpentHours || 0), 0);
+    if (task.originalEstimateHours > 0) {
+      task.remainingEstimateHours = Math.max(0, task.originalEstimateHours - task.loggedHours);
+    }
+
+    await task.save();
+    res.json(task);
+  } catch (error) {
+    console.error('❗ [tasks/DELETE /:id/worklog/:logId]', error.message);
+    next(error);
+  }
+});
+
+// ─── GET /api/tasks/export ───────────────────────────────────────────────────
+router.get('/export', async (req, res, next) => {
+  try {
+    const { epicId, projectId, format = 'json' } = req.query;
+    const filter = {};
+    if (epicId) filter.epicId = epicId;
+    if (projectId) filter.projectId = projectId;
+
+    const tasks = await Task.find(filter).lean();
+
+    if (format === 'csv') {
+      const headers = ['issueKey', 'title', 'issueType', 'status', 'priority', 'assignee', 'storyPoints', 'originalEstimateHours', 'loggedHours'];
+      const rows = tasks.map(t => [
+        `"${t.issueKey || ''}"`,
+        `"${(t.title || '').replace(/"/g, '""')}"`,
+        `"${t.issueType || 'task'}"`,
+        `"${t.status || 'todo'}"`,
+        `"${t.priority || 'medium'}"`,
+        `"${t.assignee || ''}"`,
+        t.storyPoints || 0,
+        t.originalEstimateHours || 0,
+        t.loggedHours || 0
+      ].join(','));
+
+      const csvContent = [headers.join(','), ...rows].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=agileflow_issues_export.csv');
+      return res.send(csvContent);
+    }
+
+    res.json(tasks);
+  } catch (error) {
+    console.error('❗ [tasks/GET /export]', error.message);
+    next(error);
+  }
+});
+
+// ─── POST /api/tasks/import ───────────────────────────────────────────────────
+router.post('/import', async (req, res, next) => {
+  try {
+    const { epicId, projectId, tasks: importTasks } = req.body;
+    if (!epicId || !Array.isArray(importTasks) || importTasks.length === 0) {
+      return res.status(400).json({ message: 'epicId and tasks array are required.' });
+    }
+
+    const createdTasks = [];
+    for (let i = 0; i < importTasks.length; i++) {
+      const item = importTasks[i];
+      if (!item.title) continue;
+
+      const newTask = await Task.create({
+        epicId,
+        projectId: projectId || null,
+        title: item.title,
+        description: item.description || '',
+        issueType: item.issueType || 'task',
+        status: item.status || 'todo',
+        priority: item.priority || 'medium',
+        assignee: item.assignee || '',
+        storyPoints: Number(item.storyPoints) || 0,
+        originalEstimateHours: Number(item.originalEstimateHours) || 0,
+        orderIndex: i,
+        activityLog: [{ action: 'imported', actor: req.user.email || 'Workspace Member' }],
+      });
+      createdTasks.push(newTask);
+    }
+
+    res.status(201).json({ message: `Successfully imported ${createdTasks.length} task(s).`, tasks: createdTasks });
+  } catch (error) {
+    console.error('❗ [tasks/POST /import]', error.message);
     next(error);
   }
 });

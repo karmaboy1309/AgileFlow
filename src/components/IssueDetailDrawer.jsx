@@ -28,6 +28,47 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
   const [newComment, setNewComment] = useState('');
   const [addingComment, setAddingComment] = useState(false);
 
+  // Time Tracking / Work Log state
+  const [workLogHours, setWorkLogHours] = useState('');
+  const [workLogComment, setWorkLogComment] = useState('');
+  const [loggingWork, setLoggingWork] = useState(false);
+
+  const handleLogWork = async (e) => {
+    e.preventDefault();
+    const hours = parseFloat(workLogHours);
+    if (isNaN(hours) || hours <= 0) {
+      toast.error('Please enter valid hours spent.');
+      return;
+    }
+    setLoggingWork(true);
+    try {
+      const { data } = await tasksAPI.logWork(issue._id, {
+        timeSpentHours: hours,
+        comment: workLogComment,
+      });
+      const updated = data.task ?? data;
+      setWorkLogHours('');
+      setWorkLogComment('');
+      toast.success(`Logged ${hours}h work! ⏱️`);
+      if (onUpdate) onUpdate(updated);
+    } catch (err) {
+      toast.error('Failed to log work.');
+    } finally {
+      setLoggingWork(false);
+    }
+  };
+
+  const handleDeleteWorkLog = async (logId) => {
+    try {
+      const { data } = await tasksAPI.deleteWorkLog(issue._id, logId);
+      const updated = data.task ?? data;
+      toast.success('Work log deleted');
+      if (onUpdate) onUpdate(updated);
+    } catch (err) {
+      toast.error('Failed to delete work log');
+    }
+  };
+
   const handleSave = async (e) => {
     e?.preventDefault();
     setSaving(true);
@@ -201,6 +242,87 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
                 className="input-dark text-xs h-8 w-full"
               />
             </div>
+          </div>
+
+          {/* Time Tracking & Work Logging Panel (Feature 2) */}
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                <Clock size={14} className="text-blue-400" /> Time Tracking & Work Log
+              </h4>
+              <span className="text-[11px] font-mono text-blue-400 font-bold">
+                {issue.loggedHours || 0}h logged {form.estimatedHours > 0 ? `/ ${form.estimatedHours}h est.` : ''}
+              </span>
+            </div>
+
+            {/* Visual Progress Bar */}
+            {form.estimatedHours > 0 && (
+              <div className="space-y-1">
+                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden flex">
+                  <div
+                    className="h-full bg-blue-500 transition-all duration-300"
+                    style={{ width: `${Math.min(100, ((issue.loggedHours || 0) / form.estimatedHours) * 100)}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                  <span>{Math.round(((issue.loggedHours || 0) / form.estimatedHours) * 100)}% completed</span>
+                  <span>{Math.max(0, form.estimatedHours - (issue.loggedHours || 0))}h remaining</span>
+                </div>
+              </div>
+            )}
+
+            {/* Log Work Form */}
+            <form onSubmit={handleLogWork} className="flex gap-2 items-center pt-1">
+              <input
+                type="number"
+                step="0.5"
+                min="0.1"
+                placeholder="Hours (e.g. 2.5)"
+                value={workLogHours}
+                onChange={(e) => setWorkLogHours(e.target.value)}
+                className="input-dark text-xs h-8 w-28"
+              />
+              <input
+                type="text"
+                placeholder="Work log comment..."
+                value={workLogComment}
+                onChange={(e) => setWorkLogComment(e.target.value)}
+                className="input-dark text-xs h-8 flex-1"
+              />
+              <button
+                type="submit"
+                disabled={loggingWork || !workLogHours}
+                className="btn-primary text-xs h-8 px-3 shrink-0"
+              >
+                Log Work
+              </button>
+            </form>
+
+            {/* Worklogs History */}
+            {issue.workLogs && issue.workLogs.length > 0 && (
+              <div className="space-y-1.5 pt-2 border-t border-white/[0.05]">
+                {issue.workLogs.map((wl) => (
+                  <div key={wl._id} className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-blue-400 font-mono">+{wl.timeSpentHours}h</span>
+                        <span className="text-slate-400 text-[11px] font-medium">{wl.userName}</span>
+                        <span className="text-slate-600 text-[10px]">
+                          {new Date(wl.dateLogged).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                      {wl.comment && <p className="text-[11px] text-slate-300 truncate mt-0.5">{wl.comment}</p>}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteWorkLog(wl._id)}
+                      className="text-slate-500 hover:text-red-400 p-1"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Description */}

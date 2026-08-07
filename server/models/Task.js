@@ -129,6 +129,14 @@ const taskSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Component References
+    componentIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Component',
+      },
+    ],
+
     // Custom Category Labels / Tags
     tags: [
       {
@@ -167,8 +175,18 @@ const taskSchema = new mongoose.Schema(
       min    : 0,
     },
 
-    // Time tracking (hours)
+    // Time tracking & Work Logs (hours)
+    originalEstimateHours: {
+      type   : Number,
+      default: 0,
+      min    : 0,
+    },
     estimatedHours: {
+      type   : Number,
+      default: 0,
+      min    : 0,
+    },
+    remainingEstimateHours: {
       type   : Number,
       default: 0,
       min    : 0,
@@ -178,6 +196,16 @@ const taskSchema = new mongoose.Schema(
       default: 0,
       min    : 0,
     },
+    workLogs: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        userName: { type: String, default: 'Workspace Member' },
+        timeSpentHours: { type: Number, required: true, min: 0.1 },
+        dateLogged: { type: Date, default: Date.now },
+        comment: { type: String, default: '', trim: true },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
 
     // Used to maintain drag-and-drop order within a column.
     // Client should send the new index on every PUT /api/tasks/:id call.
