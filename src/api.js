@@ -156,4 +156,10 @@ export const worklogsAPI = {
   delete: (id) => api.delete(`/worklogs/${id}`),
 };
 
+export const linksAPI = {
+  getByTask: (taskId) => api.get(`/tasks/${taskId}/links`),
+  create: (data) => api.post('/links', data),
+  delete: (id) => api.delete(`/links/${id}`),
+};
+
 export default api;
