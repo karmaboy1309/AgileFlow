@@ -172,4 +172,11 @@ export const usersAPI = {
   getAll: (query) => api.get(query ? `/users?query=${encodeURIComponent(query)}` : '/users'),
 };
 
+export const notificationsAPI = {
+  getAll: () => api.get('/notifications'),
+  markAllRead: () => api.put('/notifications/read-all'),
+  markRead: (id) => api.put(`/notifications/${id}/read`),
+  delete: (id) => api.delete(`/notifications/${id}`),
+};
+
 export default api;
