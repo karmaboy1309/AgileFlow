@@ -147,6 +147,7 @@ export const filtersAPI = {
 export const reportsAPI = {
   getBurndown: (sprintId) => api.get(`/reports/burndown?sprintId=${sprintId}`),
   getVelocity: (projectId) => api.get(projectId ? `/reports/velocity?projectId=${projectId}` : '/reports/velocity'),
+  getCFD: (projectId, days = 14) => api.get(`/reports/cfd?days=${days}${projectId ? `&projectId=${projectId}` : ''}`),
 };
 
 export default api;

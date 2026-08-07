@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const express = require('express');
 const router = express.Router();
@@ -84,6 +84,43 @@ router.get('/velocity', async (req, res, next) => {
     });
 
     res.json({ velocity: velocityData });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/reports/cfd?projectId=...
+router.get('/cfd', async (req, res, next) => {
+  try {
+    const { projectId, days = 14 } = req.query;
+    const filter = {};
+    if (projectId) filter.projectId = projectId;
+
+    const tasks = await Task.find(filter);
+    const numDays = Math.min(Number(days), 30);
+    const now = new Date();
+    const cfdData = [];
+
+    for (let i = numDays - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = d.toISOString().slice(0, 10);
+
+      // Tasks created on or before date 'd'
+      const activeAtDate = tasks.filter(t => new Date(t.createdAt) <= d);
+
+      const todo = activeAtDate.filter(t => t.status === 'todo').length;
+      const inProgress = activeAtDate.filter(t => t.status === 'in-progress').length;
+      const done = activeAtDate.filter(t => t.status === 'done' && new Date(t.updatedAt) <= d).length;
+
+      cfdData.push({
+        date: dateStr,
+        todo,
+        inProgress,
+        done,
+      });
+    }
+
+    res.json({ cfd: cfdData });
   } catch (err) {
     next(err);
   }
