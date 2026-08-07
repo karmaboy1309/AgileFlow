@@ -48,6 +48,14 @@ const projectSchema = new mongoose.Schema(
         { id: 'done', label: 'Done', category: 'done' },
       ],
     },
+    // Configurable Custom Fields definitions
+    customFields: [
+      {
+        name: { type: String, required: true, trim: true },
+        fieldType: { type: String, enum: ['text', 'number', 'select', 'date'], default: 'text' },
+        options: [{ type: String, trim: true }], // For select dropdowns
+      },
+    ],
     // Auto-increment sequence counter for issue keys (e.g. AGILE-1, AGILE-2)
     seq: {
       type: Number,

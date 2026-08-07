@@ -192,6 +192,12 @@ const taskSchema = new mongoose.Schema(
       ref: 'User',
     }],
 
+    // Custom fields value store
+    customFieldsData: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+
     // Story Points estimation (Fibonacci sequence: 1, 2, 3, 5, 8, 13, 21)
     storyPoints: {
       type   : Number,
