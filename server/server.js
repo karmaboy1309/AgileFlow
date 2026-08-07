@@ -36,6 +36,7 @@ const linkRoutes      = require('./routes/links');
 const roleRoutes      = require('./routes/roles');
 const userRoutes      = require('./routes/users');
 const notificationRoutes = require('./routes/notifications');
+const gadgetRoutes       = require('./routes/gadgets');
 const reportRoutes  = require('./routes/reports');
 const releaseRoutes = require('./routes/releases');
 const componentRoutes = require('./routes/components');
@@ -138,6 +139,7 @@ app.use('/api',            linkRoutes);             // Issue Links endpoints
 app.use('/api',            roleRoutes);             // Project Roles endpoints
 app.use('/api/users',      userRoutes);             // Workspace User Directory
 app.use('/api/notifications', notificationRoutes);    // Notification Center
+app.use('/api/gadgets',       gadgetRoutes);          // Workspace Dashboard Gadgets
 app.use('/api/reports',  reportRoutes);              // GET /api/reports/burndown /velocity
 app.use('/api/releases', releaseRoutes);             // GET/POST/PUT/DELETE /api/releases
 app.use('/api/components', componentRoutes);         // GET/POST/PUT/DELETE /api/components

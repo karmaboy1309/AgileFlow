@@ -179,4 +179,11 @@ export const notificationsAPI = {
   delete: (id) => api.delete(`/notifications/${id}`),
 };
 
+export const gadgetsAPI = {
+  getAll: () => api.get('/gadgets'),
+  create: (data) => api.post('/gadgets', data),
+  update: (id, data) => api.put(`/gadgets/${id}`, data),
+  delete: (id) => api.delete(`/gadgets/${id}`),
+};
+
 export default api;
