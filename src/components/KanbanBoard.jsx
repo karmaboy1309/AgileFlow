@@ -473,6 +473,7 @@ export default function KanbanBoard({
   const [saving,     setSaving]     = useState(false);
 
   const [searchQuery, setSearchQuery]       = useState('');
+  const [swimlaneBy, setSwimlaneBy]         = useState('none');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [tagFilter, setTagFilter]           = useState('all');
   const [showArchiveVault, setShowArchiveVault] = useState(false);
@@ -829,26 +830,20 @@ export default function KanbanBoard({
           <span>Shortcuts (?)</span>
         </button>
 
-        {/* Tag Filter Dropdown */}
-        {availableTags.length > 0 && (
-          <div className="flex items-center gap-1.5">
-            <span className="text-slate-500 flex items-center gap-1 font-medium">
-              <Tag size={12} /> Tag:
-            </span>
-            <select
-              value={tagFilter}
-              onChange={(e) => setTagFilter(e.target.value)}
-              className="input-dark text-xs h-9 px-3 py-1 bg-[#1e1e2d] border border-white/10 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500"
-            >
-              <option value="all">All Tags</option>
-              {availableTags.map((tag) => (
-                <option key={tag} value={tag}>
-                  {tag}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        {/* Swimlane Control */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-slate-500 font-medium text-xs">Swimlanes:</span>
+          <select
+            id="kanban-swimlane-select"
+            value={swimlaneBy}
+            onChange={(e) => setSwimlaneBy(e.target.value)}
+            className="input-dark text-xs h-9 px-3 py-1 bg-[#1e1e2d] border border-white/10 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500"
+          >
+            <option value="none">None</option>
+            <option value="assignee">Assignee</option>
+            <option value="priority">Priority</option>
+          </select>
+        </div>
 
         {/* Reset Filters */}
         {hasActiveFilters && (
