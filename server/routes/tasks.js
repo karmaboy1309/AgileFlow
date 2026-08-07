@@ -418,6 +418,51 @@ router.post('/:id/attachments', async (req, res, next) => {
   }
 });
 
+// ─── POST /api/tasks/:id/clone ────────────────────────────────────────────────
+router.post('/:id/clone', async (req, res, next) => {
+  try {
+    const original = await Task.findById(req.params.id);
+    if (!original) return res.status(404).json({ message: 'Original task not found.' });
+
+    // Fetch project to increment sequence for clone key
+    const project = await Project.findByIdAndUpdate(original.projectId, { $inc: { seq: 1 } }, { new: true });
+    const cloneKey = project ? `${project.key}-${project.seq}` : undefined;
+
+    const cloneTask = await Task.create({
+      title: `[CLONE] ${original.title}`,
+      description: original.description,
+      issueType: original.issueType,
+      issueKey: cloneKey,
+      projectId: original.projectId,
+      epicId: original.epicId,
+      sprintId: original.sprintId,
+      priority: original.priority,
+      status: 'todo',
+      assignee: original.assignee,
+      storyPoints: original.storyPoints,
+      subtasks: original.subtasks ? original.subtasks.map((s) => ({ title: s.title, completed: false })) : [],
+      activityLog: [{
+        action: 'cloned',
+        from: original.issueKey || original._id,
+        actor: req.user.name || req.user.email,
+      }],
+    });
+
+    // Create 'duplicates' issue link
+    const IssueLink = require('../models/IssueLink');
+    await IssueLink.create({
+      sourceTaskId: cloneTask._id,
+      targetTaskId: original._id,
+      relationship: 'duplicates',
+      createdBy: req.user.id,
+    });
+
+    res.status(201).json({ task: cloneTask, message: `Cloned issue as ${cloneTask.issueKey || cloneTask.title}` });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ─── POST /api/tasks/:id/convert ──────────────────────────────────────────────
 router.post('/:id/convert', async (req, res, next) => {
   try {
