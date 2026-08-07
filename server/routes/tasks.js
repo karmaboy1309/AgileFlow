@@ -15,9 +15,11 @@
 const express  = require('express');
 const mongoose = require('mongoose');
 const protect  = require('../middleware/auth');
-const Task     = require('../models/Task');
-const Epic     = require('../models/Epic');
-const Project  = require('../models/Project');
+const Task         = require('../models/Task');
+const Epic         = require('../models/Epic');
+const Project      = require('../models/Project');
+const User         = require('../models/User');
+const Notification = require('../models/Notification');
 
 const router = express.Router();
 
@@ -351,6 +353,29 @@ router.post('/:id/comments', async (req, res, next) => {
     const authorName = req.user.name || req.user.email || 'Member';
     task.comments.push({ text: text.trim(), author: authorName, createdAt: new Date() });
     await task.save();
+
+    // ── Parse @mentions (e.g. @john or @user@email.com) and send notifications ─────
+    const mentions = text.match(/@([a-zA-Z0-9_\.-]+)/g);
+    if (mentions && mentions.length > 0) {
+      const usernames = mentions.map((m) => m.slice(1).toLowerCase());
+      const mentionedUsers = await User.find({
+        $or: [
+          { name: { $in: usernames.map((u) => new RegExp(u, 'i')) } },
+          { email: { $in: usernames.map((u) => new RegExp(u, 'i')) } },
+        ],
+        _id: { $ne: req.user.id },
+      });
+
+      for (const u of mentionedUsers) {
+        await Notification.create({
+          recipient: u._id,
+          sender: req.user.id,
+          type: 'mention',
+          taskId: task._id,
+          message: `${authorName} mentioned you in issue ${task.issueKey || task.title}: "${text.slice(0, 80)}"`,
+        });
+      }
+    }
 
     res.status(201).json({ task });
   } catch (error) {
