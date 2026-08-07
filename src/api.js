@@ -162,4 +162,10 @@ export const linksAPI = {
   delete: (id) => api.delete(`/links/${id}`),
 };
 
+export const rolesAPI = {
+  getByProject: (projectId) => api.get(`/projects/${projectId}/roles`),
+  assign: (projectId, data) => api.post(`/projects/${projectId}/roles`, data),
+  remove: (projectId, userId) => api.delete(`/projects/${projectId}/roles/${userId}`),
+};
+
 export default api;
