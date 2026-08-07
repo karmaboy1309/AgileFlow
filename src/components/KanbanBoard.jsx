@@ -489,6 +489,7 @@ export default function KanbanBoard({
   const [searchQuery, setSearchQuery]       = useState('');
   const [swimlaneBy, setSwimlaneBy]         = useState('none');
   const [cardDensity, setCardDensity]       = useState(() => localStorage.getItem('agileflow_card_density') || 'detailed');
+  const [quickFilter, setQuickFilter]       = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [tagFilter, setTagFilter]           = useState('all');
   const [showArchiveVault, setShowArchiveVault] = useState(false);
@@ -797,6 +798,40 @@ export default function KanbanBoard({
               <X size={13} />
             </button>
           )}
+        </div>
+
+        {/* Quick Filter Presets */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            onClick={() => setQuickFilter(quickFilter === 'my_issues' ? 'all' : 'my_issues')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors border ${
+              quickFilter === 'my_issues'
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                : 'bg-white/[0.04] text-slate-400 border-white/[0.08] hover:text-white'
+            }`}
+          >
+            ⚡ Only My Issues
+          </button>
+          <button
+            onClick={() => setQuickFilter(quickFilter === 'blockers' ? 'all' : 'blockers')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors border ${
+              quickFilter === 'blockers'
+                ? 'bg-red-600 text-white border-red-500 shadow-md'
+                : 'bg-white/[0.04] text-slate-400 border-white/[0.08] hover:text-white'
+            }`}
+          >
+            🚨 P0 Blockers
+          </button>
+          <button
+            onClick={() => setQuickFilter(quickFilter === 'unassigned' ? 'all' : 'unassigned')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors border ${
+              quickFilter === 'unassigned'
+                ? 'bg-amber-600 text-white border-amber-500 shadow-md'
+                : 'bg-white/[0.04] text-slate-400 border-white/[0.08] hover:text-white'
+            }`}
+          >
+            👤 Unassigned
+          </button>
         </div>
 
         {/* Priority Filter Pills */}
