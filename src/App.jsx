@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
 import BacklogPage from './pages/BacklogPage';
+import RoadmapPage from './pages/RoadmapPage';
 import ReportsPage from './pages/ReportsPage';
 import ReleasePage from './pages/ReleasePage';
 import ProjectSettingsPage from './pages/ProjectSettingsPage';
@@ -95,6 +96,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <BacklogPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/roadmap"
+            element={
+              <PrivateRoute>
+                <RoadmapPage />
               </PrivateRoute>
             }
           />
