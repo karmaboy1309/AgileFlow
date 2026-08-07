@@ -120,6 +120,19 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
                     ✓ {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length}
                   </span>
                 )}
+                {task.epicId && typeof task.epicId === 'object' && (
+                  <span
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-md truncate max-w-[120px]"
+                    style={{
+                      background: `${task.epicId.color || '#a855f7'}20`,
+                      color: task.epicId.color || '#c084fc',
+                      border: `1px solid ${task.epicId.color || '#a855f7'}40`,
+                    }}
+                    title={`Epic: ${task.epicId.title}`}
+                  >
+                    ⚡ {task.epicId.title}
+                  </span>
+                )}
               </div>
               {task.storyPoints > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-[10px]">

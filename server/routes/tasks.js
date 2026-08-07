@@ -70,7 +70,11 @@ router.get('/', async (req, res, next) => {
     if (status) filter.status = status;
 
     const [tasks, totalCount] = await Promise.all([
-      Task.find(filter).sort({ orderIndex: 1, createdAt: 1 }).skip(skip).limit(limit),
+      Task.find(filter)
+        .populate('epicId', 'title color status')
+        .sort({ orderIndex: 1, createdAt: 1 })
+        .skip(skip)
+        .limit(limit),
       Task.countDocuments(filter),
     ]);
 
