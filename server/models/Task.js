@@ -58,6 +58,12 @@ const taskSchema = new mongoose.Schema(
       index: true,
     },
 
+    fixVersionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Version',
+      index: true,
+    },
+
     status: {
       type    : String,
       enum    : {

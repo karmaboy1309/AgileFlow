@@ -118,4 +118,12 @@ export const filtersAPI = {
   delete: (id) => api.delete(`/filters/${id}`),
 };
 
+export const versionsAPI = {
+  getAll: (projectId) => api.get(projectId ? `/versions?projectId=${projectId}` : '/versions'),
+  create: (data) => api.post('/versions', data),
+  update: (id, data) => api.put(`/versions/${id}`, data),
+  release: (id) => api.post(`/versions/${id}/release`),
+  delete: (id) => api.delete(`/versions/${id}`),
+};
+
 export default api;
