@@ -325,4 +325,30 @@ router.get('/cycle-time', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/workload?projectId=...
+router.get('/workload', async (req, res, next) => {
+  try {
+    const { projectId } = req.query;
+    const filter = {};
+    if (projectId) filter.projectId = projectId;
+
+    const tasks = await Task.find(filter);
+    const workloadMap = {};
+
+    tasks.forEach(t => {
+      const member = t.assignee || 'Unassigned';
+      if (!workloadMap[member]) {
+        workloadMap[member] = { assignee: member, taskCount: 0, totalStoryPoints: 0, inProgressCount: 0 };
+      }
+      workloadMap[member].taskCount += 1;
+      workloadMap[member].totalStoryPoints += t.storyPoints || 0;
+      if (t.status === 'in-progress') workloadMap[member].inProgressCount += 1;
+    });
+
+    res.json({ workload: Object.values(workloadMap) });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
