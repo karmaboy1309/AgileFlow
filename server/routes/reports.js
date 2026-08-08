@@ -193,4 +193,38 @@ router.get('/sprint-report', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/epic-forecast?epicId=...
+router.get('/epic-forecast', async (req, res, next) => {
+  try {
+    const { epicId } = req.query;
+    if (!epicId) return res.status(400).json({ message: 'epicId is required.' });
+
+    const Epic = require('../models/Epic');
+    const epic = await Epic.findById(epicId);
+    if (!epic) return res.status(404).json({ message: 'Epic not found.' });
+
+    const tasks = await Task.find({ epicId });
+    const totalPoints = tasks.reduce((s, t) => s + (t.storyPoints || 0), 0);
+    const completedPoints = tasks.filter(t => t.status === 'done').reduce((s, t) => s + (t.storyPoints || 0), 0);
+    const remainingPoints = totalPoints - completedPoints;
+
+    // Estimate remaining sprints based on 10 pts per sprint average velocity
+    const estimatedSprintsRemaining = Math.max(1, Math.ceil(remainingPoints / 10));
+
+    res.json({
+      epicTitle: epic.title,
+      totalTasks: tasks.length,
+      completedTasks: tasks.filter(t => t.status === 'done').length,
+      totalPoints,
+      completedPoints,
+      remainingPoints,
+      completionPct: totalPoints > 0 ? Math.round((completedPoints / totalPoints) * 100) : 100,
+      estimatedSprintsRemaining,
+      estimatedWeeksRemaining: estimatedSprintsRemaining * 2,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

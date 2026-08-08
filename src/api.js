@@ -132,6 +132,7 @@ export const reportsAPI = {
   getCFD: (projectId, days = 14) => api.get(`/reports/cfd?days=${days}${projectId ? `&projectId=${projectId}` : ''}`),
   getVersionReadiness: (versionId) => api.get(`/reports/version-readiness?versionId=${versionId}`),
   getSprintReport: (sprintId) => api.get(`/reports/sprint-report?sprintId=${sprintId}`),
+  getEpicForecast: (epicId) => api.get(`/reports/epic-forecast?epicId=${epicId}`),
 };
 
 export const worklogsAPI = {
