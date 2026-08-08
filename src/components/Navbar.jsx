@@ -13,6 +13,7 @@ const THEMES = [
   { id: 'midnight', label: 'Midnight', bg: '#0a0e1a' },
   { id: 'slate',    label: 'Slate',    bg: '#0f172a' },
   { id: 'emerald',  label: 'Emerald',  bg: '#061a14' },
+  { id: 'light',    label: 'Light Mode',bg: '#f8fafc' },
 ];
 
 function getInitials(name = '') {
