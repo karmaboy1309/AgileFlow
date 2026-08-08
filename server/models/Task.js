@@ -269,4 +269,10 @@ taskSchema.index({ epicId: 1, status: 1 });
 // Tertiary: sort by creation date to surface most recent activity
 taskSchema.index({ epicId: 1, createdAt: -1 });
 
+// ── Compound Indexes for Performance Tuning ─────────────────────────────
+taskSchema.index({ projectId: 1, status: 1 });
+taskSchema.index({ sprintId: 1, status: 1 });
+taskSchema.index({ epicId: 1, status: 1 });
+taskSchema.index({ issueKey: 1 });
+
 module.exports = mongoose.model('Task', taskSchema);
