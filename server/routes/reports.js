@@ -290,4 +290,39 @@ router.get('/created-vs-resolved', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/cycle-time?projectId=...
+router.get('/cycle-time', async (req, res, next) => {
+  try {
+    const { projectId } = req.query;
+    const filter = { status: 'done' };
+    if (projectId) filter.projectId = projectId;
+
+    const completedTasks = await Task.find(filter);
+
+    let totalLeadTimeDays = 0;
+    const taskDetails = completedTasks.map(t => {
+      const created = new Date(t.createdAt);
+      const resolved = new Date(t.updatedAt);
+      const leadTimeDays = Math.max(0.1, Math.round(((resolved - created) / (1000 * 60 * 60 * 24)) * 10) / 10);
+      totalLeadTimeDays += leadTimeDays;
+
+      return {
+        issueKey: t.issueKey || 'AGILE-?',
+        title: t.title,
+        leadTimeDays,
+      };
+    });
+
+    const avgLeadTimeDays = completedTasks.length > 0 ? Math.round((totalLeadTimeDays / completedTasks.length) * 10) / 10 : 0;
+
+    res.json({
+      avgLeadTimeDays,
+      completedIssuesCount: completedTasks.length,
+      issues: taskDetails,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
