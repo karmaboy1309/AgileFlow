@@ -145,6 +145,19 @@ export default function Navbar({ title }) {
           </div>
         )}
 
+        {/* Global Search Bar */}
+        <div className="hidden sm:flex items-center relative w-48 md:w-64">
+          <input
+            type="text"
+            placeholder="Search issues... (Ctrl+K)"
+            onClick={() => {
+              toast('🔍 Global search drawer activated!', { id: 'search-toast' });
+            }}
+            className="w-full bg-white/[0.04] border border-white/[0.08] hover:border-white/10 rounded-xl py-1.5 pl-3 pr-8 text-xs text-slate-300 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors"
+          />
+          <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-600 bg-white/[0.03] px-1.5 py-0.5 rounded border border-white/[0.06] select-none">Ctrl K</kbd>
+        </div>
+
         {/* Right: theme + avatar + logout */}
         <div className="flex items-center gap-3">
           {/* Theme selector */}
