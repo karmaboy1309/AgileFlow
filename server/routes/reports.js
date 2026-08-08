@@ -161,4 +161,36 @@ router.get('/version-readiness', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/sprint-report?sprintId=...
+router.get('/sprint-report', async (req, res, next) => {
+  try {
+    const { sprintId } = req.query;
+    if (!sprintId) return res.status(400).json({ message: 'sprintId is required.' });
+
+    const Sprint = require('../models/Sprint');
+    const sprint = await Sprint.findById(sprintId);
+    if (!sprint) return res.status(404).json({ message: 'Sprint not found.' });
+
+    const tasks = await Task.find({ sprintId });
+    const completedTasks = tasks.filter(t => t.status === 'done');
+    const uncompletedTasks = tasks.filter(t => t.status !== 'done');
+
+    const completedPoints = completedTasks.reduce((s, t) => s + (t.storyPoints || 0), 0);
+    const uncompletedPoints = uncompletedTasks.reduce((s, t) => s + (t.storyPoints || 0), 0);
+
+    res.json({
+      sprintName: sprint.name,
+      sprintGoal: sprint.goal,
+      status: sprint.status,
+      completedTasks,
+      uncompletedTasks,
+      completedPoints,
+      uncompletedPoints,
+      totalPoints: completedPoints + uncompletedPoints,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

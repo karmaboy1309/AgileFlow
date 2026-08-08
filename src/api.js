@@ -131,6 +131,7 @@ export const reportsAPI = {
   getVelocity: (projectId) => api.get(projectId ? `/reports/velocity?projectId=${projectId}` : '/reports/velocity'),
   getCFD: (projectId, days = 14) => api.get(`/reports/cfd?days=${days}${projectId ? `&projectId=${projectId}` : ''}`),
   getVersionReadiness: (versionId) => api.get(`/reports/version-readiness?versionId=${versionId}`),
+  getSprintReport: (sprintId) => api.get(`/reports/sprint-report?sprintId=${sprintId}`),
 };
 
 export const worklogsAPI = {
