@@ -90,6 +90,28 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// GET /api/tasks/export/csv - Download issues as CSV
+router.get('/export/csv', async (req, res, next) => {
+  try {
+    const { projectId } = req.query;
+    const filter = {};
+    if (projectId) filter.projectId = projectId;
+
+    const tasks = await Task.find(filter);
+    
+    let csv = 'Issue Key,Title,Type,Status,Priority,Assignee,Story Points\n';
+    tasks.forEach(t => {
+      csv += `"${t.issueKey || ''}","${(t.title || '').replace(/"/g, '""')}","${t.issueType}","${t.status}","${t.priority}","${t.assignee || ''}",${t.storyPoints || 0}\n`;
+    });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="agileflow_issues_export.csv"');
+    res.status(200).send(csv);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── POST /api/tasks ──────────────────────────────────────────────────────────
 /**
  * Body: { epicId, title, description?, status?, priority?, assignee?, orderIndex? }
