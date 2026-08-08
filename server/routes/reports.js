@@ -126,4 +126,39 @@ router.get('/cfd', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/version-readiness?versionId=...
+router.get('/version-readiness', async (req, res, next) => {
+  try {
+    const { versionId } = req.query;
+    if (!versionId) return res.status(400).json({ message: 'versionId is required.' });
+
+    const Version = require('../models/Version');
+    const version = await Version.findById(versionId);
+    if (!version) return res.status(404).json({ message: 'Version not found.' });
+
+    const tasks = await Task.find({ fixVersionId: versionId });
+    const totalIssues = tasks.length;
+    const completedIssues = tasks.filter(t => t.status === 'done').length;
+    const inProgressIssues = tasks.filter(t => t.status === 'in-progress').length;
+    const todoIssues = tasks.filter(t => t.status === 'todo').length;
+    const openBlockerBugs = tasks.filter(t => t.issueType === 'bug' && t.priority === 'high' && t.status !== 'done').length;
+
+    const readinessPct = totalIssues > 0 ? Math.round((completedIssues / totalIssues) * 100) : 100;
+
+    res.json({
+      versionName: version.name,
+      status: version.status,
+      releaseDate: version.releaseDate,
+      totalIssues,
+      completedIssues,
+      inProgressIssues,
+      todoIssues,
+      openBlockerBugs,
+      readinessPct,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
