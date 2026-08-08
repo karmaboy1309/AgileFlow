@@ -33,6 +33,17 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ message: `Project key "${cleanKey}" already exists in your workspace.` });
     }
 
+    const { template } = req.body;
+    let finalStatuses = [
+      { id: 'todo', label: 'To Do', category: 'todo' },
+      { id: 'in-progress', label: 'In Progress', category: 'in-progress' },
+      { id: 'done', label: 'Done', category: 'done' },
+    ];
+
+    if (template === 'kanban') {
+      finalStatuses.splice(1, 0, { id: 'selected-for-development', label: 'Selected for Development', category: 'todo' });
+    }
+
     const project = await Project.create({
       name: name.trim(),
       key: cleanKey,
@@ -40,7 +51,19 @@ router.post('/', async (req, res, next) => {
       category: category || 'Software',
       lead: req.user.id,
       createdBy: req.user.id,
+      statuses: finalStatuses,
     });
+
+    // For Scrum template, create an initial sprint automatically
+    if (template === 'scrum') {
+      const Sprint = require('../models/Sprint');
+      await Sprint.create({
+        name: `${cleanKey} Sprint 1`,
+        projectId: project._id,
+        status: 'draft',
+        goal: 'Initial sprint created from Scrum template',
+      });
+    }
 
     res.status(201).json({ project });
   } catch (err) {
