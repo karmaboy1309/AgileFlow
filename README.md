@@ -90,9 +90,18 @@ Built on a decoupled **MERN stack** architecture, AgileFlow pairs a fluid, state
 - **Task Pagination & Lazy Loading**: Efficient pagination (`limit`/`skip`) with a "Load More Tasks" interface for large boards.
 - **Global Keyboard Shortcuts**: Quick actions (`E` = new epic, `N` = new task, `/` = search, `?` = shortcuts modal, `Esc` = cancel).
 
----
+### 🚀 Complete Jira Software Alternatives & Transformation Engine
+- **Atomic Project Key Generator**: Automated sequence numbering generating custom keys like `AGILE-101`.
+- **Sprint Lifecycles & Backlog Planning**: Plan, start, and close sprints (`draft` -> `active` -> `closed`) with automated carryover of incomplete tasks to the backlog.
+- **JQL Search & Saved Filters Engine**: Powerful Jira Query Language engine parsing queries like `type = bug AND status = "in-progress"`.
+- **Sprint Burndown, Velocity & CFD Reports**: Executive reporting suite calculating burn rates, team velocity, and cumulative flow charts.
+- **Time Tracking, Worklogs & Issue Links**: Track hours logged, log notes, and establish dependencies like `blocks` or `duplicates`.
+- **In-App Notification Center & Activity Feed**: Real-time notifications for task assignments, comment mentions (`@user`), and project status changes.
+- **Automation Rules Engine**: Automatically transition parent tasks to `Done` when all subtasks are finished.
+- **Docker & Docker Compose**: Instantly spin up database and API server containers in development or production.
+- **Production Build Bundle Splitting**: Optimized manual chunk splitting in Vite to guarantee high performance and fast loads.
 
-### 🧼 Modern Dark Mode UX & Error Resilience
+<br />
 - **React ErrorBoundary**: Global component error catching with graceful fallback UI and quick reload capabilities.
 - **Toast Feedback System**: Real-time action alerts powered by `react-hot-toast` with styled dark themes.
 - **Glassmorphic UI Controls**: Backdrop blurs, subtle borders, hover scale effects, and custom scrollbars built with Tailwind CSS v4.
