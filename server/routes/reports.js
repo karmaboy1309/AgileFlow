@@ -351,4 +351,32 @@ router.get('/workload', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/printable-summary?projectId=...
+router.get('/printable-summary', async (req, res, next) => {
+  try {
+    const { projectId } = req.query;
+    const filter = {};
+    if (projectId) filter.projectId = projectId;
+
+    const tasks = await Task.find(filter);
+
+    let html = `<!DOCTYPE html><html><head><title>AgileFlow Printable Issue Summary</title>
+    <style>body{font-family:sans-serif;padding:20px;color:#111;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:8px;text-align:left;} th{background:#f0f0f0;}</style>
+    </head><body><h1>AgileFlow Executive Issue Report</h1>
+    <p>Generated on: ${new Date().toLocaleString()}</p>
+    <table><thead><tr><th>Key</th><th>Title</th><th>Type</th><th>Status</th><th>Priority</th><th>Assignee</th><th>Points</th></tr></thead><tbody>`;
+
+    tasks.forEach(t => {
+      html += `<tr><td><b>${t.issueKey || 'N/A'}</b></td><td>${t.title}</td><td>${t.issueType}</td><td>${t.status}</td><td>${t.priority}</td><td>${t.assignee || 'Unassigned'}</td><td>${t.storyPoints || 0}</td></tr>`;
+    });
+
+    html += `</tbody></table></body></html>`;
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
