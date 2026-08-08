@@ -133,6 +133,7 @@ export const reportsAPI = {
   getVersionReadiness: (versionId) => api.get(`/reports/version-readiness?versionId=${versionId}`),
   getSprintReport: (sprintId) => api.get(`/reports/sprint-report?sprintId=${sprintId}`),
   getEpicForecast: (epicId) => api.get(`/reports/epic-forecast?epicId=${epicId}`),
+  getTimeTracking: (projectId) => api.get(projectId ? `/reports/time-tracking?projectId=${projectId}` : '/reports/time-tracking'),
 };
 
 export const worklogsAPI = {

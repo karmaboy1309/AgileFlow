@@ -227,4 +227,35 @@ router.get('/epic-forecast', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/time-tracking?projectId=...
+router.get('/time-tracking', async (req, res, next) => {
+  try {
+    const { projectId } = req.query;
+    const filter = {};
+    if (projectId) filter.projectId = projectId;
+
+    const tasks = await Task.find(filter);
+    const totalEstimated = tasks.reduce((s, t) => s + (t.estimatedHours || 0), 0);
+    const totalLogged = tasks.reduce((s, t) => s + (t.loggedHours || 0), 0);
+
+    const timeTrackingData = tasks.map(t => ({
+      issueKey: t.issueKey || 'AGILE-?',
+      title: t.title,
+      assignee: t.assignee || 'Unassigned',
+      estimatedHours: t.estimatedHours || 0,
+      loggedHours: t.loggedHours || 0,
+      accuracyPct: (t.estimatedHours || 0) > 0 ? Math.round(((t.loggedHours || 0) / t.estimatedHours) * 100) : 100,
+    }));
+
+    res.json({
+      totalEstimatedHours: totalEstimated,
+      totalLoggedHours: totalLogged,
+      varianceHours: totalLogged - totalEstimated,
+      issues: timeTrackingData,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
