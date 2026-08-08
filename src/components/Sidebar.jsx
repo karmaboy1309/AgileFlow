@@ -42,7 +42,7 @@ export default function Sidebar({ project, projects = [], selectedProjectId, onS
 
   return (
     <aside
-      className={`h-screen sticky top-0 bg-[#14141e] border-r border-white/[0.08] flex flex-col justify-between transition-all duration-300 z-30 ${
+      className={`h-screen sticky top-0 bg-[#14141e] border-r border-white/[0.08] hidden md:flex flex-col justify-between transition-all duration-300 z-30 ${
         collapsed ? 'w-16' : 'w-60'
       }`}
     >
