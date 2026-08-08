@@ -44,6 +44,24 @@ export default function Navbar({ title }) {
   }, [theme]);
 
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        toast('🚀 Search Command Palette coming soon! Press ESC to dismiss.', {
+          icon: '🔍',
+          style: {
+            background: '#1e1e2d',
+            color: '#f8fafc',
+            border: '1px solid rgba(255,255,255,0.08)'
+          }
+        });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
     authAPI.getMe()
       .then(({ data }) => {
         setUser(data.user);
