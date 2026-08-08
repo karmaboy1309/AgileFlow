@@ -74,6 +74,29 @@ app.use(
   })
 );
 
+// ── In-Memory Rate Limiter Middleware ──────────────────────────────────────────
+const rateLimits = {};
+app.use((req, res, next) => {
+  const ip = req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute window
+
+  if (!rateLimits[ip]) {
+    rateLimits[ip] = { count: 1, resetTime: now + windowMs };
+  } else {
+    if (now > rateLimits[ip].resetTime) {
+      rateLimits[ip] = { count: 1, resetTime: now + windowMs };
+    } else {
+      rateLimits[ip].count++;
+    }
+  }
+
+  if (rateLimits[ip].count > 100) {
+    return res.status(429).json({ message: 'Too many requests. Please try again in a minute.' });
+  }
+  next();
+});
+
 // CORS — allow requests from the Vite dev server (and any extra origins in the env)
 const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
   .split(',')
