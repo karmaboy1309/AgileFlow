@@ -119,11 +119,12 @@ router.get('/me', protect, async (req, res, next) => {
 // ─── PUT /api/auth/profile ───────────────────────────────────────────────────
 router.put('/profile', protect, async (req, res, next) => {
   try {
-    const { name, role, avatarColor } = req.body;
+    const { name, role, avatarColor, bio } = req.body;
     const updates = {};
     if (name !== undefined) updates.name = name.trim();
     if (role !== undefined) updates.role = role.trim();
     if (avatarColor !== undefined) updates.avatarColor = avatarColor;
+    if (bio !== undefined) updates.bio = bio.trim();
 
     const user = await User.findByIdAndUpdate(req.user.id, updates, {
       new: true,

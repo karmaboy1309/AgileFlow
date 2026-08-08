@@ -54,6 +54,12 @@ const userSchema = new mongoose.Schema(
       default: '#6366f1',
       match  : [/^#[0-9A-Fa-f]{6}$/, 'Avatar color must be a valid hex code.'],
     },
+    bio: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: [200, 'Bio cannot exceed 200 characters.'],
+    },
   },
   {
     timestamps: true,              // Adds createdAt / updatedAt automatically
