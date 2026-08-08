@@ -258,4 +258,36 @@ router.get('/time-tracking', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/created-vs-resolved?projectId=...
+router.get('/created-vs-resolved', async (req, res, next) => {
+  try {
+    const { projectId, days = 14 } = req.query;
+    const filter = {};
+    if (projectId) filter.projectId = projectId;
+
+    const tasks = await Task.find(filter);
+    const numDays = Math.min(Number(days), 30);
+    const now = new Date();
+    const chartData = [];
+
+    for (let i = numDays - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = d.toISOString().slice(0, 10);
+
+      const createdOnDay = tasks.filter(t => new Date(t.createdAt).toISOString().slice(0, 10) === dateStr).length;
+      const resolvedOnDay = tasks.filter(t => t.status === 'done' && new Date(t.updatedAt).toISOString().slice(0, 10) === dateStr).length;
+
+      chartData.push({
+        date: dateStr,
+        created: createdOnDay,
+        resolved: resolvedOnDay,
+      });
+    }
+
+    res.json({ data: chartData });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
