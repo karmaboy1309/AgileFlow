@@ -85,7 +85,7 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0d0f17] flex items-center justify-center">
+      <div className="min-h-screen bg-theme-bg flex items-center justify-center">
         <Spinner />
       </div>
     );
@@ -94,7 +94,7 @@ export default function ReportsPage() {
   const selectedProject = projects.find((p) => p._id === selectedProjectId);
 
   return (
-    <div className="min-h-screen bg-[#0d0f17] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-theme-bg text-theme-text flex flex-col font-sans">
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar projects={projects} selectedProjectId={selectedProjectId} onSelectProject={setSelectedProjectId} />
@@ -106,7 +106,7 @@ export default function ReportsPage() {
               <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
                 <BarChart3 className="w-4 h-4" /> Agile Analytics & Reports
               </div>
-              <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-theme-text flex items-center gap-3">
                 {selectedProject?.name || 'Project'} Reports
               </h1>
             </div>
@@ -140,17 +140,17 @@ export default function ReportsPage() {
           {activeTab === 'burndown' && (
             <div className="space-y-6">
               {/* Sprint Selector Header */}
-              <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900/70 p-4 rounded-2xl border border-slate-800">
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-theme-card p-4 rounded-2xl border border-theme-border text-theme-text">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-5 h-5 text-purple-400" />
-                  <span className="text-xs font-semibold text-slate-400">Select Sprint:</span>
+                  <span className="text-xs font-semibold text-theme-text-sub">Select Sprint:</span>
                   <select
                     value={selectedSprintId || ''}
                     onChange={(e) => setSelectedSprintId(e.target.value)}
-                    className="bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-purple-500 font-semibold"
+                    className="bg-theme-surface text-theme-text border border-theme-border text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-purple-500 font-semibold cursor-pointer"
                   >
                     {sprints.map((s) => (
-                      <option key={s._id} value={s._id}>
+                      <option key={s._id} value={s._id} style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>
                         {s.name} ({s.status})
                       </option>
                     ))}
@@ -159,13 +159,13 @@ export default function ReportsPage() {
 
                 {burndownData && (
                   <div className="flex items-center gap-4 text-xs font-mono">
-                    <span className="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <span className="bg-theme-surface px-3 py-1.5 rounded-lg border border-theme-border">
                       Total: <strong className="text-blue-400">{burndownData.totalPoints} pts</strong>
                     </span>
-                    <span className="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <span className="bg-theme-surface px-3 py-1.5 rounded-lg border border-theme-border">
                       Completed: <strong className="text-emerald-400">{burndownData.completedPoints} pts</strong>
                     </span>
-                    <span className="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <span className="bg-theme-surface px-3 py-1.5 rounded-lg border border-theme-border">
                       Remaining: <strong className="text-amber-400">{burndownData.remainingPoints} pts</strong>
                     </span>
                   </div>
@@ -174,8 +174,8 @@ export default function ReportsPage() {
 
               {/* Burndown Chart Box */}
               {burndownData && burndownData.dataPoints?.length > 0 ? (
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                  <h3 className="text-sm font-bold text-slate-200 mb-6 flex items-center justify-between">
+                <div className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-xl text-theme-text">
+                  <h3 className="text-sm font-bold text-theme-text mb-6 flex items-center justify-between">
                     <span>Story Points Burndown Slope</span>
                     <div className="flex items-center gap-4 text-xs font-medium">
                       <span className="flex items-center gap-1.5 text-purple-400">
@@ -245,7 +245,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-slate-900/60 rounded-2xl border border-slate-800 p-12 text-center text-slate-400">
+                <div className="bg-theme-card border border-theme-border rounded-2xl p-12 text-center text-theme-text-sub">
                   Select a sprint to view the burndown chart.
                 </div>
               )}
@@ -256,11 +256,11 @@ export default function ReportsPage() {
           {activeTab === 'velocity' && (
             <div className="space-y-6">
               {velocityData && velocityData.velocityData?.length > 0 ? (
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-xl text-theme-text">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-200">Historical Sprint Velocity</h3>
-                      <p className="text-xs text-slate-400">Committed vs Completed Story Points across sprints</p>
+                      <h3 className="text-sm font-bold text-theme-text">Historical Sprint Velocity</h3>
+                      <p className="text-xs text-theme-text-sub">Committed vs Completed Story Points across sprints</p>
                     </div>
                     {(() => {
                       const completedSum = velocityData.velocityData.reduce((s, v) => s + v.completedPoints, 0);
@@ -282,10 +282,10 @@ export default function ReportsPage() {
                       const completedPct = (item.completedPoints / maxBar) * 100;
 
                       return (
-                        <div key={item.sprintId} className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60">
+                        <div key={item.sprintId} className="bg-theme-surface p-4 rounded-xl border border-theme-border">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-bold text-slate-200">{item.sprintName}</span>
-                            <span className="text-xs font-mono text-slate-400">
+                            <span className="text-xs font-bold text-theme-text">{item.sprintName}</span>
+                            <span className="text-xs font-mono text-theme-text-sub">
                               {item.completedPoints} / {item.committedPoints} pts completed
                             </span>
                           </div>
@@ -293,7 +293,7 @@ export default function ReportsPage() {
                           {/* Progress Bars */}
                           <div className="space-y-1.5">
                             {/* Committed */}
-                            <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden flex">
+                            <div className="w-full bg-theme-hover h-2.5 rounded-full overflow-hidden flex">
                               <div
                                 className="bg-slate-500 h-full rounded-full transition-all"
                                 style={{ width: `${committedPct}%` }}
@@ -301,7 +301,7 @@ export default function ReportsPage() {
                               />
                             </div>
                             {/* Completed */}
-                            <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden flex">
+                            <div className="w-full bg-theme-hover h-2.5 rounded-full overflow-hidden flex">
                               <div
                                 className="bg-emerald-500 h-full rounded-full transition-all"
                                 style={{ width: `${completedPct}%` }}
@@ -315,7 +315,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-slate-900/60 rounded-2xl border border-slate-800 p-12 text-center text-slate-400">
+                <div className="bg-theme-card border border-theme-border rounded-2xl p-12 text-center text-theme-text-sub">
                   No sprint data available to calculate velocity. Create and start sprints to track team throughput.
                 </div>
               )}

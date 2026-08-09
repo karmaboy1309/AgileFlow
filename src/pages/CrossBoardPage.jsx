@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layers, Globe, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
@@ -25,7 +25,7 @@ export default function CrossBoardPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-[#0f0f17] text-slate-100">
+    <div className="flex min-h-screen bg-theme-bg text-theme-text">
       <Sidebar activeTab="board" />
 
       <div className="flex-1 flex flex-col min-w-0">

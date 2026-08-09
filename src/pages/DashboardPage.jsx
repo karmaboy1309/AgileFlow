@@ -418,7 +418,7 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen" style={{ background: '#0f0f17' }}>
+    <div className="min-h-screen bg-theme-bg text-theme-text">
       <Navbar title="Dashboard" />
 
       <main className="max-w-screen-xl mx-auto px-6 py-10">

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Layers, Plus, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { epicsAPI, projectsAPI } from '../api';
@@ -24,7 +24,7 @@ export default function RoadmapPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-[#0f0f17] text-slate-100">
+    <div className="flex min-h-screen bg-theme-bg text-theme-text">
       <Sidebar activeTab="reports" />
 
       <div className="flex-1 flex flex-col min-w-0">
@@ -45,7 +45,7 @@ export default function RoadmapPage() {
           </div>
 
           {/* Timeline Table */}
-          <div className="rounded-2xl border border-white/[0.08] bg-[#161622] overflow-hidden shadow-2xl">
+          <div className="rounded-2xl border border-theme-border bg-theme-card overflow-hidden shadow-2xl text-theme-text">
             {/* Timeline Header Months */}
             <div className="p-4 bg-white/[0.03] border-b border-white/[0.06] grid grid-cols-12 gap-2 text-xs font-bold text-slate-400 text-center">
               <div className="col-span-4 text-left pl-2">Epic Name</div>

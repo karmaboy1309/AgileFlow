@@ -131,14 +131,14 @@ export default function ProjectSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0d0f17] flex items-center justify-center">
+      <div className="min-h-screen bg-theme-bg flex items-center justify-center">
         <Spinner />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0f17] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-theme-bg text-theme-text flex flex-col font-sans">
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar projects={projects} selectedProjectId={selectedProjectId} onSelectProject={setSelectedProjectId} />
@@ -147,54 +147,54 @@ export default function ProjectSettingsPage() {
           <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
             <Settings className="w-4 h-4" /> Project Configuration
           </div>
-          <h1 className="text-2xl font-bold text-slate-100 mb-8">Project Details & Custom Workflow</h1>
+          <h1 className="text-2xl font-bold text-theme-text mb-8">Project Details & Custom Workflow</h1>
 
           <form onSubmit={handleSaveSettings} className="space-y-8">
             {/* Basic Info Box */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-              <h2 className="text-sm font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
+            <div className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-xl space-y-4">
+              <h2 className="text-sm font-bold text-theme-text border-b border-theme-border pb-3 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-blue-400" /> General Project Metadata
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 mb-1 block">Project Name</label>
+                  <label className="text-xs font-semibold text-theme-text-sub mb-1 block">Project Name</label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 font-semibold"
+                    className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 font-semibold"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 mb-1 block">Issue Key Prefix</label>
+                  <label className="text-xs font-semibold text-theme-text-sub mb-1 block">Issue Key Prefix</label>
                   <input
                     type="text"
                     required
                     maxLength={10}
                     value={key}
                     onChange={(e) => setKey(e.target.value.toUpperCase())}
-                    className="w-full bg-slate-800 text-xs text-blue-300 font-mono font-bold border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 uppercase"
+                    className="w-full bg-theme-surface text-xs text-blue-400 font-mono font-bold border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 uppercase"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 mb-1 block">Description</label>
+                <label className="text-xs font-semibold text-theme-text-sub mb-1 block">Description</label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
 
             {/* Custom Workflow Columns Box */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-              <h2 className="text-sm font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
+            <div className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-xl space-y-4">
+              <h2 className="text-sm font-bold text-theme-text border-b border-theme-border pb-3 flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-purple-400" /> Custom Workflow Statuses
               </h2>
 
@@ -202,13 +202,13 @@ export default function ProjectSettingsPage() {
                 {statuses.map((status) => (
                   <div
                     key={status}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-mono text-slate-200"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-theme-surface border border-theme-border text-xs font-mono text-theme-text"
                   >
                     <span>{status}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveStatus(status)}
-                      className="text-slate-400 hover:text-red-400 transition-colors"
+                      className="text-theme-text-sub hover:text-red-400 transition-colors"
                     >
                       &times;
                     </button>
@@ -222,12 +222,12 @@ export default function ProjectSettingsPage() {
                   value={newStatusName}
                   onChange={(e) => setNewStatusName(e.target.value)}
                   placeholder="New status column (e.g. in-review)..."
-                  className="w-full bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500"
+                  className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500"
                 />
                 <button
                   type="button"
                   onClick={handleAddStatus}
-                  className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 rounded-lg flex items-center gap-1 shrink-0"
+                  className="px-3 py-2 bg-theme-surface hover:bg-theme-hover text-xs font-semibold text-theme-text border border-theme-border rounded-lg flex items-center gap-1 shrink-0"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add
                 </button>
@@ -235,8 +235,8 @@ export default function ProjectSettingsPage() {
             </div>
 
             {/* Component Management Box */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-              <h2 className="text-sm font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
+            <div className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-xl space-y-4">
+              <h2 className="text-sm font-bold text-theme-text border-b border-theme-border pb-3 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-400" /> Project Components & Modules
               </h2>
 

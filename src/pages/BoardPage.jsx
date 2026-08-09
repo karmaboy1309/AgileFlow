@@ -85,7 +85,7 @@ export default function BoardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen" style={{ background: '#0f0f17' }}>
+      <div className="min-h-screen bg-theme-bg text-theme-text">
         <Navbar />
         <div className="flex flex-col items-center justify-center py-32 text-center px-6">
           <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-5">
@@ -117,7 +117,7 @@ export default function BoardPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#0f0f17' }}>
+    <div className="min-h-screen bg-theme-bg text-theme-text">
       <Navbar title={epic?.title || 'Board'} />
 
       <main className="max-w-screen-xl mx-auto px-6 py-8">

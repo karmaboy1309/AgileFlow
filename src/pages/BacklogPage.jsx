@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Play, CheckCircle2, ChevronDown, ChevronRight, Calendar, User, MoreHorizontal, Layers, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -116,7 +116,7 @@ export default function BacklogPage() {
   const backlogTasks = tasks.filter((t) => !t.sprintId);
 
   return (
-    <div className="flex min-h-screen bg-[#0f0f17] text-slate-100">
+    <div className="flex min-h-screen bg-theme-bg text-theme-text">
       <Sidebar project={project} activeTab="backlog" />
 
       <div className="flex-1 flex flex-col min-w-0">
@@ -153,7 +153,7 @@ export default function BacklogPage() {
               return (
                 <div
                   key={sprint._id}
-                  className="rounded-2xl border border-white/[0.08] bg-[#161622] overflow-hidden shadow-lg"
+                  className="rounded-2xl border border-theme-border bg-theme-card overflow-hidden shadow-lg"
                 >
                   {/* Sprint Header */}
                   <div className="p-4 bg-white/[0.03] border-b border-white/[0.06] flex items-center justify-between flex-wrap gap-3">
@@ -249,7 +249,7 @@ export default function BacklogPage() {
           </div>
 
           {/* Backlog Section */}
-          <div className="rounded-2xl border border-white/[0.08] bg-[#161622] overflow-hidden shadow-lg">
+          <div className="rounded-2xl border border-theme-border bg-theme-card overflow-hidden shadow-lg">
             <div className="p-4 bg-white/[0.03] border-b border-white/[0.06] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-white text-sm">Backlog</span>
@@ -286,13 +286,16 @@ export default function BacklogPage() {
                           onClick={(e) => e.stopPropagation()}
                           onChange={(e) => handleMoveIssueToSprint(t._id, e.target.value || null)}
                           defaultValue=""
-                          className="text-[11px] bg-[#1e1e2d] border border-white/10 text-slate-300 rounded px-2 py-0.5 focus:outline-none"
+                          className="text-[11px] bg-theme-surface border border-theme-border text-theme-text rounded px-2 py-0.5 focus:outline-none cursor-pointer"
                         >
-                          <option value="" disabled>
+                          <option value="" disabled style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>
                             Move to Sprint…
                           </option>
                           {sprints.map((s) => (
-                            <option key={s._id} value={s._id}>
+                            <option key={s._id} value={s._id} style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>
+                              {s.name}
+                            </option>
+                          ))}
                               {s.name}
                             </option>
                           ))}
@@ -310,8 +313,8 @@ export default function BacklogPage() {
       {/* Create Sprint Modal */}
       {showCreateSprintModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-[#161622] border border-white/10 rounded-2xl p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold text-white mb-4">Create Sprint</h3>
+          <div className="w-full max-w-md bg-theme-surface border border-theme-border rounded-2xl p-6 shadow-2xl text-theme-text">
+            <h3 className="text-lg font-semibold text-theme-text mb-4">Create Sprint</h3>
             <form onSubmit={handleCreateSprint} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1">Sprint Name</label>
