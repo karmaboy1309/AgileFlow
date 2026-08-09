@@ -1,9 +1,84 @@
 @import "tailwindcss";
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Google Fonts Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Google Fonts ────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ CSS Custom Properties Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── CSS Custom Properties ─────────────────────────────────────────────────── */
+:root, [data-theme="dark"] {
+  --theme-bg: #0f0f17;
+  --theme-sidebar: #14141e;
+  --theme-surface: #16161f;
+  --theme-card: #161622;
+  --theme-hover: #1e1e2d;
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-border-light: rgba(255, 255, 255, 0.06);
+  --theme-text: #e2e8f0;
+  --theme-text-sub: #94a3b8;
+  --theme-text-muted: #64748b;
+  --theme-glass-bg: rgba(255, 255, 255, 0.04);
+  --theme-glass-border: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="midnight"] {
+  --theme-bg: #0a0e1a;
+  --theme-sidebar: #0d1222;
+  --theme-surface: #0f1526;
+  --theme-card: #11182c;
+  --theme-hover: #17223b;
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-border-light: rgba(255, 255, 255, 0.06);
+  --theme-text: #e2e8f0;
+  --theme-text-sub: #94a3b8;
+  --theme-text-muted: #4b5563;
+  --theme-glass-bg: rgba(255, 255, 255, 0.04);
+  --theme-glass-border: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="slate"] {
+  --theme-bg: #0f172a;
+  --theme-sidebar: #0f172a;
+  --theme-surface: #1e293b;
+  --theme-card: #1e293b;
+  --theme-hover: #334155;
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-border-light: rgba(255, 255, 255, 0.06);
+  --theme-text: #f1f5f9;
+  --theme-text-sub: #94a3b8;
+  --theme-text-muted: #64748b;
+  --theme-glass-bg: rgba(255, 255, 255, 0.04);
+  --theme-glass-border: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="emerald"] {
+  --theme-bg: #061a14;
+  --theme-sidebar: #041410;
+  --theme-surface: #08291f;
+  --theme-card: #0a3327;
+  --theme-hover: #0e4233;
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-border-light: rgba(255, 255, 255, 0.06);
+  --theme-text: #ecfdf5;
+  --theme-text-sub: #a7f3d0;
+  --theme-text-muted: #10b981;
+  --theme-glass-bg: rgba(255, 255, 255, 0.04);
+  --theme-glass-border: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] {
+  --theme-bg: #f8fafc;
+  --theme-sidebar: #f1f5f9;
+  --theme-surface: #ffffff;
+  --theme-card: #ffffff;
+  --theme-hover: #e2e8f0;
+  --theme-border: rgba(0, 0, 0, 0.08);
+  --theme-border-light: rgba(0, 0, 0, 0.04);
+  --theme-text: #0f172a;
+  --theme-text-sub: #475569;
+  --theme-text-muted: #94a3b8;
+  --theme-glass-bg: rgba(255, 255, 255, 0.75);
+  --theme-glass-border: rgba(0, 0, 0, 0.06);
+}
+
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
@@ -39,11 +114,12 @@ html {
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #0f0f17;
-  color: #e2e8f0;
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Scrollbar Styling Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
@@ -52,10 +128,10 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #1e1e2d;
+  background: var(--theme-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #3a3a52;
+  background: var(--theme-hover);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -64,26 +140,36 @@ body {
 
 /* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Glassmorphism Utility Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
 .glass {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--theme-glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--theme-glass-border);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--theme-glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--theme-glass-border);
   border-radius: 16px;
   transition: all 0.2s ease;
 }
 
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--theme-hover);
   border-color: rgba(99, 102, 241, 0.4);
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="light"] .glass-card {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .glass-card:hover {
+  background: #ffffff;
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 8px 10px -6px rgba(99, 102, 241, 0.1);
 }
 
 /* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Gradient Text Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */

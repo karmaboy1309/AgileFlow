@@ -39,6 +39,7 @@ export default function Navbar({ title }) {
 
   useEffect(() => {
     const selectedTheme = THEMES.find((t) => t.id === theme) || THEMES[0];
+    document.documentElement.setAttribute('data-theme', theme);
     document.body.style.backgroundColor = selectedTheme.bg;
     localStorage.setItem('agileflow_theme', theme);
   }, [theme]);
