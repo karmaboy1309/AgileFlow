@@ -126,7 +126,7 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs">
-      <div className="w-full max-w-2xl bg-[#161622] border-l border-white/10 h-full flex flex-col shadow-2xl animate-fade-in-right overflow-hidden">
+      <div className="w-full max-w-2xl bg-theme-surface border-l border-theme-border h-full flex flex-col shadow-2xl animate-fade-in-right overflow-hidden text-theme-text">
         {/* Header */}
         <div className="p-4 border-b border-white/[0.08] flex items-center justify-between bg-white/[0.02]">
           <div className="flex items-center gap-2">
@@ -174,13 +174,13 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
               <select
                 value={form.issueType}
                 onChange={(e) => setForm({ ...form, issueType: e.target.value })}
-                className="input-dark text-xs h-8 w-full bg-[#1e1e2d] text-slate-200"
+                className="input-dark text-xs h-8 w-full bg-theme-surface border border-theme-border text-theme-text cursor-pointer"
               >
-                <option value="story">Story</option>
-                <option value="bug">Bug</option>
-                <option value="task">Task</option>
-                <option value="epic">Epic</option>
-                <option value="subtask">Sub-task</option>
+                <option value="story" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Story</option>
+                <option value="bug" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Bug</option>
+                <option value="task" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Task</option>
+                <option value="epic" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Epic</option>
+                <option value="subtask" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Sub-task</option>
               </select>
             </div>
 
@@ -189,11 +189,11 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="input-dark text-xs h-8 w-full bg-[#1e1e2d] text-slate-200"
+                className="input-dark text-xs h-8 w-full bg-theme-surface border border-theme-border text-theme-text cursor-pointer"
               >
-                <option value="todo">To Do</option>
-                <option value="in-progress">In Progress</option>
-                <option value="done">Done</option>
+                <option value="todo" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>To Do</option>
+                <option value="in-progress" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>In Progress</option>
+                <option value="done" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Done</option>
               </select>
             </div>
 
@@ -202,11 +202,11 @@ export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
               <select
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                className="input-dark text-xs h-8 w-full bg-[#1e1e2d] text-slate-200 capitalize"
+                className="input-dark text-xs h-8 w-full bg-theme-surface border border-theme-border text-theme-text capitalize cursor-pointer"
               >
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
+                <option value="high" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>High</option>
+                <option value="medium" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Medium</option>
+                <option value="low" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Low</option>
               </select>
             </div>
 

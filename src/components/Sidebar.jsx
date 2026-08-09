@@ -42,7 +42,7 @@ export default function Sidebar({ project, projects = [], selectedProjectId, onS
 
   return (
     <aside
-      className={`h-screen sticky top-0 bg-[#14141e] border-r border-white/[0.08] hidden md:flex flex-col justify-between transition-all duration-300 z-30 ${
+      className={`h-screen sticky top-0 bg-theme-sidebar border-r border-theme-border hidden md:flex flex-col justify-between transition-all duration-300 z-30 ${
         collapsed ? 'w-16' : 'w-60'
       }`}
     >
@@ -59,20 +59,20 @@ export default function Sidebar({ project, projects = [], selectedProjectId, onS
                   <select
                     value={selectedProjectId || ''}
                     onChange={(e) => onSelectProject(e.target.value)}
-                    className="w-full bg-slate-900 text-xs font-bold text-white border border-slate-800 rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-theme-surface text-xs font-bold text-theme-text border border-theme-border rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500 cursor-pointer"
                   >
                     {projects.map((p) => (
-                      <option key={p._id} value={p._id}>
+                      <option key={p._id} value={p._id} style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>
                         {p.name} ({p.key})
                       </option>
                     ))}
                   </select>
                 ) : (
                   <>
-                    <h3 className="text-xs font-bold text-white truncate">
+                    <h3 className="text-xs font-bold text-theme-text truncate">
                       {project ? project.name : 'AgileFlow'}
                     </h3>
-                    <span className="text-[10px] text-slate-400 block font-mono">
+                    <span className="text-[10px] text-theme-text-sub block font-mono">
                       {project ? `${project.key} Project` : 'Software Workspace'}
                     </span>
                   </>
@@ -96,7 +96,7 @@ export default function Sidebar({ project, projects = [], selectedProjectId, onS
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   isActive
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                    : 'text-theme-text-sub hover:text-theme-text hover:bg-theme-hover'
                 }`}
               >
                 <Icon size={16} className="flex-shrink-0" />
@@ -111,7 +111,7 @@ export default function Sidebar({ project, projects = [], selectedProjectId, onS
       <div className="p-3 border-t border-white/[0.08]">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full flex items-center justify-center gap-2 p-2 rounded-xl text-xs text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors"
+          className="w-full flex items-center justify-center gap-2 p-2 rounded-xl text-xs text-theme-text-sub hover:text-theme-text hover:bg-theme-hover transition-colors"
         >
           {collapsed ? <ChevronRight size={16} /> : <><ChevronLeft size={16} /> <span>Collapse Sidebar</span></>}
         </button>

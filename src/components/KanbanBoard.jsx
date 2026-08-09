@@ -158,8 +158,8 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
                 </button>
                 {menuOpen && (
                   <div
-                    className="absolute right-0 top-6 z-10 rounded-xl border border-white/[0.08] shadow-xl overflow-hidden"
-                    style={{ background: '#1e1e2d', minWidth: '140px' }}
+                    className="absolute right-0 top-6 z-10 rounded-xl border border-theme-border shadow-xl overflow-hidden bg-theme-surface"
+                    style={{ minWidth: '140px' }}
                   >
                     <button
                       id={`task-edit-btn-${task._id}`}
@@ -899,11 +899,11 @@ export default function KanbanBoard({
             id="kanban-swimlane-select"
             value={swimlaneBy}
             onChange={(e) => setSwimlaneBy(e.target.value)}
-            className="input-dark text-xs h-9 px-3 py-1 bg-[#1e1e2d] border border-white/10 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500"
+            className="input-dark text-xs h-9 px-3 py-1 bg-theme-surface border border-theme-border rounded-lg text-theme-text focus:outline-none focus:border-indigo-500 cursor-pointer"
           >
-            <option value="none">None</option>
-            <option value="assignee">Assignee</option>
-            <option value="priority">Priority</option>
+            <option value="none" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>None</option>
+            <option value="assignee" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Assignee</option>
+            <option value="priority" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Priority</option>
           </select>
         </div>
 
@@ -929,13 +929,13 @@ export default function KanbanBoard({
             id="kanban-sort-select"
             value={sortBy}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="input-dark text-xs h-9 px-3 py-1 bg-[#1e1e2d] border border-white/10 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500"
+            className="input-dark text-xs h-9 px-3 py-1 bg-theme-surface border border-theme-border rounded-lg text-theme-text focus:outline-none focus:border-indigo-500 cursor-pointer"
           >
-            <option value="order">Drag Order</option>
-            <option value="priority">Priority</option>
-            <option value="dueDate">Due Date</option>
-            <option value="createdAt">Created</option>
-            <option value="title">Title A–Z</option>
+            <option value="order" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Drag Order</option>
+            <option value="priority" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Priority</option>
+            <option value="dueDate" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Due Date</option>
+            <option value="createdAt" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Created</option>
+            <option value="title" style={{ background: 'var(--theme-surface)', color: 'var(--theme-text)' }}>Title A–Z</option>
           </select>
           <button
             id="kanban-sort-dir-btn"
@@ -1069,8 +1069,8 @@ export default function KanbanBoard({
           onClick={(e) => e.target === e.currentTarget && setShowArchiveVault(false)}
         >
           <div
-            className="animate-fade-in-up w-full max-w-xl rounded-2xl border border-white/[0.09] shadow-2xl p-6"
-            style={{ background: '#16161f' }}
+            className="animate-fade-in-up w-full max-w-xl rounded-2xl border border-theme-border shadow-2xl p-6 text-theme-text"
+            style={{ background: 'var(--theme-surface)' }}
             role="dialog"
             aria-modal="true"
           >
@@ -1143,8 +1143,8 @@ export default function KanbanBoard({
           onClick={(e) => e.target === e.currentTarget && setShowShortcutsModal(false)}
         >
           <div
-            className="animate-fade-in-up w-full max-w-md rounded-2xl border border-white/[0.09] shadow-2xl p-6"
-            style={{ background: '#16161f' }}
+            className="animate-fade-in-up w-full max-w-md rounded-2xl border border-theme-border shadow-2xl p-6 text-theme-text"
+            style={{ background: 'var(--theme-surface)' }}
             role="dialog"
             aria-modal="true"
           >
