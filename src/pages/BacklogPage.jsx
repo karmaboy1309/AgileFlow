@@ -126,7 +126,7 @@ export default function BacklogPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-theme-text flex items-center gap-2">
                 <Layers className="text-indigo-400" size={24} />
                 Sprint Backlog
               </h1>
@@ -158,7 +158,7 @@ export default function BacklogPage() {
                   {/* Sprint Header */}
                   <div className="p-4 bg-white/[0.03] border-b border-white/[0.06] flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="font-semibold text-white text-sm">{sprint.name}</span>
+                      <span className="font-semibold text-theme-text text-sm">{sprint.name}</span>
                       <span
                         className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                           sprint.status === 'active'
@@ -252,7 +252,7 @@ export default function BacklogPage() {
           <div className="rounded-2xl border border-theme-border bg-theme-card overflow-hidden shadow-lg">
             <div className="p-4 bg-white/[0.03] border-b border-white/[0.06] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-white text-sm">Backlog</span>
+                <span className="font-semibold text-theme-text text-sm">Backlog</span>
                 <span className="text-xs text-slate-500">({backlogTasks.length} issues)</span>
               </div>
             </div>

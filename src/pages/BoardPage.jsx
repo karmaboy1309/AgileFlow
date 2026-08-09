@@ -91,7 +91,7 @@ export default function BoardPage() {
           <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-5">
             <Layers size={28} className="text-red-400" />
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">Something went wrong</h2>
+          <h2 className="text-xl font-semibold text-theme-text mb-2">Something went wrong</h2>
           <p className="text-slate-500 text-sm mb-6 max-w-xs">{error}</p>
           <div className="flex gap-3">
             <button
@@ -140,7 +140,7 @@ export default function BoardPage() {
                   style={{ background: epic.color || '#6366f1' }}
                 />
                 <div>
-                  <h1 className="text-xl font-bold text-white">{epic.title}</h1>
+                  <h1 className="text-xl font-bold text-theme-text">{epic.title}</h1>
                   {epic.description && (
                     <p className="text-slate-500 text-sm mt-0.5">{epic.description}</p>
                   )}

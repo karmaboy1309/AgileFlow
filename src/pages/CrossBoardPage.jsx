@@ -35,7 +35,7 @@ export default function CrossBoardPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-theme-text flex items-center gap-2">
                 <Globe className="text-indigo-400" size={24} />
                 Multi-Project Cross Board
               </h1>

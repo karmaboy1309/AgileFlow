@@ -34,7 +34,7 @@ export default function RoadmapPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-theme-text flex items-center gap-2">
                 <Calendar className="text-indigo-400" size={24} />
                 Product Roadmap
               </h1>
@@ -79,7 +79,7 @@ export default function RoadmapPage() {
                           style={{ background: epic.color || '#a855f7' }}
                         />
                         <div className="min-w-0">
-                          <span className="font-semibold text-xs text-white block truncate">
+                          <span className="font-semibold text-xs text-theme-text block truncate">
                             {epic.title}
                           </span>
                           <span className="text-[10px] text-slate-500 block">

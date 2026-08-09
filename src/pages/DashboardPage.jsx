@@ -156,7 +156,7 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
             style={{ background: epic.color || '#6366f1' }}
           />
           <div className="min-w-0">
-            <h3 className="font-semibold text-white text-base leading-tight group-hover:text-indigo-300 transition-colors truncate">
+            <h3 className="font-semibold text-theme-text text-base leading-tight group-hover:text-indigo-300 transition-colors truncate">
               {epic.title}
             </h3>
             {epic.description && (
@@ -225,7 +225,7 @@ function EmptyState({ onCreateClick }) {
       <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6">
         <Inbox size={32} className="text-indigo-400" />
       </div>
-      <h3 className="text-xl font-semibold text-white mb-2">No epics yet</h3>
+      <h3 className="text-xl font-semibold text-theme-text mb-2">No epics yet</h3>
       <p className="text-slate-500 text-sm max-w-xs mb-8">
         Epics help you organise large bodies of work. Create your first one to get started.
       </p>
@@ -431,7 +431,7 @@ export default function DashboardPage() {
                   <BarChart3 size={16} />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-white">Workspace Analytics & Velocity</h2>
+                  <h2 className="text-base font-semibold text-theme-text">Workspace Analytics & Velocity</h2>
                   <p className="text-xs text-slate-500">Real-time aggregate performance metrics across all epics</p>
                 </div>
               </div>
@@ -448,7 +448,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 pt-2">
                 {/* Total Epics */}
                 <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
-                  <p className="text-2xl font-bold text-white">{analytics.totalEpics}</p>
+                  <p className="text-2xl font-bold text-theme-text">{analytics.totalEpics}</p>
                   <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Epics</p>
                 </div>
 
@@ -491,7 +491,7 @@ export default function DashboardPage() {
         {/* Page header & Search bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">
+            <h1 className="text-2xl font-bold text-theme-text mb-1">
               {showArchived ? 'Archived Epics' : 'Your Epics'}
             </h1>
             <p className="text-slate-500 text-sm">
@@ -605,7 +605,7 @@ export default function DashboardPage() {
             <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-4 text-slate-500">
               <Search size={24} />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-1">No matching epics</h3>
+            <h3 className="text-lg font-semibold text-theme-text mb-1">No matching epics</h3>
             <p className="text-slate-500 text-sm mb-6">
               No epics match &quot;{searchQuery}&quot;. Try adjusting your search query.
             </p>

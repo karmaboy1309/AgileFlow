@@ -15,6 +15,13 @@
   --theme-text-muted: #64748b;
   --theme-glass-bg: rgba(255, 255, 255, 0.04);
   --theme-glass-border: rgba(255, 255, 255, 0.07);
+
+  /* Dynamic Tailwind Slate overrides for dark theme */
+  --slate-100-dynamic: #f1f5f9;
+  --slate-200-dynamic: #e2e8f0;
+  --slate-300-dynamic: #cbd5e1;
+  --slate-400-dynamic: #94a3b8;
+  --slate-500-dynamic: #64748b;
 }
 
 [data-theme="midnight"] {
@@ -30,6 +37,13 @@
   --theme-text-muted: #4b5563;
   --theme-glass-bg: rgba(255, 255, 255, 0.04);
   --theme-glass-border: rgba(255, 255, 255, 0.07);
+
+  /* Dynamic Tailwind Slate overrides for dark theme */
+  --slate-100-dynamic: #f1f5f9;
+  --slate-200-dynamic: #e2e8f0;
+  --slate-300-dynamic: #cbd5e1;
+  --slate-400-dynamic: #94a3b8;
+  --slate-500-dynamic: #64748b;
 }
 
 [data-theme="slate"] {
@@ -45,6 +59,13 @@
   --theme-text-muted: #64748b;
   --theme-glass-bg: rgba(255, 255, 255, 0.04);
   --theme-glass-border: rgba(255, 255, 255, 0.07);
+
+  /* Dynamic Tailwind Slate overrides for dark theme */
+  --slate-100-dynamic: #f1f5f9;
+  --slate-200-dynamic: #e2e8f0;
+  --slate-300-dynamic: #cbd5e1;
+  --slate-400-dynamic: #94a3b8;
+  --slate-500-dynamic: #64748b;
 }
 
 [data-theme="emerald"] {
@@ -60,21 +81,35 @@
   --theme-text-muted: #10b981;
   --theme-glass-bg: rgba(255, 255, 255, 0.04);
   --theme-glass-border: rgba(255, 255, 255, 0.07);
+
+  /* Dynamic Tailwind Slate overrides for dark theme */
+  --slate-100-dynamic: #f1f5f9;
+  --slate-200-dynamic: #e2e8f0;
+  --slate-300-dynamic: #cbd5e1;
+  --slate-400-dynamic: #94a3b8;
+  --slate-500-dynamic: #64748b;
 }
 
 [data-theme="light"] {
-  --theme-bg: #f8fafc;
-  --theme-sidebar: #f1f5f9;
+  --theme-bg: #f1f5f9;
+  --theme-sidebar: #ffffff;
   --theme-surface: #ffffff;
   --theme-card: #ffffff;
   --theme-hover: #e2e8f0;
-  --theme-border: rgba(0, 0, 0, 0.08);
-  --theme-border-light: rgba(0, 0, 0, 0.04);
+  --theme-border: rgba(15, 23, 42, 0.15);
+  --theme-border-light: rgba(15, 23, 42, 0.08);
   --theme-text: #0f172a;
-  --theme-text-sub: #475569;
-  --theme-text-muted: #94a3b8;
-  --theme-glass-bg: rgba(255, 255, 255, 0.75);
-  --theme-glass-border: rgba(0, 0, 0, 0.06);
+  --theme-text-sub: #334155;
+  --theme-text-muted: #475569;
+  --theme-glass-bg: rgba(255, 255, 255, 0.85);
+  --theme-glass-border: rgba(15, 23, 42, 0.1);
+
+  /* Dynamic Tailwind Slate overrides for Light mode - dark slate values for strong contrast */
+  --slate-100-dynamic: #1e293b;
+  --slate-200-dynamic: #334155;
+  --slate-300-dynamic: #475569;
+  --slate-400-dynamic: #0f172a;
+  --slate-500-dynamic: #334155;
 }
 
 @theme {
@@ -91,6 +126,25 @@
   --color-brand-700: #4338ca;
   --color-brand-800: #3730a3;
   --color-brand-900: #312e81;
+
+  /* Dynamic Theme Colors */
+  --color-theme-bg: var(--theme-bg);
+  --color-theme-sidebar: var(--theme-sidebar);
+  --color-theme-surface: var(--theme-surface);
+  --color-theme-card: var(--theme-card);
+  --color-theme-hover: var(--theme-hover);
+  --color-theme-border: var(--theme-border);
+  --color-theme-border-light: var(--theme-border-light);
+  --color-theme-text: var(--theme-text);
+  --color-theme-text-sub: var(--theme-text-sub);
+  --color-theme-text-muted: var(--theme-text-muted);
+
+  /* Dynamic Slate Override Mapping */
+  --color-slate-100: var(--slate-100-dynamic);
+  --color-slate-200: var(--slate-200-dynamic);
+  --color-slate-300: var(--slate-300-dynamic);
+  --color-slate-400: var(--slate-400-dynamic);
+  --color-slate-500: var(--slate-500-dynamic);
 
   /* Surface colours for dark UI */
   --color-surface-900: #0f0f17;
