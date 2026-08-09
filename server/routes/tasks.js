@@ -641,6 +641,14 @@ router.post('/bulk-delete', async (req, res, next) => {
     }
 
     await Task.deleteMany({ _id: { $in: taskIds } });
+    console.log(`✅  [tasks] Bulk deleted: ${taskIds.length} tasks`);
+    res.json({ message: `Deleted ${taskIds.length} tasks` });
+  } catch (error) {
+    console.error('❗  [tasks/POST /bulk-delete]', error.message);
+    next(error);
+  }
+});
+
 // ─── POST /api/tasks/:id/worklog ──────────────────────────────────────────────
 router.post('/:id/worklog', async (req, res, next) => {
   try {
