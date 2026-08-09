@@ -296,9 +296,6 @@ export default function BacklogPage() {
                               {s.name}
                             </option>
                           ))}
-                              {s.name}
-                            </option>
-                          ))}
                         </select>
                       )}
                     </div>
