@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const express = require('express');
 const router = express.Router();
@@ -7,7 +7,11 @@ const protect = require('../middleware/auth');
 
 router.use(protect);
 
-// GET /api/projects/:projectId/roles
+/**
+ * @route GET /api/projects/:projectId/roles
+ * @desc Retrieve all user roles mapped to a specific project with populated user details
+ * @access Private
+ */
 router.get('/projects/:projectId/roles', async (req, res, next) => {
   try {
     const roles = await ProjectRole.find({ projectId: req.params.projectId })
@@ -18,7 +22,11 @@ router.get('/projects/:projectId/roles', async (req, res, next) => {
   }
 });
 
-// POST /api/projects/:projectId/roles
+/**
+ * @route POST /api/projects/:projectId/roles
+ * @desc Assign or update a user's project role (e.g. Owner, Admin, Member, Viewer)
+ * @access Private
+ */
 router.post('/projects/:projectId/roles', async (req, res, next) => {
   try {
     const { userId, role = 'Member' } = req.body;
@@ -36,7 +44,11 @@ router.post('/projects/:projectId/roles', async (req, res, next) => {
   }
 });
 
-// DELETE /api/projects/:projectId/roles/:userId
+/**
+ * @route DELETE /api/projects/:projectId/roles/:userId
+ * @desc Remove a user's role mapping from a specific project
+ * @access Private
+ */
 router.delete('/projects/:projectId/roles/:userId', async (req, res, next) => {
   try {
     await ProjectRole.findOneAndDelete({ projectId: req.params.projectId, userId: req.params.userId });
