@@ -6,6 +6,10 @@ import { projectsAPI, sprintsAPI, reportsAPI } from '../api';
 import { BarChart3, TrendingDown, Zap, ArrowLeft, RefreshCw, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+/**
+ * ReportsPage component that fetches and visualizes sprint analytics.
+ * Supports rendering the sprint burndown chart and the historical velocity chart.
+ */
 export default function ReportsPage() {
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
