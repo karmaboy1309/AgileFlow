@@ -4,6 +4,14 @@ import toast from 'react-hot-toast';
 import { tasksAPI } from '../api';
 import IssueTypeIcon from './IssueTypeIcon';
 
+/**
+ * IssueDetailDrawer component that renders the slide-out detail pane for editing a specific task/issue.
+ * 
+ * @param {Object} props
+ * @param {Object} props.issue - The issue details containing fields like title, description, status, subtasks, worklogs etc.
+ * @param {function} props.onClose - Callback triggered when closing the drawer
+ * @param {function} props.onUpdate - Callback triggered when the issue is updated
+ */
 export default function IssueDetailDrawer({ issue, onClose, onUpdate }) {
   const [form, setForm] = useState({
     title: issue.title || '',
