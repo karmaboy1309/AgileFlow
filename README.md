@@ -323,6 +323,16 @@ npm run preview
 
 ---
 
+## 🛠️ Tech Stack & Architecture Details
+
+- **Frontend Core**: React 19, Vite, Tailwind CSS v4, Lucide React icons.
+- **Backend Core**: Express.js, MongoDB Atlas (Mongoose), JWT security.
+- **Project Structure**: Clean separation of routes, middleware, Mongoose models, and React pages/components.
+
+<br />
+
+---
+
 ## 📄 License
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
