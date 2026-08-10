@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Layers, LayoutDashboard, BarChart2, Rocket, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 
+/**
+ * Sidebar component that renders the primary navigation and project selector.
+ * 
+ * @param {Object} props
+ * @param {Object} [props.project] - The currently selected project object
+ * @param {Array} [props.projects] - List of all projects the user is associated with
+ * @param {string} [props.selectedProjectId] - ID of the selected project
+ * @param {function} [props.onSelectProject] - Callback triggered when selecting a different project
+ * @param {string} [props.activeTab] - Currently active navigation tab
+ */
 export default function Sidebar({ project, projects = [], selectedProjectId, onSelectProject, activeTab = 'board' }) {
   const navigate = useNavigate();
   const location = useLocation();
