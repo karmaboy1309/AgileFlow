@@ -29,6 +29,62 @@ router.use(protect);
 // ─── Helper: Validate MongoDB ObjectId ───────────────────────────────────────
 const isValidId = (id) => mongoose.isValidObjectId(id);
 
+// Helper to validate dynamic custom fields values against project definitions
+async function validateCustomFields(projectId, customFieldsData, userId) {
+  if (!customFieldsData || typeof customFieldsData !== 'object') {
+    return { valid: true, data: {} };
+  }
+
+  const project = await Project.findOne({ _id: projectId, createdBy: userId });
+  if (!project) {
+    return { valid: false, message: 'Project not found.' };
+  }
+
+  const definitions = project.customFields || [];
+  const defMap = {};
+  definitions.forEach(d => {
+    defMap[d.name] = d;
+  });
+
+  const validatedData = {};
+
+  for (const [key, value] of Object.entries(customFieldsData)) {
+    const definition = defMap[key];
+    if (!definition) {
+      return { valid: false, message: `Custom field "${key}" is not defined for this project.` };
+    }
+
+    if (value === null || value === undefined || value === '') {
+      validatedData[key] = null;
+      continue;
+    }
+
+    if (definition.fieldType === 'number') {
+      const num = Number(value);
+      if (isNaN(num)) {
+        return { valid: false, message: `Value for custom field "${key}" must be a number.` };
+      }
+      validatedData[key] = num;
+    } else if (definition.fieldType === 'date') {
+      const ms = Date.parse(value);
+      if (isNaN(ms)) {
+        return { valid: false, message: `Value for custom field "${key}" must be a valid date string.` };
+      }
+      validatedData[key] = new Date(value);
+    } else if (definition.fieldType === 'select') {
+      const valStr = String(value).trim();
+      if (!definition.options.includes(valStr)) {
+        return { valid: false, message: `Value "${valStr}" for custom field "${key}" must be one of: ${definition.options.join(', ')}.` };
+      }
+      validatedData[key] = valStr;
+    } else {
+      validatedData[key] = String(value).trim();
+    }
+  }
+
+  return { valid: true, data: validatedData };
+}
+
 /**
  * Verify that the calling user owns the Epic referenced by epicId.
  * Returns the Epic document on success, or throws a 404 response.
@@ -257,6 +313,7 @@ router.post('/', async (req, res, next) => {
       loggedHours    = 0,
       storyPoints    = 0,
       sprintId       = null,
+      customFieldsData = {},
     } = req.body;
 
     if (!epicId || !title) {
@@ -300,6 +357,15 @@ router.post('/', async (req, res, next) => {
       idx = await Task.countDocuments({ epicId });
     }
 
+    const { valid: cfValid, data: cfData, message: cfError } = await validateCustomFields(
+      updatedProject._id,
+      customFieldsData,
+      req.user.id
+    );
+    if (!cfValid) {
+      return res.status(400).json({ message: cfError });
+    }
+
     const task = await Task.create({
       title          : title.trim(),
       description    : description.trim(),
@@ -319,6 +385,7 @@ router.post('/', async (req, res, next) => {
       estimatedHours : Number(estimatedHours) || 0,
       loggedHours    : Number(loggedHours) || 0,
       storyPoints    : Number(storyPoints) || 0,
+      customFieldsData: cfData,
       activityLog    : [{
         action: 'created',
         actor : req.user.name || req.user.email,
@@ -379,9 +446,23 @@ router.put('/:id', async (req, res, next) => {
       loggedHours,
       storyPoints,
       sprintId,
+      customFieldsData,
     } = req.body;
 
     const updates = {};
+
+    if (customFieldsData !== undefined) {
+      const { valid: cfValid, data: cfData, message: cfError } = await validateCustomFields(
+        task.projectId,
+        customFieldsData,
+        req.user.id
+      );
+      if (!cfValid) {
+        return res.status(400).json({ message: cfError });
+      }
+      updates.customFieldsData = cfData;
+    }
+
     if (title          !== undefined) updates.title          = title.trim();
     if (description    !== undefined) updates.description    = description.trim();
     if (issueType      !== undefined) updates.issueType      = issueType;
