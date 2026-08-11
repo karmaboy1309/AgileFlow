@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
 const protect = require('../middleware/auth');
+const checkRole = require('../middleware/checkRole');
 
 router.use(protect);
 
@@ -84,7 +85,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // PUT /api/projects/:id
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', checkRole(['Admin']), async (req, res, next) => {
   try {
     const { name, description, category, lead, statuses } = req.body;
     const updates = {};
@@ -94,8 +95,8 @@ router.put('/:id', async (req, res, next) => {
     if (lead !== undefined) updates.lead = lead;
     if (Array.isArray(statuses)) updates.statuses = statuses;
 
-    const project = await Project.findOneAndUpdate(
-      { _id: req.params.id, createdBy: req.user.id },
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
       updates,
       { new: true, runValidators: true }
     );
@@ -107,9 +108,9 @@ router.put('/:id', async (req, res, next) => {
 });
 
 // POST /api/projects/:id/archive - Toggle Project Archiving
-router.post('/:id/archive', async (req, res, next) => {
+router.post('/:id/archive', checkRole(['Admin']), async (req, res, next) => {
   try {
-    const project = await Project.findOne({ _id: req.params.id, createdBy: req.user.id });
+    const project = await Project.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Project not found.' });
 
     project.isArchived = !project.isArchived;
@@ -122,9 +123,9 @@ router.post('/:id/archive', async (req, res, next) => {
 });
 
 // DELETE /api/projects/:id ───────────────────────────────────────────────────────
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', checkRole([]), async (req, res, next) => {
   try {
-    const project = await Project.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
+    const project = await Project.findByIdAndDelete(req.params.id);
     if (!project) return res.status(404).json({ message: 'Project not found.' });
     res.json({ message: 'Project deleted successfully.' });
   } catch (err) {
