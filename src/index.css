@@ -3,18 +3,19 @@
 
 /* ─── CSS Custom Properties ─────────────────────────────────────────────────── */
 :root, [data-theme="dark"] {
-  --theme-bg: #0f0f17;
-  --theme-sidebar: #14141e;
-  --theme-surface: #16161f;
-  --theme-card: #161622;
-  --theme-hover: #1e1e2d;
-  --theme-border: rgba(255, 255, 255, 0.08);
-  --theme-border-light: rgba(255, 255, 255, 0.06);
-  --theme-text: #e2e8f0;
-  --theme-text-sub: #94a3b8;
-  --theme-text-muted: #64748b;
-  --theme-glass-bg: rgba(255, 255, 255, 0.04);
-  --theme-glass-border: rgba(255, 255, 255, 0.07);
+  /* Jira Professional Dark Mode */
+  --theme-bg: #161a1d;
+  --theme-sidebar: #1d2125;
+  --theme-surface: #22272b;
+  --theme-card: #22272b;
+  --theme-hover: #2c333a;
+  --theme-border: #353c44;
+  --theme-border-light: #2c333a;
+  --theme-text: #c7d1db;
+  --theme-text-sub: #8c9bab;
+  --theme-text-muted: #707f8d;
+  --theme-glass-bg: rgba(34, 39, 43, 0.95);
+  --theme-glass-border: #353c44;
 
   /* Dynamic Tailwind Slate overrides for dark theme */
   --slate-100-dynamic: #f1f5f9;
@@ -22,21 +23,46 @@
   --slate-300-dynamic: #cbd5e1;
   --slate-400-dynamic: #94a3b8;
   --slate-500-dynamic: #64748b;
+
+  /* Primary Blue (Indigo mapping) */
+  --theme-primary-50: #1d2125;
+  --theme-primary-100: #22272b;
+  --theme-primary-200: #2a3239;
+  --theme-primary-300: #3b4651;
+  --theme-primary-400: #73b2ff;
+  --theme-primary-500: #579dff; /* Jira Blue Dark */
+  --theme-primary-600: #0052cc;
+  --theme-primary-700: #0747a6;
+  --theme-primary-800: #003180;
+  --theme-primary-900: #002159;
+
+  /* Secondary Slate (Purple mapping) */
+  --theme-secondary-50: #161a1d;
+  --theme-secondary-100: #1d2125;
+  --theme-secondary-200: #22272b;
+  --theme-secondary-300: #707f8d;
+  --theme-secondary-400: #8c9bab;
+  --theme-secondary-500: #a5adba;
+  --theme-secondary-600: #c7d1db;
+  --theme-secondary-700: #e2e8f0;
+  --theme-secondary-800: #f8fafc;
+  --theme-secondary-900: #ffffff;
 }
 
 [data-theme="midnight"] {
-  --theme-bg: #0a0e1a;
-  --theme-sidebar: #0d1222;
-  --theme-surface: #0f1526;
-  --theme-card: #11182c;
-  --theme-hover: #17223b;
-  --theme-border: rgba(255, 255, 255, 0.08);
-  --theme-border-light: rgba(255, 255, 255, 0.06);
-  --theme-text: #e2e8f0;
-  --theme-text-sub: #94a3b8;
-  --theme-text-muted: #4b5563;
-  --theme-glass-bg: rgba(255, 255, 255, 0.04);
-  --theme-glass-border: rgba(255, 255, 255, 0.07);
+  /* Keep it deep navy but clean and non-glowing */
+  --theme-bg: #090d16;
+  --theme-sidebar: #0e1322;
+  --theme-surface: #121829;
+  --theme-card: #121829;
+  --theme-hover: #1c253d;
+  --theme-border: #232e4c;
+  --theme-border-light: #1c253d;
+  --theme-text: #d1d8e5;
+  --theme-text-sub: #8fa0c2;
+  --theme-text-muted: #627499;
+  --theme-glass-bg: rgba(18, 24, 41, 0.95);
+  --theme-glass-border: #232e4c;
 
   /* Dynamic Tailwind Slate overrides for dark theme */
   --slate-100-dynamic: #f1f5f9;
@@ -44,6 +70,30 @@
   --slate-300-dynamic: #cbd5e1;
   --slate-400-dynamic: #94a3b8;
   --slate-500-dynamic: #64748b;
+
+  /* Primary Blue (Indigo mapping) */
+  --theme-primary-50: #0c1220;
+  --theme-primary-100: #0e1629;
+  --theme-primary-200: #141f3a;
+  --theme-primary-300: #20315a;
+  --theme-primary-400: #4267b2;
+  --theme-primary-500: #6292ec;
+  --theme-primary-600: #4f7cd1;
+  --theme-primary-700: #3b5fa3;
+  --theme-primary-800: #294375;
+  --theme-primary-900: #182949;
+
+  /* Secondary (Purple mapping) */
+  --theme-secondary-50: #090d16;
+  --theme-secondary-100: #0c1220;
+  --theme-secondary-200: #0e1629;
+  --theme-secondary-300: #627499;
+  --theme-secondary-400: #8fa0c2;
+  --theme-secondary-500: #b2c2e0;
+  --theme-secondary-600: #d1d8e5;
+  --theme-secondary-700: #eef2f9;
+  --theme-secondary-800: #f7fafc;
+  --theme-secondary-900: #ffffff;
 }
 
 [data-theme="slate"] {
@@ -66,21 +116,45 @@
   --slate-300-dynamic: #cbd5e1;
   --slate-400-dynamic: #94a3b8;
   --slate-500-dynamic: #64748b;
+
+  /* Primary Blue (Indigo mapping) */
+  --theme-primary-50: #111827;
+  --theme-primary-100: #1f2937;
+  --theme-primary-200: #374151;
+  --theme-primary-300: #4b5563;
+  --theme-primary-400: #60a5fa;
+  --theme-primary-500: #3b82f6;
+  --theme-primary-600: #2563eb;
+  --theme-primary-700: #1d4ed8;
+  --theme-primary-800: #1e40af;
+  --theme-primary-900: #1e3a8a;
+
+  /* Secondary (Purple mapping) */
+  --theme-secondary-50: #0b0f19;
+  --theme-secondary-100: #111827;
+  --theme-secondary-200: #1f2937;
+  --theme-secondary-300: #6b7280;
+  --theme-secondary-400: #9ca3af;
+  --theme-secondary-500: #d1d5db;
+  --theme-secondary-600: #f3f4f6;
+  --theme-secondary-700: #f9fafb;
+  --theme-secondary-800: #ffffff;
+  --theme-secondary-900: #ffffff;
 }
 
 [data-theme="emerald"] {
-  --theme-bg: #061a14;
-  --theme-sidebar: #041410;
-  --theme-surface: #08291f;
-  --theme-card: #0a3327;
-  --theme-hover: #0e4233;
-  --theme-border: rgba(255, 255, 255, 0.08);
-  --theme-border-light: rgba(255, 255, 255, 0.06);
+  --theme-bg: #07120e;
+  --theme-sidebar: #0c1e18;
+  --theme-surface: #122b22;
+  --theme-card: #122b22;
+  --theme-hover: #1b3d31;
+  --theme-border: #235041;
+  --theme-border-light: #1b3d31;
   --theme-text: #ecfdf5;
   --theme-text-sub: #a7f3d0;
-  --theme-text-muted: #10b981;
-  --theme-glass-bg: rgba(255, 255, 255, 0.04);
-  --theme-glass-border: rgba(255, 255, 255, 0.07);
+  --theme-text-muted: #6ee7b7;
+  --theme-glass-bg: rgba(18, 43, 34, 0.95);
+  --theme-glass-border: #235041;
 
   /* Dynamic Tailwind Slate overrides for dark theme */
   --slate-100-dynamic: #f1f5f9;
@@ -88,44 +162,81 @@
   --slate-300-dynamic: #cbd5e1;
   --slate-400-dynamic: #94a3b8;
   --slate-500-dynamic: #64748b;
+
+  /* Primary Blue (Indigo mapping) */
+  --theme-primary-50: #0c1e18;
+  --theme-primary-100: #122b22;
+  --theme-primary-200: #1b3d31;
+  --theme-primary-300: #235041;
+  --theme-primary-400: #34d399;
+  --theme-primary-500: #10b981;
+  --theme-primary-600: #059669;
+  --theme-primary-700: #047857;
+  --theme-primary-800: #065f46;
+  --theme-primary-900: #064e3b;
+
+  /* Secondary (Purple mapping) */
+  --theme-secondary-50: #07120e;
+  --theme-secondary-100: #0c1e18;
+  --theme-secondary-200: #122b22;
+  --theme-secondary-300: #6ee7b7;
+  --theme-secondary-400: #a7f3d0;
+  --theme-secondary-500: #d1fae5;
+  --theme-secondary-600: #ecfdf5;
+  --theme-secondary-700: #f0fdf4;
+  --theme-secondary-800: #ffffff;
+  --theme-secondary-900: #ffffff;
 }
 
 [data-theme="light"] {
-  --theme-bg: #f1f5f9;
-  --theme-sidebar: #ffffff;
+  /* Jira Light Theme */
+  --theme-bg: #f4f5f7;
+  --theme-sidebar: #f4f5f7;
   --theme-surface: #ffffff;
   --theme-card: #ffffff;
-  --theme-hover: #e2e8f0;
-  --theme-border: rgba(15, 23, 42, 0.15);
-  --theme-border-light: rgba(15, 23, 42, 0.08);
-  --theme-text: #0f172a;
-  --theme-text-sub: #334155;
-  --theme-text-muted: #475569;
-  --theme-glass-bg: rgba(255, 255, 255, 0.85);
-  --theme-glass-border: rgba(15, 23, 42, 0.1);
+  --theme-hover: #ebecf0;
+  --theme-border: #dfe1e6;
+  --theme-border-light: #ebecf0;
+  --theme-text: #172b4d;
+  --theme-text-sub: #5e6c84;
+  --theme-text-muted: #8993a4;
+  --theme-glass-bg: rgba(255, 255, 255, 0.98);
+  --theme-glass-border: #dfe1e6;
 
-  /* Dynamic Tailwind Slate overrides for Light mode - dark slate values for strong contrast */
+  /* Dynamic Tailwind Slate overrides for Light mode */
   --slate-100-dynamic: #1e293b;
   --slate-200-dynamic: #334155;
   --slate-300-dynamic: #475569;
   --slate-400-dynamic: #0f172a;
   --slate-500-dynamic: #334155;
+
+  /* Primary Blue (Indigo mapping) */
+  --theme-primary-50: #deebff;
+  --theme-primary-100: #b3d4ff;
+  --theme-primary-200: #4c9aff;
+  --theme-primary-300: #2684ff;
+  --theme-primary-400: #0065ff;
+  --theme-primary-500: #0052cc; /* Atlassian Jira Blue */
+  --theme-primary-600: #0747a6;
+  --theme-primary-700: #003180;
+  --theme-primary-800: #002159;
+  --theme-primary-900: #00102b;
+
+  /* Secondary (Purple mapping) */
+  --theme-secondary-50: #f4f5f7;
+  --theme-secondary-100: #ebecf0;
+  --theme-secondary-200: #dfe1e6;
+  --theme-secondary-300: #8993a4;
+  --theme-secondary-400: #5e6c84;
+  --theme-secondary-500: #42526e;
+  --theme-secondary-600: #253858;
+  --theme-secondary-700: #172b4d;
+  --theme-secondary-800: #091e42;
+  --theme-secondary-900: #000000;
 }
 
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-
-  /* Brand palette */
-  --color-brand-50:  #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-300: #a5b4fc;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-800: #3730a3;
-  --color-brand-900: #312e81;
 
   /* Dynamic Theme Colors */
   --color-theme-bg: var(--theme-bg);
@@ -153,9 +264,33 @@
   --color-surface-600: #252535;
   --color-surface-500: #2e2e42;
   --color-surface-400: #3a3a52;
+
+  /* Map indigo color tokens to theme primary variables */
+  --color-indigo-50: var(--theme-primary-50);
+  --color-indigo-100: var(--theme-primary-100);
+  --color-indigo-200: var(--theme-primary-200);
+  --color-indigo-300: var(--theme-primary-300);
+  --color-indigo-400: var(--theme-primary-400);
+  --color-indigo-500: var(--theme-primary-500);
+  --color-indigo-600: var(--theme-primary-600);
+  --color-indigo-700: var(--theme-primary-700);
+  --color-indigo-800: var(--theme-primary-800);
+  --color-indigo-900: var(--theme-primary-900);
+
+  /* Map purple color tokens to theme secondary variables */
+  --color-purple-50: var(--theme-secondary-50);
+  --color-purple-100: var(--theme-secondary-100);
+  --color-purple-200: var(--theme-secondary-200);
+  --color-purple-300: var(--theme-secondary-300);
+  --color-purple-400: var(--theme-secondary-400);
+  --color-purple-500: var(--theme-secondary-500);
+  --color-purple-600: var(--theme-secondary-600);
+  --color-purple-700: var(--theme-secondary-700);
+  --color-purple-800: var(--theme-secondary-800);
+  --color-purple-900: var(--theme-secondary-900);
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Base Reset Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Base Reset ────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -174,7 +309,7 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Scrollbar Styling Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Scrollbar Styling ──────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -187,85 +322,65 @@ body {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #6366f1;
+  background: var(--theme-primary-500);
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Glassmorphism Utility Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Glassmorphism Utility ─────────────────────────────────────────────────── */
 .glass {
   background: var(--theme-glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--theme-glass-border);
+  border: 1px solid var(--theme-border);
 }
 
 .glass-card {
-  background: var(--theme-glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--theme-glass-border);
-  border-radius: 16px;
-  transition: all 0.2s ease;
+  background: var(--theme-card);
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .glass-card:hover {
-  background: var(--theme-hover);
-  border-color: rgba(99, 102, 241, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+  border-color: var(--theme-primary-400);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: none;
 }
 
 [data-theme="light"] .glass-card {
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(9, 30, 66, 0.08);
 }
 
 [data-theme="light"] .glass-card:hover {
   background: #ffffff;
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 8px 10px -6px rgba(99, 102, 241, 0.1);
+  border-color: var(--theme-primary-300);
+  box-shadow: 0 4px 16px rgba(9, 30, 66, 0.12);
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Gradient Text Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Gradient Text ─────────────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--theme-primary-500);
+  font-weight: 700;
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Glow Button Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Glow Button ───────────────────────────────────────────────────────────── */
 .btn-primary {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background-color: var(--theme-primary-500);
   color: white;
-  font-weight: 600;
-  padding: 0.625rem 1.5rem;
-  border-radius: 10px;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 4px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.btn-primary:hover::before {
-  opacity: 1;
+  transition: background-color 0.15s ease;
+  font-size: 0.875rem;
 }
 
 .btn-primary:hover {
-  box-shadow: 0 0 24px rgba(99, 102, 241, 0.5);
-  transform: translateY(-1px);
+  background-color: var(--theme-primary-600);
+  box-shadow: none;
+  transform: none;
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  background-color: var(--theme-primary-700);
 }
 
 .btn-primary span {
@@ -273,54 +388,50 @@ body {
   z-index: 1;
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Input Styling Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Input Styling ─────────────────────────────────────────────────────────── */
 .input-dark {
   background: var(--theme-surface);
   border: 1px solid var(--theme-border);
-  border-radius: 10px;
+  border-radius: 4px;
   color: var(--theme-text);
-  /* top/right/bottom fixed; left is set per-instance via style prop */
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
-  padding-right: 1rem;
-  padding-left: 1rem; /* default when no icon – overridden by inline style */
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
   width: 100%;
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   outline: none;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 .input-dark::placeholder {
-  color: var(--theme-text-sub);
+  color: var(--theme-text-muted);
 }
 
 .input-dark:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  border-color: var(--theme-primary-500);
+  box-shadow: 0 0 0 2px var(--theme-primary-100);
   background: var(--theme-surface);
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Column Status Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
-.col-todo     { border-top: 3px solid #64748b; }
-.col-progress { border-top: 3px solid #f59e0b; }
-.col-done     { border-top: 3px solid #10b981; }
+/* ─── Column Status Colors ───────────────────────────────────────────────────── */
+.col-todo     { border-top: 3px solid #6b778c; }
+.col-progress { border-top: 3px solid #0052cc; }
+.col-done     { border-top: 3px solid #00875a; }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Task Card Drag Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Task Card Drag ─────────────────────────────────────────────────────────── */
 .task-card-dragging {
-  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.4) !important;
-  transform: rotate(1.5deg) scale(1.03) !important;
-  border-color: rgba(99, 102, 241, 0.6) !important;
+  box-shadow: 0 8px 24px rgba(9, 30, 66, 0.2) !important;
+  transform: scale(1.02) !important;
+  border-color: var(--theme-primary-500) !important;
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Auth gradient background Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Auth gradient background ──────────────────────────────────────────────── */
 .auth-bg {
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-    #0f0f17;
+  background-color: var(--theme-bg);
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Fade-in Animation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Fade-in Animation ──────────────────────────────────────────────────────── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -341,14 +452,14 @@ body {
   animation: shimmer 1.5s linear infinite;
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Modal Overlay Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Modal Overlay ─────────────────────────────────────────────────────────── */
 .modal-overlay {
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Priority Badge Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ─── Priority Badge Colors ───────────────────────────────────────────────────── */
 .priority-low    { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
 .priority-medium { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
 .priority-high   { background: rgba(239, 68, 68, 0.15);  color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
