@@ -114,7 +114,7 @@ export default function ReleasePage() {
           {/* Header */}
           <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-purple-400 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-500 uppercase tracking-wider mb-1">
                 <Rocket className="w-4 h-4" /> Fix Versions & Software Releases
               </div>
               <h1 className="text-2xl font-bold text-theme-text flex items-center gap-3">
@@ -124,7 +124,7 @@ export default function ReleasePage() {
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-all shadow-lg shadow-purple-900/30"
+              className="btn-primary"
             >
               <Plus className="w-4 h-4" /> Create Version / Release
             </button>
@@ -140,7 +140,7 @@ export default function ReleasePage() {
                 return (
                   <div
                     key={rel._id}
-                    className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:border-theme-border"
+                    className="bg-theme-card border border-theme-border rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:border-theme-border"
                   >
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-3">
@@ -177,7 +177,7 @@ export default function ReleasePage() {
                         </div>
                         <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
                           <div
-                            className="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all"
+                            className="bg-indigo-600 h-full rounded-full transition-all"
                             style={{ width: `${progressPct}%` }}
                           />
                         </div>
@@ -209,7 +209,7 @@ export default function ReleasePage() {
                 );
               })
             ) : (
-              <div className="bg-theme-card rounded-2xl border border-theme-border p-12 text-center text-theme-text-sub">
+              <div className="bg-theme-card rounded-lg border border-theme-border p-12 text-center text-theme-text-sub">
                 No releases created yet. Create a release to track software delivery milestones.
               </div>
             )}
@@ -217,13 +217,13 @@ export default function ReleasePage() {
 
           {/* Modal Form */}
           {isModalOpen && (
-            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
               <form
                 onSubmit={handleCreateRelease}
-                className="bg-theme-surface border border-theme-border rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4"
+                className="bg-theme-surface border border-theme-border rounded-lg w-full max-w-md p-6 shadow-xl space-y-4"
               >
                 <h3 className="text-base font-bold text-theme-text flex items-center gap-2">
-                  <Rocket className="w-5 h-5 text-purple-400" /> Create Fix Version / Release
+                  <Rocket className="w-5 h-5 text-indigo-500" /> Create Fix Version / Release
                 </h3>
 
                 <div>
@@ -234,7 +234,7 @@ export default function ReleasePage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. v1.0.0 or Sprint 24 Release"
-                    className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-md px-3 py-2 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
 
@@ -245,7 +245,7 @@ export default function ReleasePage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Brief release goal..."
-                    className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-md px-3 py-2 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
 
@@ -255,7 +255,7 @@ export default function ReleasePage() {
                     type="date"
                     value={releaseDate}
                     onChange={(e) => setReleaseDate(e.target.value)}
-                    className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-md px-3 py-2 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
 
@@ -263,13 +263,13 @@ export default function ReleasePage() {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 rounded-lg text-xs font-semibold text-theme-text-sub hover:bg-theme-hover"
+                    className="px-4 py-2 rounded text-xs font-semibold text-theme-text-sub hover:bg-theme-hover"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-lg text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white shadow-md shadow-purple-900/30"
+                    className="btn-primary text-xs"
                   >
                     Create Version
                   </button>

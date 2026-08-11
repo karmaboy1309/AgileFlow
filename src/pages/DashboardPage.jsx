@@ -222,7 +222,7 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
 function EmptyState({ onCreateClick }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-24 px-6">
-      <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6">
+      <div className="w-20 h-20 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6">
         <Inbox size={32} className="text-indigo-400" />
       </div>
       <h3 className="text-xl font-semibold text-theme-text mb-2">No epics yet</h3>
@@ -424,10 +424,10 @@ export default function DashboardPage() {
       <main className="max-w-screen-xl mx-auto px-6 py-10">
         {/* Workspace Analytics Panel */}
         {analytics && (
-          <div className="glass rounded-2xl p-6 mb-8 border border-white/[0.08] relative overflow-hidden">
+          <div className="glass rounded-lg p-6 mb-8 border border-theme-border relative overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                <div className="w-8 h-8 rounded-md bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
                   <BarChart3 size={16} />
                 </div>
                 <div>
@@ -437,7 +437,7 @@ export default function DashboardPage() {
               </div>
               <button
                 onClick={() => setShowAnalytics((v) => !v)}
-                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 bg-white/[0.04] hover:bg-white/[0.08] px-3 py-1.5 rounded-xl border border-white/[0.06] transition-colors"
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 bg-white/[0.04] hover:bg-white/[0.08] px-3 py-1.5 rounded border border-theme-border transition-colors"
               >
                 <span>{showAnalytics ? 'Hide' : 'Show'} details</span>
                 {showAnalytics ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -447,37 +447,37 @@ export default function DashboardPage() {
             {showAnalytics && (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 pt-2">
                 {/* Total Epics */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
                   <p className="text-2xl font-bold text-theme-text">{analytics.totalEpics}</p>
                   <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Epics</p>
                 </div>
 
                 {/* Total Tasks */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
                   <p className="text-2xl font-bold text-indigo-400">{analytics.totalTasks}</p>
                   <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Tasks</p>
                 </div>
 
                 {/* Completion Rate */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
                   <p className="text-2xl font-bold text-emerald-400">{analytics.overallProgress}%</p>
                   <p className="text-[11px] font-medium text-slate-500 mt-0.5">Completion Rate</p>
                 </div>
 
                 {/* In Progress */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
                   <p className="text-2xl font-bold text-amber-400">{analytics.inProgressTasks}</p>
                   <p className="text-[11px] font-medium text-slate-500 mt-0.5">In Progress</p>
                 </div>
 
                 {/* High Priority */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
                   <p className="text-2xl font-bold text-rose-400">{analytics.highPriorityTasks}</p>
                   <p className="text-[11px] font-medium text-slate-500 mt-0.5">High Priority</p>
                 </div>
 
                 {/* Overdue Tasks */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3.5 text-center">
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
                   <p className={`text-2xl font-bold ${analytics.overdueTasks > 0 ? 'text-red-500' : 'text-slate-400'}`}>
                     {analytics.overdueTasks}
                   </p>
