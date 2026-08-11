@@ -31,27 +31,21 @@ export default function LoginPage() {
 
   return (
     <div className="auth-bg min-h-screen flex items-center justify-center p-4">
-      {/* Decorative blobs */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-violet-600/10 blur-3xl" />
-      </div>
-
       <div className="w-full max-w-md animate-fade-in-up">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center">
               <Zap size={20} className="text-white" />
             </div>
             <span className="text-2xl font-bold gradient-text">AgileFlow</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome back</h1>
-          <p className="text-slate-400 text-sm">Sign in to your workspace</p>
+          <h1 className="text-3xl font-bold text-theme-text mb-2">Welcome back</h1>
+          <p className="text-theme-text-sub text-sm">Sign in to your workspace</p>
         </div>
 
         {/* Card */}
-        <div className="glass-card p-8" style={{ borderRadius: '20px', transition: 'none' }}>
+        <div className="glass-card p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
@@ -130,11 +124,11 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-white/[0.07]" />
           </div>
 
-          <p className="text-center text-sm text-slate-400">
+          <p className="text-center text-sm text-theme-text-sub">
             Don&apos;t have an account?{' '}
             <Link
               to="/register"
-              className="text-indigo-400 font-medium hover:text-indigo-300 transition-colors"
+              className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors"
             >
               Create one free
             </Link>
