@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const express = require('express');
 const router = express.Router();
@@ -24,8 +24,37 @@ router.get('/tasks/:taskId/links', async (req, res, next) => {
   }
 });
 
+// Helper to check if adding sourceTaskId -> targetTaskId would introduce a cycle
+async function wouldCreateCycle(sourceId, targetId) {
+  const visited = new Set();
+  const queue = [targetId.toString()];
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (current === sourceId.toString()) {
+      return true; // A path exists from target back to source, adding source -> target creates a cycle
+    }
+    if (visited.has(current)) continue;
+    visited.add(current);
+
+    // Query for all outgoing 'blocks' relations from the current node
+    const outgoingLinks = await IssueLink.find({
+      sourceTaskId: current,
+      relationship: 'blocks',
+    });
+
+    for (const link of outgoingLinks) {
+      const nextId = link.targetTaskId.toString();
+      if (!visited.has(nextId)) {
+        queue.push(nextId);
+      }
+    }
+  }
+  return false;
+}
+
 // POST /api/links
-router.post('/links', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
     const { sourceTaskId, targetTaskId, relationship = 'relates_to' } = req.body;
     if (!sourceTaskId || !targetTaskId) {
@@ -33,6 +62,15 @@ router.post('/links', async (req, res, next) => {
     }
     if (sourceTaskId === targetTaskId) {
       return res.status(400).json({ message: 'Cannot link an issue to itself.' });
+    }
+
+    if (relationship === 'blocks') {
+      const isCircular = await wouldCreateCycle(sourceTaskId, targetTaskId);
+      if (isCircular) {
+        return res.status(400).json({
+          message: 'Circular dependency detected. Creating this link would cause issues to block each other.',
+        });
+      }
     }
 
     const link = await IssueLink.create({
