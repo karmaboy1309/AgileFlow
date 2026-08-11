@@ -132,10 +132,10 @@ export default function Navbar({ title }) {
           onClick={() => navigate('/dashboard')}
           className="flex items-center gap-2.5 group"
         >
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-shadow">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center transition-colors">
             <Zap size={15} className="text-white" />
           </div>
-          <span className="text-lg font-bold gradient-text">AgileFlow</span>
+          <span className="text-lg font-bold text-theme-text group-hover:text-indigo-500 transition-colors">AgileFlow</span>
         </button>
 
         {/* Page title */}
