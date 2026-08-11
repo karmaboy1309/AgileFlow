@@ -72,25 +72,52 @@ app.use(
   })
 );
 
-// ── In-Memory Rate Limiter Middleware ──────────────────────────────────────────
-const rateLimits = {};
+// ── Dual-Tier In-Memory Rate Limiter Middleware ────────────────────────────────
+const authRateLimits = {};
+const apiRateLimits = {};
+
 app.use((req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;
   const now = Date.now();
-  const windowMs = 60 * 1000; // 1 minute window
 
-  if (!rateLimits[ip]) {
-    rateLimits[ip] = { count: 1, resetTime: now + windowMs };
-  } else {
-    if (now > rateLimits[ip].resetTime) {
-      rateLimits[ip] = { count: 1, resetTime: now + windowMs };
+  const isAuthRoute = req.originalUrl.startsWith('/api/auth');
+
+  if (isAuthRoute) {
+    const windowMs = 15 * 60 * 1000; // 15 minutes window
+    if (!authRateLimits[ip]) {
+      authRateLimits[ip] = { count: 1, resetTime: now + windowMs };
     } else {
-      rateLimits[ip].count++;
+      if (now > authRateLimits[ip].resetTime) {
+        authRateLimits[ip] = { count: 1, resetTime: now + windowMs };
+      } else {
+        authRateLimits[ip].count++;
+      }
     }
-  }
 
-  if (rateLimits[ip].count > 100) {
-    return res.status(429).json({ message: 'Too many requests. Please try again in a minute.' });
+    if (authRateLimits[ip].count > 10) {
+      console.warn(`⚠️  [rate-limit] Auth attempts exceeded for IP ${ip}`);
+      return res.status(429).json({
+        message: 'Too many authentication attempts. Please try again after 15 minutes.'
+      });
+    }
+  } else {
+    const windowMs = 60 * 1000; // 1 minute window
+    if (!apiRateLimits[ip]) {
+      apiRateLimits[ip] = { count: 1, resetTime: now + windowMs };
+    } else {
+      if (now > apiRateLimits[ip].resetTime) {
+        apiRateLimits[ip] = { count: 1, resetTime: now + windowMs };
+      } else {
+        apiRateLimits[ip].count++;
+      }
+    }
+
+    if (apiRateLimits[ip].count > 120) {
+      console.warn(`⚠️  [rate-limit] API limit exceeded for IP ${ip}`);
+      return res.status(429).json({
+        message: 'Too many requests. Please try again in a minute.'
+      });
+    }
   }
   next();
 });
