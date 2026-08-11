@@ -112,6 +112,126 @@ router.get('/export/csv', async (req, res, next) => {
   }
 });
 
+// Helper to parse RFC 4180 compliant CSV strings
+function parseCSV(text) {
+  const p = [[]];
+  let quote = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const next = text[i+1];
+    if (c === '"') {
+      if (quote && next === '"') { p[p.length - 1][p[p.length - 1].length - 1] += '"'; i++; }
+      else { quote = !quote; }
+    } else if (c === ',') {
+      if (quote) { p[p.length - 1][p[p.length - 1].length - 1] += c; }
+      else { p[p.length - 1].push(''); }
+    } else if (c === '\n' || c === '\r') {
+      if (quote) { p[p.length - 1][p[p.length - 1].length - 1] += c; }
+      else if (c === '\n' || (c === '\r' && next !== '\n')) { p.push(['']); }
+    } else {
+      if (p[p.length - 1].length === 0) { p[p.length - 1].push(''); }
+      p[p.length - 1][p[p.length - 1].length - 1] += c;
+    }
+  }
+  return p.filter(row => row.length > 0 && row.some(cell => cell.trim().length > 0));
+}
+
+// POST /api/tasks/import/csv - Bulk import tasks from CSV
+router.post('/import/csv', async (req, res, next) => {
+  try {
+    const { csvData, epicId, projectId } = req.body;
+    if (!csvData) {
+      return res.status(400).json({ message: 'csvData is required.' });
+    }
+    if (!epicId || !projectId) {
+      return res.status(400).json({ message: 'epicId and projectId are required.' });
+    }
+
+    const epic = await assertEpicOwnership(epicId, req.user.id, res);
+    if (!epic) return;
+
+    const project = await Project.findOne({ _id: projectId, createdBy: req.user.id });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found.' });
+    }
+
+    const rows = parseCSV(csvData);
+    if (rows.length === 0) {
+      return res.status(400).json({ message: 'No valid rows found in CSV.' });
+    }
+
+    let startIdx = 0;
+    const firstRowHeaderCheck = rows[0][0].toLowerCase().trim();
+    if (firstRowHeaderCheck === 'title' || firstRowHeaderCheck === 'issue key' || firstRowHeaderCheck === 'issuekey') {
+      startIdx = 1;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+    const importedTasks = [];
+    const importErrors = [];
+
+    let currentOrderIndex = await Task.countDocuments({ epicId });
+
+    for (let i = startIdx; i < rows.length; i++) {
+      const row = rows[i];
+      const title = row[0]?.trim();
+      if (!title) {
+        importErrors.push({ row: i + 1, message: 'Missing Title in CSV column 1.' });
+        errorCount++;
+        continue;
+      }
+
+      const issueType = row[1]?.trim().toLowerCase() || 'task';
+      const status = row[2]?.trim().toLowerCase() || 'todo';
+      const priority = row[3]?.trim().toLowerCase() || 'medium';
+      const assignee = row[4]?.trim() || '';
+      const storyPoints = parseInt(row[5]?.trim(), 10) || 0;
+      const description = row[6]?.trim() || '';
+
+      try {
+        const updatedProject = await Project.findByIdAndUpdate(
+          project._id,
+          { $inc: { seq: 1 } },
+          { new: true }
+        );
+
+        const generatedKey = `${updatedProject.key}-${updatedProject.seq}`;
+
+        const task = await Task.create({
+          title,
+          description,
+          issueType,
+          issueKey: generatedKey,
+          projectId: project._id,
+          status,
+          priority,
+          assignee,
+          storyPoints,
+          epicId,
+          orderIndex: currentOrderIndex++,
+        });
+
+        importedTasks.push(task);
+        successCount++;
+      } catch (err) {
+        importErrors.push({ row: i + 1, message: err.message });
+        errorCount++;
+      }
+    }
+
+    res.status(201).json({
+      message: `Import complete. ${successCount} tasks imported, ${errorCount} failed.`,
+      successCount,
+      errorCount,
+      errors: importErrors,
+      tasks: importedTasks,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── POST /api/tasks ──────────────────────────────────────────────────────────
 /**
  * Body: { epicId, title, description?, status?, priority?, assignee?, orderIndex? }
