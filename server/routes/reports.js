@@ -379,4 +379,89 @@ router.get('/printable-summary', async (req, res, next) => {
   }
 });
 
+// GET /api/reports/timesheet - Aggregate worklog hours by user and task
+router.get('/timesheet', async (req, res, next) => {
+  try {
+    const { projectId, startDate, endDate } = req.query;
+    if (!projectId) {
+      return res.status(400).json({ message: 'projectId is required.' });
+    }
+
+    const Worklog = require('../models/Worklog');
+
+    // Fetch all task IDs for this project
+    const tasks = await Task.find({ projectId });
+    const taskIds = tasks.map(t => t._id);
+
+    const query = { taskId: { $in: taskIds } };
+    if (startDate || endDate) {
+      query.startDate = {};
+      if (startDate) query.startDate.$gte = new Date(startDate);
+      if (endDate) query.startDate.$lte = new Date(endDate);
+    }
+
+    const worklogs = await Worklog.find(query)
+      .populate('createdBy', 'name email')
+      .populate('taskId', 'title issueKey');
+
+    // Aggregate by user and by task
+    const userSummary = {};
+    const taskSummary = {};
+    let totalHours = 0;
+
+    worklogs.forEach(log => {
+      totalHours += log.timeSpentHours;
+
+      // Group by User
+      const userId = log.createdBy?._id?.toString() || 'unknown';
+      if (!userSummary[userId]) {
+        userSummary[userId] = {
+          userName: log.createdBy?.name || 'Unknown User',
+          userEmail: log.createdBy?.email || '',
+          totalHours: 0,
+          entries: [],
+        };
+      }
+      userSummary[userId].totalHours += log.timeSpentHours;
+      userSummary[userId].entries.push({
+        worklogId: log._id,
+        taskId: log.taskId?._id,
+        taskKey: log.taskId?.issueKey,
+        taskTitle: log.taskId?.title,
+        hours: log.timeSpentHours,
+        description: log.description,
+        date: log.startDate,
+      });
+
+      // Group by Task
+      const taskIdStr = log.taskId?._id?.toString() || 'unknown';
+      if (!taskSummary[taskIdStr]) {
+        taskSummary[taskIdStr] = {
+          taskKey: log.taskId?.issueKey || 'N/A',
+          taskTitle: log.taskId?.title || 'Unknown Task',
+          totalHours: 0,
+          entries: [],
+        };
+      }
+      taskSummary[taskIdStr].totalHours += log.timeSpentHours;
+      taskSummary[taskIdStr].entries.push({
+        worklogId: log._id,
+        userName: log.createdBy?.name || 'Unknown User',
+        hours: log.timeSpentHours,
+        description: log.description,
+        date: log.startDate,
+      });
+    });
+
+    res.json({
+      projectId,
+      totalHours,
+      userSummary: Object.values(userSummary),
+      taskSummary: Object.values(taskSummary),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
