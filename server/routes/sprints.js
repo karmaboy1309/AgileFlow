@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const express = require('express');
 const router = express.Router();
@@ -84,6 +84,63 @@ router.put('/:id', async (req, res, next) => {
 
     if (!sprint) return res.status(404).json({ message: 'Sprint not found.' });
     res.json({ sprint });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/sprints/:id/capacity-assessment - Calculate sprint load vs historical velocity
+router.get('/:id/capacity-assessment', async (req, res, next) => {
+  try {
+    const sprint = await Sprint.findOne({ _id: req.params.id, createdBy: req.user.id });
+    if (!sprint) {
+      return res.status(404).json({ message: 'Sprint not found.' });
+    }
+
+    // Get current sprint tasks and calculate total load
+    const currentTasks = await Task.find({ sprintId: sprint._id });
+    const totalLoadPoints = currentTasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+
+    // Get past completed sprints in the same project
+    const pastSprints = await Sprint.find({
+      projectId: sprint.projectId,
+      status: 'closed',
+    }).sort({ updatedAt: -1 }).limit(3);
+
+    let averageVelocity = 0;
+    const history = [];
+
+    if (pastSprints.length > 0) {
+      for (const s of pastSprints) {
+        const completedTasks = await Task.find({ sprintId: s._id, status: 'done' });
+        const completedPoints = completedTasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+        history.push({ sprintName: s.name, completedPoints });
+      }
+      const totalPoints = history.reduce((sum, h) => sum + h.completedPoints, 0);
+      averageVelocity = Math.round(totalPoints / history.length);
+    }
+
+    let warning = null;
+    let ratio = 1;
+    if (averageVelocity > 0) {
+      ratio = totalLoadPoints / averageVelocity;
+      if (ratio > 1.2) {
+        warning = `Warning: Sprint load (${totalLoadPoints} SP) is ${(ratio * 100).toFixed(0)}% of the historical average velocity (${averageVelocity} SP). This exceeds recommended capacity.`;
+      }
+    } else {
+      if (totalLoadPoints > 40) {
+        warning = `Warning: New sprint has a high load of ${totalLoadPoints} SP with no prior velocity data. A baseline load of 30-40 SP is recommended.`;
+      }
+    }
+
+    res.json({
+      sprintName: sprint.name,
+      totalLoadPoints,
+      averageVelocity: averageVelocity || null,
+      history,
+      ratio: averageVelocity ? parseFloat(ratio.toFixed(2)) : null,
+      warning,
+    });
   } catch (err) {
     next(err);
   }
