@@ -117,7 +117,7 @@ router.post('/:id/release', async (req, res) => {
 // DELETE /api/releases/:id
 router.delete('/:id', async (req, res) => {
   try {
-    const release = await Release.findOneAndDelete({ _id: req.params.id, user: req.userId });
+    const release = await Release.findOneAndDelete({ _id: req.params.id, user: req.user.id });
     if (!release) return res.status(404).json({ error: 'Release not found.' });
 
     // Unlink tasks assigned to this fix version
