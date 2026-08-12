@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield, Palette, KeyRound, Keyboard, HelpCircle } from 'lucide-react';
+import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield, Palette, KeyRound, Keyboard, HelpCircle, Rocket, BarChart3, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authAPI } from '../api';
 
@@ -38,6 +38,8 @@ export default function Navbar({ title }) {
   const [pwSaving, setPwSaving] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [paletteSearch, setPaletteSearch] = useState('');
 
   useEffect(() => {
     const selectedTheme = THEMES.find((t) => t.id === theme) || THEMES[0];
@@ -50,14 +52,9 @@ export default function Navbar({ title }) {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        toast('🚀 Search Command Palette coming soon! Press ESC to dismiss.', {
-          icon: '🔍',
-          style: {
-            background: '#1e1e2d',
-            color: '#f8fafc',
-            border: '1px solid rgba(255,255,255,0.08)'
-          }
-        });
+        setShowCommandPalette(true);
+      } else if (e.key === 'Escape') {
+        setShowCommandPalette(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -155,7 +152,7 @@ export default function Navbar({ title }) {
               type="text"
               placeholder="Search issues... (Ctrl+K)"
               onClick={() => {
-                toast('🔍 Global search drawer activated!', { id: 'search-toast' });
+                setShowCommandPalette(true);
               }}
               readOnly
               className="w-full bg-white/[0.04] border border-white/[0.08] hover:border-white/10 rounded-xl py-1.5 pl-3 pr-8 text-xs text-slate-300 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors cursor-pointer"
@@ -488,6 +485,82 @@ export default function Navbar({ title }) {
                 <span className="text-slate-300 font-medium">Dismiss Modals / Overlay</span>
                 <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[10px] border border-white/10">Esc</kbd>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Command Palette Modal */}
+      {showCommandPalette && (
+        <div
+          className="modal-overlay fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh]"
+          onClick={(e) => e.target === e.currentTarget && setShowCommandPalette(false)}
+        >
+          <div
+            className="animate-fade-in-up w-full max-w-lg rounded-2xl border border-white/[0.09] shadow-2xl overflow-hidden text-theme-text"
+            style={{ background: '#16161f' }}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="p-4 border-b border-white/[0.07] flex items-center gap-3">
+              <Search className="w-5 h-5 text-indigo-400" />
+              <input
+                autoFocus
+                type="text"
+                value={paletteSearch}
+                onChange={(e) => setPaletteSearch(e.target.value)}
+                placeholder="Type a command or search page..."
+                className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
+              />
+              <kbd className="text-[10px] font-mono text-slate-500 bg-white/[0.03] px-2 py-1 rounded border border-white/[0.06] select-none">ESC</kbd>
+            </div>
+
+            <div className="max-h-80 overflow-y-auto p-2 space-y-1">
+              {(() => {
+                const allCommands = [
+                  { icon: <LayoutDashboard size={14} />, label: 'Go to Dashboard', action: () => navigate('/dashboard') },
+                  { icon: <Rocket size={14} />, label: 'Go to Releases', action: () => navigate('/releases') },
+                  { icon: <BarChart3 size={14} />, label: 'Go to Reports', action: () => navigate('/reports') },
+                  { icon: <Palette size={14} />, label: 'Switch to Dark Theme', action: () => setTheme('dark') },
+                  { icon: <Palette size={14} />, label: 'Switch to Midnight Theme', action: () => setTheme('midnight') },
+                  { icon: <Palette size={14} />, label: 'Switch to Slate Theme', action: () => setTheme('slate') },
+                  { icon: <Palette size={14} />, label: 'Switch to Emerald Theme', action: () => setTheme('emerald') },
+                  { icon: <Palette size={14} />, label: 'Switch to Light Theme', action: () => setTheme('light') },
+                  { icon: <User size={14} />, label: 'Edit User Profile', action: () => { setShowProfileModal(true); } },
+                  { icon: <LogOut size={14} />, label: 'Logout', action: handleLogout },
+                ];
+
+                const filtered = allCommands.filter((cmd) =>
+                  cmd.label.toLowerCase().includes(paletteSearch.toLowerCase())
+                );
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="py-8 text-center text-slate-500 text-xs">
+                      No matching commands found.
+                    </div>
+                  );
+                }
+
+                return filtered.map((cmd, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      cmd.action();
+                      setShowCommandPalette(false);
+                      setPaletteSearch('');
+                    }}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 text-xs text-slate-300 hover:text-white rounded-xl hover:bg-white/[0.04] transition-colors text-left"
+                  >
+                    <span className="text-slate-500 hover:text-indigo-400 transition-colors">{cmd.icon}</span>
+                    <span className="font-medium">{cmd.label}</span>
+                    <span className="ml-auto text-[10px] text-slate-600 font-mono">↵ Run</span>
+                  </button>
+                ));
+              })()}
+            </div>
+            <div className="p-3 bg-white/[0.02] border-t border-white/[0.05] text-[10px] text-slate-500 flex items-center justify-between">
+              <span>Use typing to filter actions</span>
+              <span>Press ESC to exit</span>
             </div>
           </div>
         </div>
