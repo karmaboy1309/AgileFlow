@@ -65,7 +65,7 @@ router.post('/', async (req, res) => {
       projectId,
       startDate: startDate || null,
       releaseDate: releaseDate || null,
-      user: req.userId,
+      user: req.user.id,
     });
 
     await release.save();
