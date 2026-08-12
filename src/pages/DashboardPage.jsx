@@ -472,44 +472,91 @@ export default function DashboardPage() {
             </div>
 
             {showAnalytics && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 pt-2">
-                {/* Total Epics */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
-                  <p className="text-2xl font-bold text-theme-text">{analytics.totalEpics}</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Epics</p>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 pt-2">
+                <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                  {/* Total Epics */}
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
+                    <p className="text-2xl font-bold text-theme-text">{analytics.totalEpics}</p>
+                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Epics</p>
+                  </div>
+
+                  {/* Total Tasks */}
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
+                    <p className="text-2xl font-bold text-indigo-400">{analytics.totalTasks}</p>
+                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Tasks</p>
+                  </div>
+
+                  {/* Completion Rate */}
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
+                    <p className="text-2xl font-bold text-emerald-400">{analytics.overallProgress}%</p>
+                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">Completion Rate</p>
+                  </div>
+
+                  {/* In Progress */}
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
+                    <p className="text-2xl font-bold text-amber-400">{analytics.inProgressTasks}</p>
+                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">In Progress</p>
+                  </div>
+
+                  {/* High Priority */}
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
+                    <p className="text-2xl font-bold text-rose-400">{analytics.highPriorityTasks}</p>
+                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">High Priority</p>
+                  </div>
+
+                  {/* Overdue Tasks */}
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
+                    <p className={`text-2xl font-bold ${analytics.overdueTasks > 0 ? 'text-red-500' : 'text-slate-400'}`}>
+                      {analytics.overdueTasks}
+                    </p>
+                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">Overdue Tasks</p>
+                  </div>
                 </div>
 
-                {/* Total Tasks */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
-                  <p className="text-2xl font-bold text-indigo-400">{analytics.totalTasks}</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">Total Tasks</p>
-                </div>
+                {/* Workspace Health Indicator */}
+                {(() => {
+                  const overdue = analytics.overdueTasks || 0;
+                  const progress = analytics.overallProgress || 0;
+                  let healthScore = 100 - (overdue * 15);
+                  if (healthScore < 15) healthScore = 15;
 
-                {/* Completion Rate */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
-                  <p className="text-2xl font-bold text-emerald-400">{analytics.overallProgress}%</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">Completion Rate</p>
-                </div>
+                  let label = 'Healthy';
+                  let colorClass = 'text-emerald-400';
+                  let bgClass = 'bg-emerald-500/10 border-emerald-500/20';
 
-                {/* In Progress */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
-                  <p className="text-2xl font-bold text-amber-400">{analytics.inProgressTasks}</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">In Progress</p>
-                </div>
+                  if (overdue > 2 || progress < 25) {
+                    label = 'At Risk';
+                    colorClass = 'text-red-400';
+                    bgClass = 'bg-red-500/10 border-red-500/20';
+                  } else if (overdue > 0 || progress < 55) {
+                    label = 'Warning';
+                    colorClass = 'text-amber-400';
+                    bgClass = 'bg-amber-500/10 border-amber-500/20';
+                  }
 
-                {/* High Priority */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
-                  <p className="text-2xl font-bold text-rose-400">{analytics.highPriorityTasks}</p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">High Priority</p>
-                </div>
-
-                {/* Overdue Tasks */}
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3.5 text-center">
-                  <p className={`text-2xl font-bold ${analytics.overdueTasks > 0 ? 'text-red-500' : 'text-slate-400'}`}>
-                    {analytics.overdueTasks}
-                  </p>
-                  <p className="text-[11px] font-medium text-slate-500 mt-0.5">Overdue Tasks</p>
-                </div>
+                  return (
+                    <div className={`rounded-lg p-4 border flex flex-col justify-between ${bgClass} transition-all duration-300`}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-semibold text-slate-300">Workspace Health</span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colorClass} bg-white/[0.05]`}>
+                          {label}
+                        </span>
+                      </div>
+                      <div className="flex items-end gap-2.5 mt-0.5">
+                        <span className={`text-3xl font-extrabold font-mono ${colorClass}`}>{healthScore}%</span>
+                        <span className="text-[10px] text-slate-400 mb-1">Health Score</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-2 leading-tight">
+                        {label === 'Healthy' 
+                          ? 'Project health is excellent. All blockers resolved.'
+                          : label === 'Warning'
+                          ? 'Bottlenecks found. Resolve overdue tasks to restore index.'
+                          : 'Immediate review needed. High risk overdue items detected.'
+                        }
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </div>
