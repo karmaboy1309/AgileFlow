@@ -64,6 +64,11 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
   }, [menuOpen]);
 
   const epicColor = epic.color || '#6366f1';
+  const radius = 14;
+  const strokeWidth = 2.5;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
   return (
     <article
       id={`epic-card-${epic._id}`}
@@ -154,7 +159,7 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
       </div>
 
       {/* Color accent + title row */}
-      <div className="flex items-start justify-between mb-4 pr-6">
+      <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div
             className="w-3 h-10 rounded-full flex-shrink-0"
@@ -169,24 +174,41 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
             )}
           </div>
         </div>
-        <ArrowRight
-          size={16}
-          className="text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1 ml-2"
-        />
+        <div className="relative flex items-center justify-center flex-shrink-0 ml-2" title={`${progress}% completed`}>
+          <svg className="w-9 h-9 transform -rotate-90">
+            <circle
+              cx="18"
+              cy="18"
+              r={radius}
+              className="text-white/[0.06] stroke-current"
+              strokeWidth={strokeWidth}
+              fill="transparent"
+            />
+            <circle
+              cx="18"
+              cy="18"
+              r={radius}
+              className="stroke-current transition-all duration-700 ease-out"
+              strokeWidth={strokeWidth}
+              fill="transparent"
+              style={{
+                strokeDasharray: circumference,
+                strokeDashoffset: strokeDashoffset,
+                color: epic.color || '#6366f1',
+              }}
+            />
+          </svg>
+          <span className="absolute text-[8px] font-bold text-slate-300 font-mono">
+            {progress}%
+          </span>
+        </div>
       </div>
 
-      {/* Task count badge + progress bar */}
-      <div className="mb-3">
-        <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
-          <span>{doneCount} / {taskCount} tasks done</span>
-          <span style={{ color: epic.color || '#6366f1' }}>{progress}%</span>
-        </div>
-        <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${progress}%`, background: epic.color || '#6366f1' }}
-          />
-        </div>
+      {/* Task count statistics badges */}
+      <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-4 bg-white/[0.02] border border-white/[0.04] p-2 rounded-xl font-mono">
+        <div>Total: <span className="font-semibold text-slate-300">{taskCount}</span></div>
+        <div>Done: <span className="font-semibold text-emerald-400">{doneCount}</span></div>
+        <div>Open: <span className="font-semibold text-amber-400">{taskCount - doneCount}</span></div>
       </div>
 
       {/* Target Milestone Date Indicator */}
