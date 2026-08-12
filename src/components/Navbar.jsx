@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield, Palette, KeyRound } from 'lucide-react';
+import { Zap, LogOut, LayoutDashboard, User, X, Check, Shield, Palette, KeyRound, Keyboard, HelpCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authAPI } from '../api';
 
@@ -37,6 +37,7 @@ export default function Navbar({ title }) {
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [pwSaving, setPwSaving] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
   useEffect(() => {
     const selectedTheme = THEMES.find((t) => t.id === theme) || THEMES[0];
@@ -148,16 +149,27 @@ export default function Navbar({ title }) {
         )}
 
         {/* Global Search Bar */}
-        <div className="hidden sm:flex items-center relative w-48 md:w-64">
-          <input
-            type="text"
-            placeholder="Search issues... (Ctrl+K)"
-            onClick={() => {
-              toast('🔍 Global search drawer activated!', { id: 'search-toast' });
-            }}
-            className="w-full bg-white/[0.04] border border-white/[0.08] hover:border-white/10 rounded-xl py-1.5 pl-3 pr-8 text-xs text-slate-300 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors"
-          />
-          <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-600 bg-white/[0.03] px-1.5 py-0.5 rounded border border-white/[0.06] select-none">Ctrl K</kbd>
+        <div className="hidden sm:flex items-center gap-2">
+          <div className="relative w-48 md:w-64">
+            <input
+              type="text"
+              placeholder="Search issues... (Ctrl+K)"
+              onClick={() => {
+                toast('🔍 Global search drawer activated!', { id: 'search-toast' });
+              }}
+              readOnly
+              className="w-full bg-white/[0.04] border border-white/[0.08] hover:border-white/10 rounded-xl py-1.5 pl-3 pr-8 text-xs text-slate-300 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors cursor-pointer"
+            />
+            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-600 bg-white/[0.03] px-1.5 py-0.5 rounded border border-white/[0.06] select-none">Ctrl K</kbd>
+          </div>
+          <button
+            onClick={() => setShowShortcutsModal(true)}
+            type="button"
+            title="Global Keyboard Shortcuts Guide"
+            className="flex items-center justify-center w-8 h-8 rounded-xl border border-white/[0.08] hover:border-white/10 text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
+          >
+            <Keyboard size={15} />
+          </button>
         </div>
 
         {/* Right: theme + avatar + logout */}
@@ -422,6 +434,61 @@ export default function Navbar({ title }) {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+      {/* Keyboard Shortcuts Modal */}
+      {showShortcutsModal && (
+        <div
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowShortcutsModal(false)}
+        >
+          <div
+            className="animate-fade-in-up w-full max-w-sm rounded-2xl border border-white/[0.09] shadow-2xl p-6"
+            style={{ background: '#16161f' }}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.07] mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                  <Keyboard size={16} />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-white">Global Shortcuts</h3>
+                  <p className="text-xs text-slate-500">AgileFlow keyboard hotkeys</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowShortcutsModal(false)}
+                className="text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-2.5 text-xs">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Open Command Palette</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[10px] border border-white/10">Ctrl K</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Focus Search Bar</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[10px] border border-white/10">/</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Create New Epic (Dashboard)</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[10px] border border-white/10">E</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Create New Task (Board)</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[10px] border border-white/10">N</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                <span className="text-slate-300 font-medium">Dismiss Modals / Overlay</span>
+                <kbd className="px-2 py-1 rounded bg-white/[0.08] text-indigo-300 font-mono font-bold text-[10px] border border-white/10">Esc</kbd>
+              </div>
+            </div>
           </div>
         </div>
       )}
