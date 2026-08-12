@@ -36,6 +36,7 @@ export default function Navbar({ title }) {
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'security'
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [pwSaving, setPwSaving] = useState(false);
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
 
   useEffect(() => {
     const selectedTheme = THEMES.find((t) => t.id === theme) || THEMES[0];
@@ -162,20 +163,48 @@ export default function Navbar({ title }) {
         {/* Right: theme + avatar + logout */}
         <div className="flex items-center gap-3">
           {/* Theme selector */}
-          <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-white/[0.06]">
-            <Palette size={13} className="text-slate-400 ml-1.5 hidden sm:inline" />
-            <select
+          <div className="relative">
+            <button
               id="theme-selector-btn"
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              className="bg-transparent text-xs text-slate-300 font-medium px-2 py-0.5 rounded-lg focus:outline-none cursor-pointer"
+              onClick={() => setShowThemeDropdown((v) => !v)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-xs text-slate-300 font-medium transition-colors cursor-pointer"
             >
-              {THEMES.map((t) => (
-                <option key={t.id} value={t.id} style={{ background: '#1e1e2d', color: '#fff' }}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
+              <Palette size={14} className="text-indigo-400" />
+              <span>Theme: {THEMES.find((t) => t.id === theme)?.label || 'Dark'}</span>
+            </button>
+            {showThemeDropdown && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowThemeDropdown(false)} />
+                <div
+                  className="absolute right-0 top-10 z-20 rounded-xl border border-white/[0.08] shadow-2xl overflow-hidden py-1.5 animate-fade-in-up"
+                  style={{ background: '#16161f', minWidth: '160px' }}
+                >
+                  {THEMES.map((t) => {
+                    const isActive = t.id === theme;
+                    const dotColor = t.id === 'dark' ? '#6366f1' : t.id === 'midnight' ? '#3b82f6' : t.id === 'slate' ? '#64748b' : t.id === 'emerald' ? '#10b981' : '#e2e8f0';
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => {
+                          setTheme(t.id);
+                          setShowThemeDropdown(false);
+                        }}
+                        className={`flex items-center justify-between w-full px-4 py-2 text-xs transition-colors hover:bg-white/[0.05] ${
+                          isActive ? 'text-indigo-400 font-semibold' : 'text-slate-300 font-medium'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: dotColor }} />
+                          <span>{t.label}</span>
+                        </div>
+                        {isActive && <Check size={12} className="text-indigo-400" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
 
           {/* User profile avatar pill */}
