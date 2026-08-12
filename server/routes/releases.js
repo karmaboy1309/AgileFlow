@@ -100,7 +100,7 @@ router.put('/:id', async (req, res) => {
 // POST /api/releases/:id/release
 router.post('/:id/release', async (req, res) => {
   try {
-    const release = await Release.findOne({ _id: req.params.id, user: req.userId });
+    const release = await Release.findOne({ _id: req.params.id, user: req.user.id });
     if (!release) return res.status(404).json({ error: 'Release not found.' });
 
     release.status = 'Released';
