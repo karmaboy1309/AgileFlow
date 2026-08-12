@@ -63,15 +63,20 @@ function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
+  const epicColor = epic.color || '#6366f1';
   return (
     <article
       id={`epic-card-${epic._id}`}
-      className="glass-card p-6 cursor-pointer group relative"
+      className="glass-card p-6 cursor-pointer group relative epic-card-hover-glow"
       role="button"
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
       aria-label={`Open board for epic: ${epic.title}`}
+      style={{
+        '--epic-color-glow': `${epicColor}1a`,
+        '--epic-color-border': `${epicColor}60`,
+      }}
     >
       {/* Status badge */}
       {epic.status && epic.status !== 'active' && (

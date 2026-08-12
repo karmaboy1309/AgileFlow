@@ -463,3 +463,14 @@ body {
 .priority-low    { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
 .priority-medium { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
 .priority-high   { background: rgba(239, 68, 68, 0.15);  color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+/* ─── Premium UI/UX enhancements ────────────────────────────────────────────── */
+.epic-card-hover-glow {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.epic-card-hover-glow:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 12px 35px var(--epic-color-glow, rgba(99,102,241,0.15)) !important;
+  border-color: var(--epic-color-border, rgba(99,102,241,0.4)) !important;
+}
+
