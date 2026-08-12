@@ -58,6 +58,13 @@ const taskSchema = new mongoose.Schema(
       index: true,
     },
 
+    sprintId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Sprint',
+      default: null,
+      index: true,
+    },
+
     fixVersionId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Version',
