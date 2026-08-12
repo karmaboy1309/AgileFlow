@@ -61,6 +61,7 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
+  const epicColor = (task.epicId && typeof task.epicId === 'object' && task.epicId.color) || '#475569';
   return (
     <Draggable draggableId={task._id} index={index}>
       {(provided, snapshot) => (
@@ -68,7 +69,7 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
           ref={provided.innerRef}
           {...provided.draggableProps}
           id={`task-card-${task._id}`}
-          className={`group relative rounded-xl border p-4 mb-3 cursor-grab active:cursor-grabbing transition-all duration-200 ${
+          className={`group relative rounded-xl border p-4 mb-3 cursor-grab active:cursor-grabbing transition-all duration-200 task-card-epic-glow ${
             snapshot.isDragging ? 'task-card-dragging' : ''
           } ${selected ? 'border-indigo-500 bg-indigo-500/10' : ''}`}
           style={{
@@ -83,6 +84,9 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
               : snapshot.isDragging
               ? 'rgba(99,102,241,0.6)'
               : 'rgba(255,255,255,0.07)',
+            '--epic-color': epicColor,
+            '--epic-color-glow': `${epicColor}18`,
+            '--epic-color-border': `${epicColor}40`,
           }}
           aria-label={`Task: ${task.title}`}
         >

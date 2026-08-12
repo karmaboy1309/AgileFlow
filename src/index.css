@@ -474,3 +474,16 @@ body {
   border-color: var(--epic-color-border, rgba(99,102,241,0.4)) !important;
 }
 
+.task-card-epic-glow {
+  border-left-width: 4px !important;
+  border-left-color: var(--epic-color, rgba(255, 255, 255, 0.08)) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.task-card-epic-glow:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px var(--epic-color-glow, rgba(99, 102, 241, 0.08)) !important;
+  border-color: var(--epic-color-border, rgba(99, 102, 241, 0.25)) !important;
+  border-left-color: var(--epic-color, rgba(255, 255, 255, 0.08)) !important;
+}
+
+
