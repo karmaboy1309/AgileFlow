@@ -19,7 +19,7 @@ router.use(authGuard);
 router.get('/', async (req, res) => {
   try {
     const { projectId } = req.query;
-    const filter = { user: req.userId };
+    const filter = { user: req.user.id };
     if (projectId) filter.projectId = projectId;
 
     const releases = await Release.find(filter).sort({ releaseDate: 1, createdAt: -1 });
