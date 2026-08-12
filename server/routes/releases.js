@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { name, description, startDate, releaseDate, status } = req.body;
-    const release = await Release.findOne({ _id: req.params.id, user: req.userId });
+    const release = await Release.findOne({ _id: req.params.id, user: req.user.id });
     if (!release) return res.status(404).json({ error: 'Release not found.' });
 
     if (name !== undefined) release.name = name;
