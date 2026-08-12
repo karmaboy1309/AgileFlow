@@ -337,9 +337,12 @@ function KanbanColumn({
   isCollapsed,
   onToggleCollapse,
 }) {
+  const isWipExceeded = column.wipLimit && tasks.length > column.wipLimit;
   return (
     <div
-      className="flex flex-col rounded-2xl border border-white/[0.06] overflow-hidden"
+      className={`flex flex-col rounded-2xl overflow-hidden ${
+        isWipExceeded ? 'wip-exceeded-pulse' : 'border border-white/[0.06]'
+      }`}
       style={{
         background: 'rgba(255,255,255,0.02)',
         minHeight: '520px',
