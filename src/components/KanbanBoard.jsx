@@ -321,104 +321,155 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive, selected, onSelect
 }
 
 // ─── Column ───────────────────────────────────────────────────────────────────
-function KanbanColumn({ column, tasks, onAddTask, onDelete, onEdit, onArchive, selectedTaskIds, onSelectToggle }) {
+function KanbanColumn({
+  column,
+  tasks,
+  onAddTask,
+  onDelete,
+  onEdit,
+  onArchive,
+  selectedTaskIds,
+  onSelectToggle,
+  isCollapsed,
+  onToggleCollapse,
+}) {
   return (
     <div
       className="flex flex-col rounded-2xl border border-white/[0.06] overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.02)', minHeight: '520px' }}
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        minHeight: '520px',
+        flex: isCollapsed ? '0 0 60px' : '1 1 0%',
+        minWidth: isCollapsed ? '60px' : '280px',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
     >
-      {/* Column header */}
-      <div
-        className={`px-4 py-4 border-b border-white/[0.06] ${column.colorClass}`}
-        style={{ background: column.bgColor }}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span
-              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-              style={{ background: column.dotColor }}
-            />
-            <h2 className="text-sm font-semibold text-slate-200">{column.label}</h2>
-            <span
-              className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                column.wipLimit && tasks.length > column.wipLimit
-                  ? 'bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse font-bold'
-                  : ''
-              }`}
-              style={
-                column.wipLimit && tasks.length > column.wipLimit
-                  ? {}
-                  : { background: `${column.accentColor}20`, color: column.accentColor }
-              }
-            >
-              {tasks.length} {column.wipLimit ? `/ ${column.wipLimit} MAX` : ''}
-            </span>
-          </div>
-          {column.wipLimit && tasks.length > column.wipLimit && (
-            <span className="text-[10px] text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
-              WIP Exceeded!
-            </span>
-          )}
+      {isCollapsed ? (
+        <div className="flex-1 flex flex-col items-center py-4 justify-between h-full" style={{ background: column.bgColor }}>
           <button
-            id={`add-task-${column.id}-btn`}
-            onClick={() => onAddTask(column.id)}
-            className="text-slate-600 hover:text-slate-300 transition-colors rounded-lg p-1 hover:bg-white/05"
-            aria-label={`Add task to ${column.label}`}
+            onClick={onToggleCollapse}
+            className="text-slate-500 hover:text-slate-300 transition-colors p-1.5 hover:bg-white/05 rounded-lg cursor-pointer"
+            title="Expand column"
           >
-            <Plus size={16} />
+            <span className="text-xs font-bold font-mono">→</span>
+          </button>
+          <div
+            className="font-bold text-xs text-slate-400 select-none transform rotate-90 my-auto tracking-wide whitespace-nowrap"
+            style={{ writingMode: 'vertical-lr' }}
+          >
+            {column.label} ({tasks.length})
+          </div>
+          <button
+            onClick={() => onAddTask(column.id)}
+            className="text-slate-600 hover:text-slate-300 transition-colors p-1.5 hover:bg-white/05 rounded-lg cursor-pointer"
+            title={`Add task to ${column.label}`}
+          >
+            <Plus size={14} />
           </button>
         </div>
-      </div>
-
-      {/* Droppable task list */}
-      <Droppable droppableId={column.id}>
-        {(provided, snapshot) => (
+      ) : (
+        <>
+          {/* Column header */}
           <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className="flex-1 p-3 transition-colors duration-200 overflow-y-auto"
-            style={{
-              background: snapshot.isDraggingOver
-                ? `${column.accentColor}08`
-                : 'transparent',
-              minHeight: '420px',
-            }}
+            className={`px-4 py-4 border-b border-white/[0.06] ${column.colorClass}`}
+            style={{ background: column.bgColor }}
           >
-            {tasks.length === 0 && !snapshot.isDraggingOver && (
-              <div className="flex flex-col items-center justify-center h-32 text-slate-700 text-xs text-center px-4 mt-6">
-                <div
-                  className="w-12 h-12 rounded-xl border-2 border-dashed flex items-center justify-center mb-3"
-                  style={{ borderColor: `${column.accentColor}30` }}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <button
+                  onClick={onToggleCollapse}
+                  className="text-slate-500 hover:text-slate-300 transition-colors cursor-pointer mr-1 text-[10px] font-bold font-mono p-1 hover:bg-white/05 rounded"
+                  title="Collapse column"
                 >
-                  <Plus size={18} style={{ color: `${column.accentColor}50` }} />
-                </div>
-                <p style={{ color: `${column.accentColor}60` }}>
-                  Drop tasks here or click{' '}
-                  <button
-                    onClick={() => onAddTask(column.id)}
-                    className="underline hover:opacity-80"
-                  >
-                    + to add
-                  </button>
-                </p>
+                  ←
+                </button>
+                <span
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  style={{ background: column.dotColor }}
+                />
+                <h2 className="text-sm font-semibold text-slate-200 truncate">{column.label}</h2>
+                <span
+                  className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    column.wipLimit && tasks.length > column.wipLimit
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse font-bold'
+                      : ''
+                  }`}
+                  style={
+                    column.wipLimit && tasks.length > column.wipLimit
+                      ? {}
+                      : { background: `${column.accentColor}20`, color: column.accentColor }
+                  }
+                >
+                  {tasks.length} {column.wipLimit ? `/ ${column.wipLimit} MAX` : ''}
+                </span>
+              </div>
+              {column.wipLimit && tasks.length > column.wipLimit && (
+                <span className="text-[10px] text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+                  WIP Exceeded!
+                </span>
+              )}
+              <button
+                id={`add-task-${column.id}-btn`}
+                onClick={() => onAddTask(column.id)}
+                className="text-slate-600 hover:text-slate-300 transition-colors rounded-lg p-1 hover:bg-white/05"
+                aria-label={`Add task to ${column.label}`}
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Droppable task list */}
+          <Droppable droppableId={column.id}>
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="flex-1 p-3 transition-colors duration-200 overflow-y-auto"
+                style={{
+                  background: snapshot.isDraggingOver
+                    ? `${column.accentColor}08`
+                    : 'transparent',
+                  minHeight: '420px',
+                }}
+              >
+                {tasks.length === 0 && !snapshot.isDraggingOver && (
+                  <div className="flex flex-col items-center justify-center h-32 text-slate-700 text-xs text-center px-4 mt-6">
+                    <div
+                      className="w-12 h-12 rounded-xl border-2 border-dashed flex items-center justify-center mb-3"
+                      style={{ borderColor: `${column.accentColor}30` }}
+                    >
+                      <Plus size={18} style={{ color: `${column.accentColor}50` }} />
+                    </div>
+                    <p style={{ color: `${column.accentColor}60` }}>
+                      Drop tasks here or click{' '}
+                      <button
+                        onClick={() => onAddTask(column.id)}
+                        className="underline hover:opacity-80"
+                      >
+                        + to add
+                      </button>
+                    </p>
+                  </div>
+                )}
+                {tasks.map((task, index) => (
+                  <TaskCard
+                    key={task._id}
+                    task={task}
+                    index={index}
+                    onDelete={onDelete}
+                    onEdit={onEdit}
+                    onArchive={onArchive}
+                    selected={selectedTaskIds?.includes(task._id)}
+                    onSelectToggle={onSelectToggle}
+                  />
+                ))}
+                {provided.placeholder}
               </div>
             )}
-            {tasks.map((task, index) => (
-              <TaskCard
-                key={task._id}
-                task={task}
-                index={index}
-                onDelete={onDelete}
-                onEdit={onEdit}
-                onArchive={onArchive}
-                selected={selectedTaskIds?.includes(task._id)}
-                onSelectToggle={onSelectToggle}
-              />
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
+          </Droppable>
+        </>
+      )}
     </div>
   );
 }
@@ -495,6 +546,20 @@ export default function KanbanBoard({
   const [showArchiveVault, setShowArchiveVault] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds]       = useState([]);
+  const [collapsedCols, setCollapsedCols] = useState(() => {
+    try {
+      const saved = localStorage.getItem('agileflow_collapsed_columns');
+      return saved ? JSON.parse(saved) : { todo: false, 'in-progress': false, done: false };
+    } catch {
+      return { todo: false, 'in-progress': false, done: false };
+    }
+  });
+
+  const handleToggleCollapse = (colId) => {
+    const next = { ...collapsedCols, [colId]: !collapsedCols[colId] };
+    setCollapsedCols(next);
+    localStorage.setItem('agileflow_collapsed_columns', JSON.stringify(next));
+  };
   // Sort state — persisted so preference survives page refreshes
   const [sortBy, setSortBy]   = useState(() => localStorage.getItem('agileflow_sort') || 'order');
   const [sortDir, setSortDir] = useState(() => localStorage.getItem('agileflow_sort_dir') || 'asc');
@@ -949,7 +1014,7 @@ export default function KanbanBoard({
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="flex flex-col md:flex-row gap-5 items-stretch min-h-[520px]">
           {COLUMNS.map((col) => (
             <KanbanColumn
               key={col.id}
@@ -961,6 +1026,8 @@ export default function KanbanBoard({
               onArchive={handleArchiveTask}
               selectedTaskIds={selectedTaskIds}
               onSelectToggle={handleToggleSelectTask}
+              isCollapsed={!!collapsedCols[col.id]}
+              onToggleCollapse={() => handleToggleCollapse(col.id)}
             />
           ))}
         </div>
