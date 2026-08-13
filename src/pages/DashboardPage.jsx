@@ -41,7 +41,7 @@ function EpicSkeleton() {
 }
 
 // ─── Epic Card ─────────────────────────────────────────────────────────────────
-function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate }) {
+function EpicCard({ epic, onClick, onEdit, onDelete, onDuplicate, onArchive }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
