@@ -67,15 +67,18 @@ const taskSchema = new mongoose.Schema(
 
     fixVersionId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Version',
+      ref: 'Release',
+      default: null,
       index: true,
     },
 
-    componentIds: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Component',
-      index: true,
-    }],
+    componentIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Component',
+        index: true,
+      },
+    ],
 
     status: {
       type    : String,
@@ -138,21 +141,6 @@ const taskSchema = new mongoose.Schema(
           ref: 'Task',
           required: true,
         },
-      },
-    ],
-
-    // Fix Version / Release reference
-    fixVersionId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Release',
-      default: null,
-    },
-
-    // Component References
-    componentIds: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Component',
       },
     ],
 
@@ -279,7 +267,5 @@ taskSchema.index({ epicId: 1, createdAt: -1 });
 // ── Compound Indexes for Performance Tuning ─────────────────────────────
 taskSchema.index({ projectId: 1, status: 1 });
 taskSchema.index({ sprintId: 1, status: 1 });
-taskSchema.index({ epicId: 1, status: 1 });
-taskSchema.index({ issueKey: 1 });
 
 module.exports = mongoose.model('Task', taskSchema);
