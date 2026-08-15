@@ -85,12 +85,30 @@ export const projectsAPI = {
 
 export const sprintsAPI = {
   getAll: (projectId) => api.get(projectId ? `/sprints?projectId=${projectId}` : '/sprints'),
+  getActive: (projectId) => api.get(projectId ? `/sprints?status=active&projectId=${projectId}` : '/sprints?status=active'),
+  getById: (id) => api.get(`/sprints/${id}`),
   create: (data) => api.post('/sprints', data),
   update: (id, data) => api.put(`/sprints/${id}`, data),
   start: (id, data) => api.post(`/sprints/${id}/start`, data),
   complete: (id) => api.post(`/sprints/${id}/complete`),
   delete: (id) => api.delete(`/sprints/${id}`),
 };
+
+export const sprintAnalyticsAPI = {
+  getVelocity: (sprintId) => api.get(`/sprints/${sprintId}/velocity`),
+  getTeamCapacity: (sprintId) => api.get(`/sprints/${sprintId}/team-capacity`),
+};
+
+export const activityAPI = {
+  getForEntity: (entityType, entityId, limit = 50) =>
+    api.get(`/activity/entity/${entityType}/${entityId}?limit=${limit}`),
+  getUserFeed: (limit = 50) => api.get(`/activity/user?limit=${limit}`),
+  getProjectFeed: (limit = 100, action) =>
+    api.get(`/activity/feed?limit=${limit}${action ? `&action=${action}` : ''}`),
+  create: (data) => api.post('/activity', data),
+  delete: (id) => api.delete(`/activity/${id}`),
+};
+
 
 export const releasesAPI = {
   getAll: (projectId) => api.get(projectId ? `/releases?projectId=${projectId}` : '/releases'),

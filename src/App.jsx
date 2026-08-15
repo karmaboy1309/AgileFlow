@@ -12,6 +12,7 @@ import ReportsPage from './pages/ReportsPage';
 import ReleasePage from './pages/ReleasePage';
 import ProjectSettingsPage from './pages/ProjectSettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import SprintPage from './pages/SprintPage';
 
 // ─── Protected Route Guard ────────────────────────────────────────────────────
 function PrivateRoute({ children }) {
@@ -137,6 +138,16 @@ export default function App() {
             element={
               <PrivateRoute>
                 <ProjectSettingsPage />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Sprint detail page */}
+          <Route
+            path="/sprint/:sprintId"
+            element={
+              <PrivateRoute>
+                <SprintPage />
               </PrivateRoute>
             }
           />
