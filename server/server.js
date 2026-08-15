@@ -40,6 +40,11 @@ const gadgetRoutes       = require('./routes/gadgets');
 const webhookRoutes      = require('./routes/webhooks');
 const auditRoutes        = require('./routes/audit');
 const releaseRoutes   = require('./routes/releases');
+const activityRoutes  = require('./routes/activity');
+const labelRoutes     = require('./routes/labels');
+const sprintAnalyticsRoutes = require('./routes/sprint-analytics');
+const performanceRoutes = require('./routes/performance');
+const forecastRoutes  = require('./routes/forecast');
 
 
 // ─── App Initialisation ───────────────────────────────────────────────────────
@@ -193,6 +198,11 @@ app.use('/api/gadgets',       gadgetRoutes);          // Workspace Dashboard Gad
 app.use('/api/webhooks',      webhookRoutes);         // External Webhooks Trigger
 app.use('/api/audit',         auditRoutes);           // System Audit Logs
 app.use('/api/releases', releaseRoutes);             // GET/POST/PUT/DELETE /api/releases
+app.use('/api/activity',      activityRoutes);        // Activity log feed
+app.use('/api/labels',        labelRoutes);           // Cross-project label management
+app.use('/api/sprints',       sprintAnalyticsRoutes); // Sprint velocity & team capacity (extends sprint routes)
+app.use('/api/reports',       performanceRoutes);     // Assignee performance metrics
+app.use('/api/tasks',         forecastRoutes);        // Estimated completion forecasting
 
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
