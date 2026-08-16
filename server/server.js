@@ -45,6 +45,13 @@ const labelRoutes     = require('./routes/labels');
 const sprintAnalyticsRoutes = require('./routes/sprint-analytics');
 const performanceRoutes = require('./routes/performance');
 const forecastRoutes  = require('./routes/forecast');
+const commentsRoutes      = require('./routes/comments');
+const customFieldsRoutes  = require('./routes/custom-fields');
+const integrationsRoutes  = require('./routes/integrations');
+const retrospectivesRoutes = require('./routes/retrospectives');
+const analyticsRoutes     = require('./routes/analytics');
+const requestLogger       = require('./middleware/requestLogger');
+const { initWebhookDispatcher } = require('./utils/webhookDispatcher');
 
 
 // ─── App Initialisation ───────────────────────────────────────────────────────
@@ -152,11 +159,8 @@ app.use(express.json({ limit: '2mb' }));             // Parse application/json b
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));  // Parse URL-encoded bodies
 app.use(mongoSanitize());            // Sanitize input data to prevent NoSQL query injection
 
-// ─── Request Logger (development convenience) ─────────────────────────────────
-app.use((req, _res, next) => {
-  console.log(`[${new Date().toISOString()}]  ${req.method}  ${req.originalUrl}`);
-  next();
-});
+// ─── Request Logger ──────────────────────────────────────────────────────────
+app.use(requestLogger);
 
 // ─── Health-check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
@@ -203,6 +207,14 @@ app.use('/api/labels',        labelRoutes);           // Cross-project label man
 app.use('/api/sprints',       sprintAnalyticsRoutes); // Sprint velocity & team capacity (extends sprint routes)
 app.use('/api/reports',       performanceRoutes);     // Assignee performance metrics
 app.use('/api/tasks',         forecastRoutes);        // Estimated completion forecasting
+app.use('/api/comments',      commentsRoutes);         // Threaded comments with reactions
+app.use('/api/custom-fields', customFieldsRoutes);     // Per-project custom field definitions
+app.use('/api/integrations',  integrationsRoutes);     // Webhook integration management
+app.use('/api/retrospectives', retrospectivesRoutes);  // Sprint retrospective boards
+app.use('/api/analytics',     analyticsRoutes);        // CFD and throughput analytics
+
+// ─── Initialize background workers ───────────────────────────────────────────
+initWebhookDispatcher();
 
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
