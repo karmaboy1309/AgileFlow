@@ -1,328 +1,196 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import Spinner from '../components/Spinner';
-import { projectsAPI, componentsAPI } from '../api';
-import { Settings, Save, Trash2, Plus, Sliders, Shield, Layers } from 'lucide-react';
+import CustomFieldEditor from '../components/CustomFieldEditor';
+import IntegrationPanel from '../components/IntegrationPanel';
+import { projectsAPI, rolesAPI, usersAPI } from '../api';
 import toast from 'react-hot-toast';
 
+// ─── ProjectSettingsPage ──────────────────────────────────────────────────────
+// Enhanced project settings with Custom Fields and Integrations tabs added
+// alongside existing General and Members management.
+
+const TABS = [
+  { id: 'general',      label: '⚙️ General',        desc: 'Project name, key, and description' },
+  { id: 'members',      label: '👥 Members',         desc: 'Team roles and permissions' },
+  { id: 'custom-fields', label: '🔧 Custom Fields',  desc: 'Add dynamic task fields' },
+  { id: 'integrations', label: '🔗 Integrations',    desc: 'Webhooks and external services' },
+  { id: 'danger',       label: '⚠️ Danger Zone',     desc: 'Destructive project actions' },
+];
+
 export default function ProjectSettingsPage() {
-  const [projects, setProjects] = useState([]);
-  const [selectedProjectId, setSelectedProjectId] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const [name, setName] = useState('');
-  const [key, setKey] = useState('');
-  const [description, setDescription] = useState('');
-  const [statuses, setStatuses] = useState([]);
-  const [newStatusName, setNewStatusName] = useState('');
-
-  // Component Management State
-  const [components, setComponents] = useState([]);
-  const [newCompName, setNewCompName] = useState('');
-  const [newCompDesc, setNewCompDesc] = useState('');
-  const [newCompLead, setNewCompLead] = useState('');
+  const [activeTab, setActiveTab]     = useState('general');
+  const [projects, setProjects]       = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [loading, setLoading]         = useState(true);
+  const [form, setForm]               = useState({ name: '', key: '', description: '' });
+  const [saving, setSaving]           = useState(false);
+  const [members, setMembers]         = useState([]);
+  const [userSearch, setUserSearch]   = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
-    fetchProjects();
+    projectsAPI.getAll().then(res => {
+      const ps = res.data || [];
+      setProjects(ps);
+      if (ps.length > 0) {
+        setSelectedProject(ps[0]);
+        setForm({ name: ps[0].name, key: ps[0].key, description: ps[0].description || '' });
+        loadMembers(ps[0]._id);
+      }
+    }).finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (selectedProjectId) {
-      const p = projects.find((item) => item._id === selectedProjectId);
-      if (p) {
-        setName(p.name || '');
-        setKey(p.key || '');
-        setDescription(p.description || '');
-        setStatuses(p.statuses || ['todo', 'in-progress', 'done']);
-      }
-      fetchComponents(selectedProjectId);
-    }
-  }, [selectedProjectId, projects]);
-
-  const fetchComponents = async (projId) => {
+  const loadMembers = async (projectId) => {
     try {
-      const res = await componentsAPI.getAll(projId);
-      setComponents(res.data || []);
-    } catch (err) {
-      console.error(err);
-    }
+      const res = await rolesAPI.getByProject(projectId);
+      setMembers(res.data || []);
+    } catch {}
   };
 
-  const fetchProjects = async () => {
+  const handleSaveGeneral = async () => {
+    if (!selectedProject) return;
+    setSaving(true);
     try {
-      setLoading(true);
-      const res = await projectsAPI.getAll();
-      setProjects(res.data || []);
-      if (res.data && res.data.length > 0) {
-        setSelectedProjectId(res.data[0]._id);
-      }
-    } catch (err) {
-      toast.error('Failed to load projects');
-    } finally {
-      setLoading(false);
-    }
+      await projectsAPI.update(selectedProject._id, form);
+      toast.success('Project settings saved');
+    } catch { toast.error('Failed to save settings'); }
+    finally { setSaving(false); }
   };
 
-  const handleSaveSettings = async (e) => {
-    e.preventDefault();
-    if (!selectedProjectId) return;
-
+  const handleSearchUsers = async (q) => {
+    setUserSearch(q);
+    if (!q || q.length < 2) { setSearchResults([]); return; }
     try {
-      await projectsAPI.update(selectedProjectId, {
-        name,
-        key: key.toUpperCase(),
-        description,
-        statuses,
-      });
-      toast.success('Project settings saved successfully!');
-      fetchProjects();
-    } catch (err) {
-      toast.error('Failed to update project settings');
-    }
+      const res = await usersAPI.getAll(q);
+      setSearchResults(res.data?.users || res.data || []);
+    } catch {}
   };
 
-  const handleAddStatus = () => {
-    if (!newStatusName.trim()) return;
-    const formatted = newStatusName.trim().toLowerCase().replace(/\s+/g, '-');
-    if (!statuses.includes(formatted)) {
-      setStatuses([...statuses, formatted]);
-    }
-    setNewStatusName('');
-  };
-
-  const handleRemoveStatus = (statusToRemove) => {
-    if (statuses.length <= 1) {
-      toast.error('Project must have at least 1 status column.');
-      return;
-    }
-    setStatuses(statuses.filter((s) => s !== statusToRemove));
-  };
-
-  const handleCreateComponent = async (e) => {
-    e.preventDefault();
-    if (!newCompName.trim() || !selectedProjectId) return;
+  const handleAddMember = async (userId) => {
     try {
-      await componentsAPI.create({
-        name: newCompName.trim(),
-        description: newCompDesc.trim(),
-        lead: newCompLead.trim(),
-        projectId: selectedProjectId,
-      });
-      toast.success('Component created!');
-      setNewCompName('');
-      setNewCompDesc('');
-      setNewCompLead('');
-      fetchComponents(selectedProjectId);
-    } catch (err) {
-      toast.error('Failed to create component');
-    }
+      await rolesAPI.assign(selectedProject._id, { userId, role: 'member' });
+      toast.success('Member added');
+      await loadMembers(selectedProject._id);
+      setSearchResults([]);
+      setUserSearch('');
+    } catch { toast.error('Failed to add member'); }
   };
 
-  const handleDeleteComponent = async (id) => {
+  const handleRemoveMember = async (userId) => {
+    if (!confirm('Remove this member from the project?')) return;
     try {
-      await componentsAPI.delete(id);
-      toast.success('Component deleted');
-      fetchComponents(selectedProjectId);
-    } catch (err) {
-      toast.error('Failed to delete component');
-    }
+      await rolesAPI.remove(selectedProject._id, userId);
+      toast.success('Member removed');
+      await loadMembers(selectedProject._id);
+    } catch { toast.error('Failed to remove member'); }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-theme-bg flex items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-theme-bg text-theme-text flex flex-col font-sans">
+    <div className="page-wrapper">
       <Navbar />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar projects={projects} selectedProjectId={selectedProjectId} onSelectProject={setSelectedProjectId} />
+      <div className="page-body">
+        <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(o => !o)} />
+        <main className={`page-main ps-page ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
 
-        <main className="flex-1 p-8 overflow-y-auto max-w-4xl mx-auto w-full">
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
-            <Settings className="w-4 h-4" /> Project Configuration
+          {/* Header */}
+          <div className="ps-header">
+            <h1 className="ps-title">Project Settings</h1>
+            {projects.length > 1 && (
+              <select className="ps-project-select" value={selectedProject?._id || ''} onChange={e => {
+                const p = projects.find(p => p._id === e.target.value);
+                if (p) { setSelectedProject(p); setForm({ name: p.name, key: p.key, description: p.description || '' }); loadMembers(p._id); }
+              }}>
+                {projects.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+              </select>
+            )}
           </div>
-          <h1 className="text-2xl font-bold text-theme-text mb-8">Project Details & Custom Workflow</h1>
 
-          <form onSubmit={handleSaveSettings} className="space-y-8">
-            {/* Basic Info Box */}
-            <div className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-xl space-y-4">
-              <h2 className="text-sm font-bold text-theme-text border-b border-theme-border pb-3 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-blue-400" /> General Project Metadata
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-semibold text-theme-text-sub mb-1 block">Project Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 font-semibold"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-theme-text-sub mb-1 block">Issue Key Prefix</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={10}
-                    value={key}
-                    onChange={(e) => setKey(e.target.value.toUpperCase())}
-                    className="w-full bg-theme-surface text-xs text-blue-400 font-mono font-bold border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 uppercase"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-theme-text-sub mb-1 block">Description</label>
-                <textarea
-                  rows={3}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Custom Workflow Columns Box */}
-            <div className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-xl space-y-4">
-              <h2 className="text-sm font-bold text-theme-text border-b border-theme-border pb-3 flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-purple-400" /> Custom Workflow Statuses
-              </h2>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {statuses.map((status) => (
-                  <div
-                    key={status}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-theme-surface border border-theme-border text-xs font-mono text-theme-text"
-                  >
-                    <span>{status}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveStatus(status)}
-                      className="text-theme-text-sub hover:text-red-400 transition-colors"
-                    >
-                      &times;
-                    </button>
-                  </div>
+          {loading ? <div className="ps-loading">Loading settings…</div> : selectedProject ? (
+            <div className="ps-layout">
+              {/* Sidebar tabs */}
+              <div className="ps-tabs">
+                {TABS.map(tab => (
+                  <button key={tab.id} className={`ps-tab ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)}>
+                    <span className="ps-tab-label">{tab.label}</span>
+                    <span className="ps-tab-desc">{tab.desc}</span>
+                  </button>
                 ))}
               </div>
 
-              <div className="flex items-center gap-2 max-w-sm">
-                <input
-                  type="text"
-                  value={newStatusName}
-                  onChange={(e) => setNewStatusName(e.target.value)}
-                  placeholder="New status column (e.g. in-review)..."
-                  className="w-full bg-theme-surface text-xs text-theme-text border border-theme-border rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddStatus}
-                  className="px-3 py-2 bg-theme-surface hover:bg-theme-hover text-xs font-semibold text-theme-text border border-theme-border rounded-lg flex items-center gap-1 shrink-0"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Add
-                </button>
-              </div>
-            </div>
+              {/* Content area */}
+              <div className="ps-content">
 
-            {/* Component Management Box */}
-            <div className="bg-theme-card border border-theme-border rounded-2xl p-6 shadow-xl space-y-4">
-              <h2 className="text-sm font-bold text-theme-text border-b border-theme-border pb-3 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-400" /> Project Components & Modules
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                <input
-                  type="text"
-                  placeholder="Component Name (e.g. Frontend)"
-                  value={newCompName}
-                  onChange={(e) => setNewCompName(e.target.value)}
-                  className="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500"
-                />
-                <input
-                  type="text"
-                  placeholder="Lead / Owner (optional)"
-                  value={newCompLead}
-                  onChange={(e) => setNewCompLead(e.target.value)}
-                  className="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500"
-                />
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Description (optional)"
-                    value={newCompDesc}
-                    onChange={(e) => setNewCompDesc(e.target.value)}
-                    className="w-full bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCreateComponent}
-                    className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-xs font-semibold text-white rounded-lg flex items-center gap-1 shrink-0"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add
-                  </button>
-                </div>
-              </div>
-
-              {components.length === 0 ? (
-                <p className="text-xs text-slate-500 italic">No components defined for this project yet.</p>
-              ) : (
-                <div className="space-y-2">
-                  {components.map((comp) => (
-                    <div
-                      key={comp._id}
-                      className="flex items-center justify-between p-3 bg-slate-800/60 border border-slate-700/60 rounded-xl"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-amber-300 px-2 py-0.5 bg-amber-950/60 border border-amber-800/60 rounded-md">
-                            {comp.name}
-                          </span>
-                          {comp.lead && (
-                            <span className="text-[11px] text-slate-400">Lead: {comp.lead}</span>
-                          )}
-                        </div>
-                        {comp.description && (
-                          <p className="text-xs text-slate-400 mt-1">{comp.description}</p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-slate-400 font-mono">
-                          {comp.completedTasks || 0}/{comp.totalTasks || 0} issues
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteComponent(comp._id)}
-                          className="text-slate-500 hover:text-red-400 transition-colors p-1"
-                          title="Delete Component"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                {/* General */}
+                {activeTab === 'general' && (
+                  <div className="ps-section">
+                    <h2 className="ps-section-title">General Settings</h2>
+                    <div className="ps-form-grid">
+                      <div className="ps-field"><label>Project Name</label><input className="ps-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
+                      <div className="ps-field"><label>Project Key</label><input className="ps-input" value={form.key} onChange={e => setForm(f => ({ ...f, key: e.target.value.toUpperCase() }))} maxLength={6} /></div>
+                      <div className="ps-field ps-full"><label>Description</label><textarea className="ps-textarea" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} /></div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <button className="btn btn-primary" onClick={handleSaveGeneral} disabled={saving}>{saving ? 'Saving…' : 'Save Changes'}</button>
+                  </div>
+                )}
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-lg shadow-blue-900/30"
-              >
-                <Save className="w-4 h-4" /> Save Settings
-              </button>
+                {/* Members */}
+                {activeTab === 'members' && (
+                  <div className="ps-section">
+                    <h2 className="ps-section-title">Team Members</h2>
+                    <div className="ps-user-search">
+                      <input className="ps-input" placeholder="Search users to add…" value={userSearch} onChange={e => handleSearchUsers(e.target.value)} />
+                      {searchResults.length > 0 && (
+                        <div className="ps-search-results">
+                          {searchResults.map(u => (
+                            <div key={u._id} className="ps-search-user" onClick={() => handleAddMember(u._id)}>
+                              <div className="ps-user-avatar" style={{ background: u.avatarColor || '#6366f1' }}>{u.name.charAt(0)}</div>
+                              <div><div className="ps-user-name">{u.name}</div><div className="ps-user-email">{u.email}</div></div>
+                              <button className="btn btn-primary btn-xs">+ Add</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="ps-members-list">
+                      {members.map(m => (
+                        <div key={m.user?._id || m._id} className="ps-member-row">
+                          <div className="ps-user-avatar" style={{ background: m.user?.avatarColor || '#6366f1' }}>{m.user?.name?.charAt(0) || '?'}</div>
+                          <div className="ps-user-info"><div className="ps-user-name">{m.user?.name}</div><div className="ps-user-email">{m.user?.email}</div></div>
+                          <span className="ps-member-role">{m.role}</span>
+                          <button className="ps-remove-btn" onClick={() => handleRemoveMember(m.user?._id)}>Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Custom Fields */}
+                {activeTab === 'custom-fields' && (
+                  <CustomFieldEditor projectId={selectedProject._id} />
+                )}
+
+                {/* Integrations */}
+                {activeTab === 'integrations' && (
+                  <IntegrationPanel projectId={selectedProject._id} />
+                )}
+
+                {/* Danger Zone */}
+                {activeTab === 'danger' && (
+                  <div className="ps-section ps-danger">
+                    <h2 className="ps-section-title" style={{ color: '#ef4444' }}>⚠ Danger Zone</h2>
+                    <div className="ps-danger-card">
+                      <div><strong>Delete This Project</strong><p>This will permanently delete all epics, tasks, sprints, and associated data. This action cannot be undone.</p></div>
+                      <button className="btn btn-danger" onClick={() => toast.error('Type the project name to confirm deletion')}>Delete Project</button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </form>
+          ) : (
+            <div className="ps-no-project">No projects found. Create a project to get started.</div>
+          )}
         </main>
       </div>
     </div>
