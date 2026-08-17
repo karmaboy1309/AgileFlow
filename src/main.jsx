@@ -8,3 +8,11 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>
 );
+
+if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('SW Registered', reg))
+      .catch(err => console.error('SW Registration Failed', err));
+  });
+}
