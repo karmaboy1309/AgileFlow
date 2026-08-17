@@ -116,22 +116,26 @@ export default function BoardPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-theme-bg text-theme-text">
-      <Navbar title={epic?.title || 'Board'} />
+  const [focusMode, setFocusMode] = useState(false);
 
-      <main className="max-w-screen-xl mx-auto px-6 py-8">
+  return (
+    <div className={`min-h-screen bg-theme-bg text-theme-text ${focusMode ? 'focus-mode-active' : ''}`}>
+      {!focusMode && <Navbar title={epic?.title || 'Board'} />}
+
+      <main className={`max-w-screen-xl mx-auto px-6 ${focusMode ? 'py-4' : 'py-8'}`}>
         {/* Breadcrumb / header */}
         <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
           <div>
-            <button
-              id="board-back-to-dashboard-btn"
-              onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors mb-3 group"
-            >
-              <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
-              Back to Dashboard
-            </button>
+            {!focusMode && (
+              <button
+                id="board-back-to-dashboard-btn"
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors mb-3 group"
+              >
+                <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
+                Back to Dashboard
+              </button>
+            )}
 
             {epic ? (
               <div className="flex items-center gap-3">
@@ -151,15 +155,23 @@ export default function BoardPage() {
             )}
           </div>
 
-          <button
-            id="board-refresh-btn"
-            onClick={fetchData}
-            title="Refresh board"
-            className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300 border border-white/[0.07] px-3 py-2 rounded-xl hover:bg-white/[0.04] transition-colors"
-          >
-            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setFocusMode(f => !f)}
+              className={`flex items-center gap-2 text-xs border border-white/[0.07] px-3 py-2 rounded-xl transition-colors ${focusMode ? 'bg-[#6366f122] text-[#6366f1] border-[#6366f1]' : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'}`}
+            >
+              🔍 {focusMode ? 'Exit Focus' : 'Focus Mode'}
+            </button>
+            <button
+              id="board-refresh-btn"
+              onClick={fetchData}
+              title="Refresh board"
+              className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300 border border-white/[0.07] px-3 py-2 rounded-xl hover:bg-white/[0.04] transition-colors"
+            >
+              <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+          </div>
         </div>
 
         {/* Board content */}
