@@ -13,6 +13,12 @@ import ReleasePage from './pages/ReleasePage';
 import ProjectSettingsPage from './pages/ProjectSettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import SprintPage from './pages/SprintPage';
+import PersonalDashboardPage from './pages/PersonalDashboardPage';
+import TimelinePage from './pages/TimelinePage';
+import RetrospectivePage from './pages/RetrospectivePage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import OKRsPage from './pages/OKRsPage';
+import ReleaseNotesPage from './pages/ReleaseNotesPage';
 
 // ─── Protected Route Guard ────────────────────────────────────────────────────
 function PrivateRoute({ children }) {
@@ -148,6 +154,55 @@ export default function App() {
             element={
               <PrivateRoute>
                 <SprintPage />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/personal-dashboard"
+            element={
+              <PrivateRoute>
+                <PersonalDashboardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/timeline"
+            element={
+              <PrivateRoute>
+                <TimelinePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/retro"
+            element={
+              <PrivateRoute>
+                <RetrospectivePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <PrivateRoute>
+                <AnalyticsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/okrs"
+            element={
+              <PrivateRoute>
+                <OKRsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/release-notes"
+            element={
+              <PrivateRoute>
+                <ReleaseNotesPage />
               </PrivateRoute>
             }
           />
