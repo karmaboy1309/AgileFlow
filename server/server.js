@@ -50,6 +50,11 @@ const customFieldsRoutes  = require('./routes/custom-fields');
 const integrationsRoutes  = require('./routes/integrations');
 const retrospectivesRoutes = require('./routes/retrospectives');
 const analyticsRoutes     = require('./routes/analytics');
+const okrsRoutes          = require('./routes/okrs');
+const releaseNotesRoutes  = require('./routes/release-notes');
+const timeTrackingRoutes  = require('./routes/time-tracking');
+const predictionsRoutes   = require('./routes/predictions');
+const attachmentsRoutes   = require('./routes/attachments');
 const requestLogger       = require('./middleware/requestLogger');
 const { initWebhookDispatcher } = require('./utils/webhookDispatcher');
 
@@ -212,6 +217,11 @@ app.use('/api/custom-fields', customFieldsRoutes);     // Per-project custom fie
 app.use('/api/integrations',  integrationsRoutes);     // Webhook integration management
 app.use('/api/retrospectives', retrospectivesRoutes);  // Sprint retrospective boards
 app.use('/api/analytics',     analyticsRoutes);        // CFD and throughput analytics
+app.use('/api/okrs',          okrsRoutes);             // Objectives and Key Results API
+app.use('/api/release-notes', releaseNotesRoutes);     // Categorized release changelogs
+app.use('/api/time-tracking', timeTrackingRoutes);     // Billable vs non-billable summary tracking
+app.use('/api/predictions',   predictionsRoutes);      // Predictive sprint estimation completion
+app.use('/api/attachments',   attachmentsRoutes);      // Comment attachments metadata CRUD
 
 // ─── Initialize background workers ───────────────────────────────────────────
 initWebhookDispatcher();
