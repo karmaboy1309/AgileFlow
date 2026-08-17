@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const mongoose = require('mongoose');
 
@@ -23,6 +23,15 @@ const worklogSchema = new mongoose.Schema(
     startDate: {
       type: Date,
       default: Date.now,
+    },
+    isBillable: {
+      type: Boolean,
+      default: true,
+    },
+    category: {
+      type: String,
+      enum: ['development', 'design', 'testing', 'documentation', 'meetings', 'deployment', 'research', 'other'],
+      default: 'development',
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
