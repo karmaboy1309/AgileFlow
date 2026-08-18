@@ -55,6 +55,7 @@ const releaseNotesRoutes  = require('./routes/release-notes');
 const timeTrackingRoutes  = require('./routes/time-tracking');
 const predictionsRoutes   = require('./routes/predictions');
 const attachmentsRoutes   = require('./routes/attachments');
+const maintenanceRoutes   = require('./routes/maintenance');
 const requestLogger       = require('./middleware/requestLogger');
 const { initWebhookDispatcher } = require('./utils/webhookDispatcher');
 
@@ -222,6 +223,7 @@ app.use('/api/release-notes', releaseNotesRoutes);     // Categorized release ch
 app.use('/api/time-tracking', timeTrackingRoutes);     // Billable vs non-billable summary tracking
 app.use('/api/predictions',   predictionsRoutes);      // Predictive sprint estimation completion
 app.use('/api/attachments',   attachmentsRoutes);      // Comment attachments metadata CRUD
+app.use('/api/maintenance',   maintenanceRoutes);      // System maintenance health diagnostics logs
 
 // ─── Initialize background workers ───────────────────────────────────────────
 initWebhookDispatcher();
