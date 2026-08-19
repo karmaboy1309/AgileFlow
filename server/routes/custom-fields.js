@@ -76,4 +76,16 @@ router.put('/reorder', auth, async (req, res) => {
   }
 });
 
+// ─── GET /api/custom-fields/export/:projectId ─────────────────────────────────
+router.get('/export/:projectId', auth, async (req, res) => {
+  try {
+    const fields = await CustomField.find({ project: req.params.projectId, isArchived: false }).lean();
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=custom-fields-${req.params.projectId}.json`);
+    res.json(fields);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
